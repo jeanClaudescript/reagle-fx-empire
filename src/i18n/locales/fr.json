@@ -1,0 +1,122 @@
+{
+  "nav": {
+    "home": "Accueil",
+    "about": "À propos",
+    "results": "Résultats",
+    "lessons": "Leçons",
+    "videos": "Vidéos",
+    "community": "Communauté",
+    "contact": "Contact"
+  },
+  "hero": {
+    "badge": "Reagle FX Empire",
+    "headline": "Maîtrisez le Trading Forex en Toute Confiance",
+    "subheadline": "Apprenez des stratégies intelligentes, l'analyse de marché et la gestion des risques avec CoachPeter et Reagle FX Empire.",
+    "ctaWhatsapp": "Rejoindre WhatsApp",
+    "ctaResults": "Voir les Résultats",
+    "statFollowers": "3000+ Abonnés",
+    "statCommunity": "Communauté Active",
+    "statMentorship": "Mentorat en Direct",
+    "statBeginner": "Débutants Bienvenus",
+    "profitLabel": "Croissance Hebdo",
+    "profitValue": "+24,8%",
+    "sessionLabel": "Sessions Live",
+    "sessionValue": "Quotidien"
+  },
+  "about": {
+    "label": "À propos de Reagle FX Empire",
+    "title": "Former des Traders Disciplinés et Gagnants",
+    "story": "CoachPeter a fondé Reagle FX Empire pour transformer les débutants en traders forex confiants et disciplinés. De Kigali au monde entier, son mentorat allie expérience réelle et esprit communautaire.",
+    "mission": "Notre mission est de démocratiser l'éducation forex professionnelle — rendre les stratégies institutionnelles accessibles à chaque trader ambitieux en Afrique et au-delà.",
+    "experience": "Avec des années d'exécution en direct et des centaines d'étudiants guidés dans des conditions volatiles, CoachPeter offre un mentorat pratique, honnête et orienté résultats.",
+    "philosophy": "Tradez avec un plan. Protégez votre capital. Grandissez en communauté. C'est la voie Reagle FX Empire.",
+    "statYears": "Années de Trading",
+    "statStudents": "Étudiants Mentorés",
+    "statGrowth": "Croissance Communauté",
+    "statSessions": "Sessions Live",
+    "yearsValue": "8+",
+    "studentsValue": "500+",
+    "growthValue": "3000+",
+    "sessionsValue": "200+"
+  },
+  "results": {
+    "label": "Résultats Prouvés",
+    "title": "Vrais Profits. Vrais Étudiants. Vrai Empire.",
+    "subtitle": "Profits MT5, retraits vérifiés et victoires d'étudiants de la communauté Reagle FX.",
+    "mt5": "Profits MT5",
+    "withdrawals": "Retraits",
+    "studentWins": "Victoires Étudiants",
+    "testimonials": "Témoignages",
+    "testimonial1": "CoachPeter a changé ma vision du marché. Je suis passé des pertes aux profits hebdomadaires constants.",
+    "testimonial2": "Le soutien communautaire est inégalé. Les sessions live et la responsabilité ont fait la différence.",
+    "testimonial3": "Reagle FX Empire m'a donné structure, discipline et confiance pour trader le forex professionnellement.",
+    "author1": "Jean — Kigali",
+    "author2": "Sarah — Nairobi",
+    "author3": "David — Kampala",
+    "profitToday": "P/L du Jour",
+    "totalProfit": "Profit Total",
+    "winRate": "Taux de Réussite"
+  },
+  "videos": {
+    "label": "Reels Trading",
+    "title": "Apprenez en Déplacement",
+    "subtitle": "Éducation trading en format court — analyse de marché, sessions live et moments de mentorat.",
+    "reel1": "Analyse de Marché Live",
+    "reel2": "Conseils Gestion des Risques",
+    "reel3": "Histoire de Succès",
+    "reel4": "Perspective Hebdomadaire",
+    "reel5": "Psychologie du Trading",
+    "reel6": "Moments Communauté"
+  },
+  "lessons": {
+    "label": "Programme de Mentorat",
+    "title": "Ce Que Vous Maîtriserez",
+    "subtitle": "Leçons structurées pour former des traders confiants et rentables dès le premier jour.",
+    "risk": "Gestion des Risques",
+    "riskDesc": "Protégez votre capital avec le dimensionnement, les stop-loss et les règles de portefeuille.",
+    "technical": "Analyse Technique",
+    "technicalDesc": "Lisez les graphiques, identifiez les tendances et exécutez des setups à haute probabilité.",
+    "psychology": "Psychologie du Trading",
+    "psychologyDesc": "Maîtrisez vos émotions, développez la patience et un état d'esprit gagnant.",
+    "structure": "Structure de Marché",
+    "structureDesc": "Comprenez support, résistance, liquidité et flux institutionnel.",
+    "beginner": "Mentorat Débutant",
+    "beginnerDesc": "Guidance pas à pas de zéro à votre premier trade rentable.",
+    "live": "Sessions de Trading Live",
+    "liveDesc": "Tradez aux côtés de CoachPeter en temps réel avec commentaires complets."
+  },
+  "community": {
+    "label": "Rejoignez l'Empire",
+    "title": "Rejoignez la Communauté Reagle FX Empire",
+    "subtitle": "Connectez-vous avec des traders, signaux quotidiens, mentorat live et contenu exclusif.",
+    "whatsapp": "Communauté WhatsApp",
+    "instagram": "Suivre sur Instagram",
+    "facebook": "Reagle FX Empire",
+    "joinNow": "Rejoindre — C'est Gratuit",
+    "members": "3 000+ Membres",
+    "activeDaily": "Actif Quotidiennement"
+  },
+  "contact": {
+    "label": "Contactez-nous",
+    "title": "Commencez Votre Parcours Trading",
+    "subtitle": "Contactez-nous aujourd'hui et faites le premier pas vers la maîtrise du forex.",
+    "location": "Localisation",
+    "website": "Site Web",
+    "messageUs": "Message sur WhatsApp"
+  },
+  "footer": {
+    "tagline": "Mentorat forex premium. Communauté puissante. Résultats prouvés.",
+    "quickLinks": "Liens Rapides",
+    "connect": "Connecter",
+    "rights": "Tous droits réservés."
+  },
+  "mobile": {
+    "joinWhatsapp": "Rejoindre WhatsApp"
+  },
+  "languages": {
+    "en": "English",
+    "rw": "Kinyarwanda",
+    "fr": "Français",
+    "sw": "Kiswahili"
+  }
+}

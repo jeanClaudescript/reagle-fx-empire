@@ -1,0 +1,122 @@
+{
+  "nav": {
+    "home": "Nyumbani",
+    "about": "Kuhusu",
+    "results": "Matokeo",
+    "lessons": "Masomo",
+    "videos": "Video",
+    "community": "Jumuiya",
+    "contact": "Wasiliana"
+  },
+  "hero": {
+    "badge": "Reagle FX Empire",
+    "headline": "Jifunze Biashara ya Forex kwa Ujasiri",
+    "subheadline": "Jifunze mikakati ya biashara, uchambuzi wa soko na usimamizi wa hatari na CoachPeter na Reagle FX Empire.",
+    "ctaWhatsapp": "Jiunge WhatsApp",
+    "ctaResults": "Tazama Matokeo",
+    "statFollowers": "3000+ Wafuasi",
+    "statCommunity": "Jumuiya Hai",
+    "statMentorship": "Uongozi wa Moja kwa Moja",
+    "statBeginner": "Rahisi kwa Wanaoanza",
+    "profitLabel": "Ukuaji wa Wiki",
+    "profitValue": "+24.8%",
+    "sessionLabel": "Vipindi Hai",
+    "sessionValue": "Kila Siku"
+  },
+  "about": {
+    "label": "Kuhusu Reagle FX Empire",
+    "title": "Kujenga Wafanyabiashara Wanaoshinda kwa Nidhamu",
+    "story": "CoachPeter alianzisha Reagle FX Empire kubadilisha wanaoanza kuwa wafanyabiashara wa forex wenye ujasiri na nidhamu. Kutoka Kigali hadi ulimwenguni, uongozi wake unachanganya uzoefu halisi na jumuiya.",
+    "mission": "Dhamira yetu ni kufanya elimu ya kitaalamu ya forex ipatikane kwa kila mfanyabiashara mwenye tamaa barani Afrika na zaidi.",
+    "experience": "Miaka ya utekelezaji wa soko hai na mamia ya wanafunzi waliopitia hali ngumu, CoachPeter anatoa uongozi wa vitendo na matokeo.",
+    "philosophy": "Biashara na mpango. Linda mtaji wako. Kua na jumuiya. Hiyo ndiyo njia ya Reagle FX Empire.",
+    "statYears": "Miaka ya Biashara",
+    "statStudents": "Wanafunzi Walioongozwa",
+    "statGrowth": "Ukuaji wa Jumuiya",
+    "statSessions": "Vipindi Hai",
+    "yearsValue": "8+",
+    "studentsValue": "500+",
+    "growthValue": "3000+",
+    "sessionsValue": "200+"
+  },
+  "results": {
+    "label": "Matokeo Yaliyothibitishwa",
+    "title": "Faida Halisi. Wanafunzi Halisi. Empire Halisi.",
+    "subtitle": "Faida za MT5, uondoaji uliohakikishwa, na ushindi wa wanafunzi kutoka jumuiya ya Reagle FX.",
+    "mt5": "Faida za MT5",
+    "withdrawals": "Uondoaji",
+    "studentWins": "Ushindi wa Wanafunzi",
+    "testimonials": "Ushuhuda",
+    "testimonial1": "CoachPeter alibadilisha jinsi ninavyoona soko. Nilipoteza hadi kupata faida za kila wiki.",
+    "testimonial2": "Msaada wa jumuiya haufanishwi. Vipindi hai na uwajibikaji vilifanya tofauti.",
+    "testimonial3": "Reagle FX Empire imenipa muundo, nidhamu na ujasiri wa kufanya biashara ya forex kitaalamu.",
+    "author1": "Jean — Kigali",
+    "author2": "Sarah — Nairobi",
+    "author3": "David — Kampala",
+    "profitToday": "Faida ya Leo",
+    "totalProfit": "Jumla ya Faida",
+    "winRate": "Kiwango cha Ushindi"
+  },
+  "videos": {
+    "label": "Reels za Biashara",
+    "title": "Jifunze Popote",
+    "subtitle": "Elimu fupi — uchambuzi wa soko, vipindi hai na matukio ya uongozi.",
+    "reel1": "Uchambuzi wa Soko Hai",
+    "reel2": "Vidokezo vya Usimamizi wa Hatari",
+    "reel3": "Hadithi ya Mafanikio ya Mwanafunzi",
+    "reel4": "Mtazamo wa Wiki",
+    "reel5": "Saikolojia ya Biashara",
+    "reel6": "Muhtasari wa Jumuiya"
+  },
+  "lessons": {
+    "label": "Programu ya Uongozi",
+    "title": "Utakachojifunza",
+    "subtitle": "Masomo yaliyopangwa kujenga wafanyabiashara wenye ujasiri tangu siku ya kwanza.",
+    "risk": "Usimamizi wa Hatari",
+    "riskDesc": "Linda mtaji kwa ukubwa wa nafasi, stop-loss na sheria za kwingineko.",
+    "technical": "Uchambuzi wa Kiufundi",
+    "technicalDesc": "Soma chati, tambua mienendo na tekeleza mipangilio ya uwezekano mkubwa.",
+    "psychology": "Saikolojia ya Biashara",
+    "psychologyDesc": "Dhibiti hisia, jenga uvumilivu na akili ya mshindi.",
+    "structure": "Muundo wa Soko",
+    "structureDesc": "Elewa msaada, upinzani, ukwasi na mtiririko wa taasisi.",
+    "beginner": "Uongozi wa Wanaoanza",
+    "beginnerDesc": "Mwongozo hatua kwa hatua kutoka sifuri hadi biashara yako ya kwanza yenye faida.",
+    "live": "Vipindi vya Biashara Hai",
+    "liveDesc": "Fanya biashara pamoja na CoachPeter kwa wakati halisi na maelezo kamili."
+  },
+  "community": {
+    "label": "Jiunge na Empire",
+    "title": "Jiunge na Jumuiya ya Reagle FX Empire",
+    "subtitle": "Ungana na wafanyabiashara, pata ishara za kila siku, uongozi hai na maudhui ya kipekee.",
+    "whatsapp": "Jumuiya ya WhatsApp",
+    "instagram": "Fuata Instagram",
+    "facebook": "Reagle FX Empire",
+    "joinNow": "Jiunge Sasa — Bure",
+    "members": "3,000+ Wanachama",
+    "activeDaily": "Hai Kila Siku"
+  },
+  "contact": {
+    "label": "Wasiliana",
+    "title": "Anza Safari Yako ya Biashara",
+    "subtitle": "Wasiliana leo na chukua hatua ya kwanza kuelekea ustaarabu wa forex.",
+    "location": "Mahali",
+    "website": "Tovuti",
+    "messageUs": "Tuma ujumbe WhatsApp"
+  },
+  "footer": {
+    "tagline": "Uongozi wa kifahari wa forex. Jumuiya yenye nguvu. Matokeo yaliyothibitishwa.",
+    "quickLinks": "Viungo vya Haraka",
+    "connect": "Unganisha",
+    "rights": "Haki zote zimehifadhiwa."
+  },
+  "mobile": {
+    "joinWhatsapp": "Jiunge WhatsApp"
+  },
+  "languages": {
+    "en": "English",
+    "rw": "Kinyarwanda",
+    "fr": "Français",
+    "sw": "Kiswahili"
+  }
+}

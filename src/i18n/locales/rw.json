@@ -1,0 +1,122 @@
+{
+  "nav": {
+    "home": "Ahabanza",
+    "about": "Ibyerekeye",
+    "results": "Ibisubizo",
+    "lessons": "Amasomo",
+    "videos": "Amashusho",
+    "community": "Umuryango",
+    "contact": "Twandikire"
+  },
+  "hero": {
+    "badge": "Reagle FX Empire",
+    "headline": "Menya Ubucuruzi bwa Forex n'Ubwizewe",
+    "subheadline": "Wiga imikoranire y'ubucuruzi, isesengura ry'isoko n'imicungire y'ingaruka na CoachPeter na Reagle FX Empire.",
+    "ctaWhatsapp": "Jya kuri WhatsApp",
+    "ctaResults": "Reba Ibisubizo",
+    "statFollowers": "3000+ Abakurikira",
+    "statCommunity": "Umuryango Ukora",
+    "statMentorship": "Ubuyobozi Buzima",
+    "statBeginner": "Byoroshye ku Batangira",
+    "profitLabel": "Iterambere ry'Icyumweru",
+    "profitValue": "+24.8%",
+    "sessionLabel": "Amasomo Azima",
+    "sessionValue": "Buri munsi"
+  },
+  "about": {
+    "label": "Ibyerekeye Reagle FX Empire",
+    "title": "Kubaka Abacuruzi Batsinda n'Ubumuntu",
+    "story": "CoachPeter yashinze Reagle FX Empire kugira ngo ahindure abatangira babe abacuruzi b'ibanze b'ibanze b'ibanze. Kuva i Kigali kugeza ku isi, ubuyobozi bwe buhuza ubunararibonye n'umuryango.",
+    "mission": "Intego yacu ni ugushyira imbere uburezi bwa forex bwa professional — gukora imikoranire y'ikigo ishobora kuboneka kuri buri mcuruzi wifuza mu Afurika n'ahandi.",
+    "experience": "Hamwe n'imyaka myinshi yo gucuruza isoko ry'ukuri n'abanyeshuri bakurikijwe mu bihe bigoye, CoachPeter atanga ubuyobozi bw'ukuri, bw'ukuri kandi bufite ibisubizo.",
+    "philosophy": "Curura ufite gahunda. Rinda imari yawe. Kura n'umuryango. Niyo nzira ya Reagle FX Empire.",
+    "statYears": "Imyaka yo Gucuruza",
+    "statStudents": "Abanyeshuri Bayobowe",
+    "statGrowth": "Iterambere ry'Umuryango",
+    "statSessions": "Amasomo Azima",
+    "yearsValue": "8+",
+    "studentsValue": "500+",
+    "growthValue": "3000+",
+    "sessionsValue": "200+"
+  },
+  "results": {
+    "label": "Ibisubizo Byemejwe",
+    "title": "Inyungu Z'ukuri. Abanyeshuri B'ukuri. Ubwami Bw'ukuri.",
+    "subtitle": "Inyungu za MT5, kubikuza byemejwe, n'intsinzi z'abanyeshuri mu muryango wa Reagle FX.",
+    "mt5": "Inyungu za MT5",
+    "withdrawals": "Kubikuza",
+    "studentWins": "Intsinzi z'Abanyeshuri",
+    "testimonials": "Ibyemezo",
+    "testimonial1": "CoachPeter yahinduye uko mbona isoko. Navuye mu gutakaza kugeza ku nyungu z'icyumweru.",
+    "testimonial2": "Inkunga y'umuryango ntiyigera igira uko. Amasomo azima n'ubunyangamugayo byatumye impinduka.",
+    "testimonial3": "Reagle FX Empire yampaye imiterere, ubumuntu, n'ubwizewe bwo gucuruza forex.",
+    "author1": "Jean — Kigali",
+    "author2": "Sarah — Nairobi",
+    "author3": "David — Kampala",
+    "profitToday": "Inyungu/z'uyu munsi",
+    "totalProfit": "Inyungu Yose",
+    "winRate": "Igipimo cy'Intsinzi"
+  },
+  "videos": {
+    "label": "Amashusho yo Gucuruza",
+    "title": "Wiga Wohereye",
+    "subtitle": "Uburezi bugufi — isesengura ry'isoko, amasomo azima, n'ibitekerezo by'ubuyobozi.",
+    "reel1": "Isesengura ry'Isoko Ry'ukuri",
+    "reel2": "Inama zo Gucunga Ingaruka",
+    "reel3": "Inkuru y'Intsinzi y'Umunyeshuri",
+    "reel4": "Icyerekezo cy'Icyumweru",
+    "reel5": "Imitekerereze yo Gucuruza",
+    "reel6": "Ibyiza by'Umuryango"
+  },
+  "lessons": {
+    "label": "Gahunda y'Ubuyobozi",
+    "title": "Ibyo Uziga",
+    "subtitle": "Amasomo yateguwe kugira ngo yubake abacuruzi b'ibanze b'ibanze kuva ku munsi wa mbere.",
+    "risk": "Gucunga Ingaruka",
+    "riskDesc": "Rinda imari ukoresheje ingano y'ibicuruzwa, guhagarika hasi, n'amategeko y'umutungo.",
+    "technical": "Isesengura ry'Ikarita",
+    "technicalDesc": "Soma amakarita, menya imigendekere, kandi ukore ibikorwa by'ukuri.",
+    "psychology": "Imitekerereze yo Gucuruza",
+    "psychologyDesc": "Genzura amarangamutima, wubake kwihangana, kandi ukure imitekerereze y'intsinzi.",
+    "structure": "Imiterere y'Isoko",
+    "structureDesc": "Menya inkunga, guhagarara, liquidity, n'imigendekere y'ikigo.",
+    "beginner": "Ubuyobozi bw'Abatangira",
+    "beginnerDesc": "Ubuyobozi bugezweho kuva ku busa kugeza ku gucuruza kwa mbere kwiza.",
+    "live": "Amasomo yo Gucuruza Azima",
+    "liveDesc": "Curura hamwe na CoachPeter mu gihe cy'ukuri n'ibisobanuro byuzuye."
+  },
+  "community": {
+    "label": "Jya mu Bwami",
+    "title": "Jya mu Muryango wa Reagle FX Empire",
+    "subtitle": "Huza n'abacuruzi, ubone ibimenyetso bya buri munsi, ubuyobozi buzima, n'ibiri mu bwihishwa.",
+    "whatsapp": "Umuryango wa WhatsApp",
+    "instagram": "Kurikira kuri Instagram",
+    "facebook": "Reagle FX Empire",
+    "joinNow": "Jya Ubu — Ni Ubuntu",
+    "members": "3,000+ Abanyamuryango",
+    "activeDaily": "Bakora Buri munsi"
+  },
+  "contact": {
+    "label": "Twandikire",
+    "title": "Tangira Urugendo rwawe rwo Gucuruza",
+    "subtitle": "Twandikire uyu munsi kandi utangire intambwe ya mbere yo kumenya forex.",
+    "location": "Aho duherereye",
+    "website": "Urubuga",
+    "messageUs": "Twandikire kuri WhatsApp"
+  },
+  "footer": {
+    "tagline": "Ubuyobozi bwa forex bwa premium. Umuryango ukomeye. Ibisubizo byemejwe.",
+    "quickLinks": "Amahuza Yihuse",
+    "connect": "Huza",
+    "rights": "Uburenganzira bwose burabitswe."
+  },
+  "mobile": {
+    "joinWhatsapp": "Jya kuri WhatsApp"
+  },
+  "languages": {
+    "en": "English",
+    "rw": "Kinyarwanda",
+    "fr": "Français",
+    "sw": "Kiswahili"
+  }
+}
