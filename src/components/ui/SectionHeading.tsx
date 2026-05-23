@@ -21,7 +21,7 @@ export function SectionHeading({
         initial={{ opacity: 0, y: 12 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        className="mb-3 inline-block rounded-full border border-empire-purple/40 bg-empire-purple/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-empire-purple-glow"
+        className="mb-3 inline-block rounded-full border border-theme-accent/30 bg-theme-accent/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-theme-accent"
       >
         {label}
       </motion.span>
@@ -30,7 +30,7 @@ export function SectionHeading({
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ delay: 0.1 }}
-        className="font-display text-3xl font-bold leading-tight text-white sm:text-4xl lg:text-5xl"
+        className="font-display text-3xl font-bold leading-tight text-theme-primary sm:text-4xl lg:text-5xl"
       >
         {title}
       </motion.h2>
@@ -40,7 +40,7 @@ export function SectionHeading({
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.2 }}
-          className="mt-4 text-base leading-relaxed text-gray-400 sm:text-lg"
+          className="mt-4 text-base leading-relaxed text-theme-muted sm:text-lg"
         >
           {subtitle}
         </motion.p>

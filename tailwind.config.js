@@ -1,6 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
@@ -14,28 +15,44 @@ export default {
           'blue-electric': '#00d4ff',
           green: '#10b981',
         },
+        theme: {
+          bg: 'rgb(var(--color-bg) / <alpha-value>)',
+          surface: 'rgb(var(--color-surface) / <alpha-value>)',
+          elevated: 'rgb(var(--color-elevated) / <alpha-value>)',
+          primary: 'rgb(var(--color-text-primary) / <alpha-value>)',
+          muted: 'rgb(var(--color-text-muted) / <alpha-value>)',
+          accent: 'rgb(var(--color-accent) / <alpha-value>)',
+          border: 'rgb(var(--color-border) / <alpha-value>)',
+        },
       },
       fontFamily: {
         display: ['Outfit', 'system-ui', 'sans-serif'],
         body: ['Inter', 'system-ui', 'sans-serif'],
+        mono: ['ui-monospace', 'SFMono-Regular', 'monospace'],
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
         'gradient-empire':
-          'linear-gradient(135deg, #030308 0%, #0a0f1f 40%, #1a1040 100%)',
-        'gradient-glow':
-          'linear-gradient(135deg, rgba(139,92,246,0.3) 0%, rgba(0,212,255,0.15) 100%)',
+          'linear-gradient(135deg, rgb(var(--gradient-from)) 0%, rgb(var(--gradient-mid)) 45%, rgb(var(--gradient-to)) 100%)',
+        'mesh-hero': 'var(--mesh-hero)',
       },
       boxShadow: {
-        glow: '0 0 40px rgba(139, 92, 246, 0.35)',
-        'glow-blue': '0 0 40px rgba(0, 212, 255, 0.25)',
-        'glow-sm': '0 0 20px rgba(139, 92, 246, 0.2)',
-        glass: '0 8px 32px rgba(0, 0, 0, 0.4)',
+        glow: 'var(--shadow-glow)',
+        'glow-blue': 'var(--shadow-glow-blue)',
+        'glow-sm': 'var(--shadow-glow-sm)',
+        glass: 'var(--shadow-glass)',
+        'mobile-card': 'var(--shadow-mobile)',
+      },
+      borderRadius: {
+        '4xl': '2rem',
+        '5xl': '2.5rem',
       },
       animation: {
         'pulse-glow': 'pulse-glow 3s ease-in-out infinite',
         float: 'float 6s ease-in-out infinite',
         shimmer: 'shimmer 2.5s linear infinite',
+        'live-pulse': 'live-pulse 1.5s ease-in-out infinite',
+        'scan-line': 'scan-line 4s linear infinite',
       },
       keyframes: {
         'pulse-glow': {
@@ -49,6 +66,14 @@ export default {
         shimmer: {
           '0%': { backgroundPosition: '-200% 0' },
           '100%': { backgroundPosition: '200% 0' },
+        },
+        'live-pulse': {
+          '0%, 100%': { opacity: '1', transform: 'scale(1)' },
+          '50%': { opacity: '0.5', transform: 'scale(1.15)' },
+        },
+        'scan-line': {
+          '0%': { transform: 'translateY(-100%)' },
+          '100%': { transform: 'translateY(100vh)' },
         },
       },
     },

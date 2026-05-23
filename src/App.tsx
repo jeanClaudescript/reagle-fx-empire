@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react'
 import { LanguageProvider } from '@/context/LanguageContext'
+import { ThemeProvider } from '@/context/ThemeContext'
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
 import { FloatingWhatsApp } from '@/components/layout/FloatingWhatsApp'
@@ -28,24 +29,26 @@ function SectionFallback() {
 
 function App() {
   return (
-    <LanguageProvider>
-      <div className="relative min-h-screen overflow-x-hidden bg-empire-black">
-        <Navbar />
-        <main>
-          <Hero />
-          <Suspense fallback={<SectionFallback />}>
-            <About />
-            <Results />
-            <Lessons />
-            <Videos />
-            <Community />
-          </Suspense>
-        </main>
-        <Footer />
-        <FloatingWhatsApp />
-        <StickyMobileCTA />
-      </div>
-    </LanguageProvider>
+    <ThemeProvider>
+      <LanguageProvider>
+        <div className="relative min-h-screen overflow-x-hidden bg-theme-bg text-theme-muted transition-colors duration-500">
+          <Navbar />
+          <main>
+            <Hero />
+            <Suspense fallback={<SectionFallback />}>
+              <About />
+              <Results />
+              <Lessons />
+              <Videos />
+              <Community />
+            </Suspense>
+          </main>
+          <Footer />
+          <FloatingWhatsApp />
+          <StickyMobileCTA />
+        </div>
+      </LanguageProvider>
+    </ThemeProvider>
   )
 }
 

@@ -8,7 +8,18 @@
       name="description"
       content="Master Forex Trading with CoachPeter & Reagle FX Empire. Premium mentorship, live sessions, and a thriving trading community in Kigali."
     />
-    <meta name="theme-color" content="#030308" />
+    <meta name="theme-color" content="#030308" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#f0f4ff" media="(prefers-color-scheme: light)" />
+    <script>
+      (function () {
+        var t = localStorage.getItem('reagle-fx-theme');
+        var dark =
+          t === 'dark' ||
+          (!t && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.classList.remove('light', 'dark');
+        document.documentElement.classList.add(dark ? 'dark' : 'light');
+      })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link

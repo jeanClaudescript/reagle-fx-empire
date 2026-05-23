@@ -121,4 +121,9 @@ export interface Translations {
     fr: string
     sw: string
   }
+  theme: {
+    light: string
+    dark: string
+    liveChart: string
+  }
 }

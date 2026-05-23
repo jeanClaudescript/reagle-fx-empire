@@ -43,10 +43,10 @@ export function Lessons() {
                 <div className="mb-4 inline-flex rounded-xl bg-empire-purple/20 p-3 transition group-hover:bg-empire-purple/30 group-hover:shadow-glow-sm">
                   <Icon className="h-6 w-6 text-empire-purple-glow" />
                 </div>
-                <h3 className="font-display text-lg font-bold text-white sm:text-xl">
+                <h3 className="font-display text-lg font-bold text-theme-primary sm:text-xl">
                   {t.lessons[titleKey]}
                 </h3>
-                <p className="mt-2 text-sm leading-relaxed text-gray-400">
+                <p className="mt-2 text-sm leading-relaxed text-theme-muted">
                   {t.lessons[descKey]}
                 </p>
               </motion.div>

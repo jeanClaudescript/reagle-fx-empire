@@ -58,11 +58,11 @@ export function Community() {
               >
                 <Users className="h-8 w-8 text-empire-purple-glow" />
               </motion.div>
-              <h3 className="font-display text-2xl font-bold text-white sm:text-3xl">
+              <h3 className="font-display text-2xl font-bold text-theme-primary sm:text-3xl">
                 {t.community.title}
               </h3>
-              <div className="mt-4 flex flex-wrap justify-center gap-4 text-sm text-gray-400">
-                <span className="rounded-full border border-white/10 px-4 py-1.5">
+              <div className="mt-4 flex flex-wrap justify-center gap-4 text-sm text-theme-muted">
+                <span className="rounded-full border border-theme px-4 py-1.5">
                   {t.community.members}
                 </span>
                 <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-1.5 text-emerald-400">
@@ -90,10 +90,10 @@ export function Community() {
                 className={`glass-card-glow flex flex-col items-center gap-4 border bg-gradient-to-br p-8 text-center ${color}`}
               >
                 <Icon className={`h-10 w-10 ${iconColor}`} />
-                <span className="font-display font-semibold text-white">
+                <span className="font-display font-semibold text-theme-primary">
                   {t.community[key]}
                 </span>
-                <span className="text-xs text-gray-500">{BRAND.brand}</span>
+                <span className="text-xs text-theme-muted">{BRAND.brand}</span>
               </motion.a>
             </ScrollReveal>
           ))}

@@ -25,7 +25,7 @@ export function GlowButton({
     primary:
       'bg-gradient-to-r from-empire-purple to-empire-blue text-white shadow-glow hover:shadow-glow-blue hover:scale-[1.02]',
     secondary:
-      'border border-white/20 bg-white/5 text-white backdrop-blur-sm hover:border-empire-purple/50 hover:bg-white/10',
+      'border border-theme bg-theme-elevated/60 text-theme-primary backdrop-blur-sm hover:border-theme-accent/50 hover:bg-theme-accent/10',
     whatsapp:
       'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-[0_0_30px_rgba(16,185,129,0.35)] hover:scale-[1.02]',
   }

@@ -42,7 +42,7 @@ export function Results() {
 
   return (
     <section id="results" className="relative overflow-hidden py-20 md:py-28">
-      <div className="absolute inset-0 bg-gradient-to-b from-empire-navy/50 via-transparent to-empire-black" />
+      <div className="absolute inset-0 bg-gradient-to-b from-theme-elevated/50 via-transparent to-theme-bg" />
       <div className="glow-orb left-1/2 top-0 h-64 w-[500px] -translate-x-1/2 bg-empire-purple/10" />
 
       <div className="section-container relative">
@@ -70,13 +70,13 @@ export function Results() {
                     {slide === 1 && <Wallet className="h-12 w-12 text-empire-blue-electric" />}
                     {slide === 2 && <Trophy className="h-12 w-12 text-empire-purple-glow" />}
                   </div>
-                  <p className="text-sm uppercase tracking-widest text-gray-500">
+                  <p className="text-sm uppercase tracking-widest text-theme-muted">
                     {typeLabels[slides[slide].type]}
                   </p>
-                  <p className="mt-2 font-display text-5xl font-bold text-white sm:text-6xl">
+                  <p className="mt-2 font-display text-5xl font-bold text-theme-primary sm:text-6xl">
                     {slides[slide].profit}
                   </p>
-                  <p className="mt-2 text-gray-400">
+                  <p className="mt-2 text-theme-muted">
                     {t.results[slides[slide].label as keyof typeof t.results]}
                   </p>
 
@@ -99,7 +99,7 @@ export function Results() {
                 <button
                   type="button"
                   onClick={prev}
-                  className="rounded-full border border-white/10 p-2 text-gray-400 hover:border-empire-purple/50 hover:text-white"
+                  className="rounded-full border border-theme p-2 text-theme-muted hover:border-theme-accent/50 hover:text-theme-primary"
                   aria-label="Previous"
                 >
                   <ChevronLeft className="h-5 w-5" />
@@ -120,7 +120,7 @@ export function Results() {
                 <button
                   type="button"
                   onClick={next}
-                  className="rounded-full border border-white/10 p-2 text-gray-400 hover:border-empire-purple/50 hover:text-white"
+                  className="rounded-full border border-theme p-2 text-theme-muted hover:border-theme-accent/50 hover:text-theme-primary"
                   aria-label="Next"
                 >
                   <ChevronRight className="h-5 w-5" />
@@ -143,7 +143,7 @@ export function Results() {
                 whileHover={{ y: -6, scale: 1.02 }}
                 className="glass-card-glow min-w-[140px] shrink-0 p-4 sm:min-w-0"
               >
-                <p className="text-xs text-gray-500">{item.title}</p>
+                <p className="text-xs text-theme-muted">{item.title}</p>
                 <p className="font-display text-lg font-bold text-emerald-400">{item.value}</p>
                 <p className="text-xs text-empire-purple-glow">{item.pct}</p>
               </motion.div>
@@ -153,7 +153,7 @@ export function Results() {
 
         {/* Testimonials */}
         <ScrollReveal delay={0.2} className="mt-12">
-          <h3 className="mb-6 text-center font-display text-xl font-semibold text-white">
+          <h3 className="mb-6 text-center font-display text-xl font-semibold text-theme-primary">
             {t.results.testimonials}
           </h3>
           <div className="neon-border mx-auto max-w-2xl">
@@ -166,7 +166,7 @@ export function Results() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -12 }}
                 >
-                  <p className="text-lg italic leading-relaxed text-gray-300">
+                  <p className="text-lg italic leading-relaxed text-theme-primary/80">
                     "{t.results[testimonials[testimonialIdx].textKey as keyof typeof t.results]}"
                   </p>
                   <p className="mt-4 text-sm font-medium text-empire-purple-glow">

@@ -118,5 +118,10 @@
     "rw": "Kinyarwanda",
     "fr": "Français",
     "sw": "Kiswahili"
+  },
+  "theme": {
+    "light": "Mode clair",
+    "dark": "Mode sombre",
+    "liveChart": "Marché en direct"
   }
 }

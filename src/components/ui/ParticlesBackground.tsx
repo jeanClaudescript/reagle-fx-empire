@@ -25,7 +25,7 @@ export function ParticlesBackground({ count = 40, className = '' }: ParticlesBac
       {particles.map((p) => (
         <motion.div
           key={p.id}
-          className="absolute rounded-full bg-empire-blue-electric/30"
+          className="absolute rounded-full bg-theme-accent/25 dark:bg-empire-blue-electric/30"
           style={{
             left: `${p.x}%`,
             top: `${p.y}%`,

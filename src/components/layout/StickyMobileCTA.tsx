@@ -11,7 +11,7 @@ export function StickyMobileCTA() {
       initial={{ y: 100 }}
       animate={{ y: 0 }}
       transition={{ delay: 0.8, type: 'spring', stiffness: 200 }}
-      className="fixed bottom-0 left-0 right-0 z-40 border-t border-white/10 bg-empire-black/90 p-3 backdrop-blur-xl sm:hidden"
+      className="fixed bottom-0 left-0 right-0 z-40 border-t border-theme bg-theme-surface/95 p-3 pb-safe backdrop-blur-2xl sm:hidden"
     >
       <a
         href={BRAND.whatsappLink}
