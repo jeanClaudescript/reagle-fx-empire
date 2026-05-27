@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronLeft, ChevronRight, Copy, Facebook, MessageCircle, Minus, Plus, X, ZoomIn } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Minus, Plus, X, ZoomIn } from 'lucide-react'
 import type { ImageViewerItem } from '@/components/admin/media/MediaViewerContext'
-import { buildShareLinks, copyShareLink, tryNativeShare } from '@/utils/share'
+import { ShareMenu } from '@/components/share/ShareMenu'
 
 interface ImageLightboxProps {
   items: ImageViewerItem[]
@@ -123,7 +123,7 @@ export function ImageLightbox({ items, index, onClose, onIndexChange }: ImageLig
   if (!item) return null
   const pageUrl = window.location.href
   const shareUrl = item.src || pageUrl
-  const links = buildShareLinks({ url: shareUrl, text: item.alt ?? 'Check this image' })
+  const shareText = item.alt ?? 'Check this image'
 
   return (
     <AnimatePresence>
@@ -167,46 +167,15 @@ export function ImageLightbox({ items, index, onClose, onIndexChange }: ImageLig
             >
               <ZoomIn className="h-4 w-4" />
             </button>
+            <ShareMenu url={shareUrl} text={shareText} variant="toolbar" />
             <button type="button" className="media-lightbox-btn" onClick={onClose} aria-label="Close">
               <X className="h-5 w-5" />
             </button>
-            <button
-              type="button"
-              className="media-lightbox-btn"
-              onClick={async () => {
-                const nativeDone = await tryNativeShare({
-                  url: shareUrl,
-                  text: item.alt ?? 'Check this image',
-                })
-                if (!nativeDone) await copyShareLink(shareUrl)
-              }}
-              aria-label="Share image"
-            >
-              <Copy className="h-4 w-4" />
-            </button>
-            <a
-              href={links.whatsapp}
-              target="_blank"
-              rel="noreferrer"
-              className="media-lightbox-btn"
-              aria-label="Share on WhatsApp"
-            >
-              <MessageCircle className="h-4 w-4" />
-            </a>
-            <a
-              href={links.facebook}
-              target="_blank"
-              rel="noreferrer"
-              className="media-lightbox-btn"
-              aria-label="Share on Facebook"
-            >
-              <Facebook className="h-4 w-4" />
-            </a>
           </div>
         </div>
 
         <div
-          className="media-lightbox-stage"
+          className="media-lightbox-stage relative"
           onClick={(e) => e.stopPropagation()}
           onWheel={onWheel}
           onPointerDown={onPointerDown}
@@ -231,6 +200,7 @@ export function ImageLightbox({ items, index, onClose, onIndexChange }: ImageLig
               transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
             }}
           />
+          <ShareMenu url={shareUrl} text={shareText} variant="floating" />
         </div>
 
         {items.length > 1 && (

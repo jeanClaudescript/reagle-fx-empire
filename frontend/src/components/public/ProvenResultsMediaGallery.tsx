@@ -57,6 +57,7 @@ export function ProvenResultsMediaGallery() {
                           alt={m.title ?? 'Proven result'}
                           title={m.title ?? 'Proven result'}
                           gallery={m.type === 'image' ? imageGallery : undefined}
+                          shareUrl={m.externalLink}
                           className="absolute inset-0 h-full w-full"
                         >
                           {m.type === 'image' ? (

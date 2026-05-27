@@ -44,6 +44,7 @@ export function CertificatesCarousel() {
                           src={c.imageDataUrl!}
                           alt={c.title ?? 'Certificate'}
                           gallery={gallery}
+                          shareUrl={c.externalLink}
                           className="absolute inset-0 h-full w-full rounded-xl"
                         >
                           <img

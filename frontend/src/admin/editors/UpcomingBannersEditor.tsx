@@ -33,7 +33,8 @@ export function UpcomingBannersEditor() {
       <AdminCard>
         <div className="admin-card-body">
           <p className="admin-editor-card-intro">
-            Create and manage the banner shown above the live chart.
+            Create and manage the banner shown above the live chart. Set a date &amp; time for a
+            live countdown (e.g. 2026-06-15 18:00) — or use text like &quot;June 15&quot; for display only.
           </p>
 
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
@@ -46,9 +47,25 @@ export function UpcomingBannersEditor() {
               />
             </div>
 
-            <div>
-              <label className="mb-1 block text-sm font-semibold text-theme-primary">Date</label>
-              <AdminTextInput value={date} onChange={(e) => setDate(e.target.value)} placeholder="June 15" />
+            <div className="sm:col-span-2">
+              <label className="mb-1 block text-sm font-semibold text-theme-primary">
+                Event date &amp; time (countdown)
+              </label>
+              <input
+                type="datetime-local"
+                value={date.includes('T') ? date.slice(0, 16) : ''}
+                onChange={(e) => setDate(e.target.value)}
+                className="w-full rounded-xl border border-theme bg-theme-elevated/60 px-3 py-2 text-sm text-theme-primary outline-none focus:border-theme-accent/50"
+              />
+              <AdminTextInput
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                placeholder="Or type: 2026-06-15T18:00 or June 15, 2026"
+                className="mt-2"
+              />
+              <p className="mt-1 text-xs text-theme-muted">
+                Countdown appears when the date is parseable (ISO or datetime picker).
+              </p>
             </div>
 
             <div>
@@ -209,8 +226,26 @@ export function UpcomingBannersEditor() {
                           />
                         </div>
 
-                        <div>
-                          <label className="mb-1 block text-sm font-semibold text-theme-primary">Date</label>
+                        <div className="sm:col-span-2">
+                          <label className="mb-1 block text-sm font-semibold text-theme-primary">
+                            Event date &amp; time (countdown)
+                          </label>
+                          <input
+                            type="datetime-local"
+                            value={banner.date.includes('T') ? banner.date.slice(0, 16) : ''}
+                            onChange={(e) => {
+                              const value = e.target.value
+                              updateDraft((prev) => ({
+                                ...prev,
+                                upcomingBanners: normalizeByOrder(
+                                  prev.upcomingBanners.map((b) =>
+                                    b.id === banner.id ? { ...b, date: value } : b,
+                                  ),
+                                ),
+                              }))
+                            }}
+                            className="w-full rounded-xl border border-theme bg-theme-elevated/60 px-3 py-2 text-sm text-theme-primary outline-none focus:border-theme-accent/50"
+                          />
                           <AdminTextInput
                             value={banner.date}
                             onChange={(e) => {
@@ -218,10 +253,14 @@ export function UpcomingBannersEditor() {
                               updateDraft((prev) => ({
                                 ...prev,
                                 upcomingBanners: normalizeByOrder(
-                                  prev.upcomingBanners.map((b) => (b.id === banner.id ? { ...b, date: value } : b)),
+                                  prev.upcomingBanners.map((b) =>
+                                    b.id === banner.id ? { ...b, date: value } : b,
+                                  ),
                                 ),
                               }))
                             }}
+                            placeholder="2026-06-15T18:00 or June 15, 2026"
+                            className="mt-2"
                           />
                         </div>
 

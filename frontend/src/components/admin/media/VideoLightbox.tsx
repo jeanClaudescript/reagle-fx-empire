@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Play, X } from 'lucide-react'
+import { ShareMenu } from '@/components/share/ShareMenu'
 
 interface VideoLightboxProps {
   src: string
@@ -57,12 +58,15 @@ export function VideoLightbox({ src, poster, title, onClose }: VideoLightboxProp
         >
           <div className="media-lightbox-chrome">
             <p className="media-lightbox-caption">{title ?? 'Video'}</p>
-            <button type="button" className="media-lightbox-btn" onClick={onClose} aria-label="Close">
-              <X className="h-5 w-5" />
-            </button>
+            <div className="flex items-center gap-1">
+              <ShareMenu url={src} text={title ?? 'Video'} variant="toolbar" />
+              <button type="button" className="media-lightbox-btn" onClick={onClose} aria-label="Close">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
           </div>
 
-          <div className="media-video-stage flex-1">
+          <div className="media-video-stage relative flex-1">
             {!ready && (
               <div className="media-video-loading">
                 <div className="cms-shimmer h-2 w-32 rounded-full" />
@@ -90,6 +94,7 @@ export function VideoLightbox({ src, poster, title, onClose }: VideoLightboxProp
             )}
 
             <div className="media-video-vignette pointer-events-none" aria-hidden />
+            <ShareMenu url={src} text={title ?? 'Video'} variant="floating" />
           </div>
         </motion.div>
       </motion.div>

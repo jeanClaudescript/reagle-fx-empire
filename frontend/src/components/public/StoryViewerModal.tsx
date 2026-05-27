@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { ChevronLeft, ChevronRight, X } from 'lucide-react'
 import type { DailyUpdate } from '@/cms/types'
 import { formatRelativeTime } from '@/utils/relativeTime'
-import { buildShareLinks } from '@/utils/share'
+import { ShareMenu } from '@/components/share/ShareMenu'
 
 interface StoryViewerModalProps {
   items: DailyUpdate[]
@@ -46,7 +46,6 @@ export function StoryViewerModal({ items, index, onClose, onIndexChange }: Story
   if (!item) return null
 
   const shareUrl = item.externalLink || window.location.href
-  const shareLinks = buildShareLinks({ url: shareUrl, text: item.caption })
 
   return (
     <AnimatePresence>
@@ -73,9 +72,12 @@ export function StoryViewerModal({ items, index, onClose, onIndexChange }: Story
           className="story-viewer-panel"
           onClick={(e) => e.stopPropagation()}
         >
-          <button type="button" className="story-viewer-close" onClick={onClose} aria-label="Close">
-            <X className="h-5 w-5" />
-          </button>
+          <div className="absolute right-3 top-3 z-30 flex items-center gap-2">
+            <ShareMenu url={shareUrl} text={item.caption} variant="toolbar" />
+            <button type="button" className="share-menu-trigger" onClick={onClose} aria-label="Close">
+              <X className="h-5 w-5" />
+            </button>
+          </div>
 
           <div className="story-viewer-stage">
             {item.type === 'image' && item.mediaDataUrl ? (
@@ -106,19 +108,6 @@ export function StoryViewerModal({ items, index, onClose, onIndexChange }: Story
               {item.type !== 'text' && item.caption ? (
                 <p className="story-viewer-caption">{item.caption}</p>
               ) : null}
-              <div className="story-viewer-share">
-                <a href={shareLinks.whatsapp} target="_blank" rel="noreferrer" className="story-viewer-share-btn">
-                  WhatsApp
-                </a>
-                <a href={shareLinks.facebook} target="_blank" rel="noreferrer" className="story-viewer-share-btn">
-                  Facebook
-                </a>
-                {item.externalLink ? (
-                  <a href={item.externalLink} target="_blank" rel="noreferrer" className="story-viewer-share-btn">
-                    Open link
-                  </a>
-                ) : null}
-              </div>
             </div>
           </div>
         </motion.div>

@@ -600,6 +600,10 @@
     @apply bg-rose-500/15 text-rose-400;
   }
 
+  .media-thumb-wrap {
+    @apply overflow-hidden;
+  }
+
   .media-thumb,
   .admin-media-thumb {
     @apply relative block cursor-zoom-in overflow-hidden border-0 bg-transparent p-0 text-left transition;
@@ -688,6 +692,62 @@
     @apply absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/30;
   }
 
+  .banner-countdown {
+    @apply rounded-2xl border border-white/15 bg-black/30 p-3 backdrop-blur-md sm:p-4;
+  }
+
+  .banner-countdown--urgent {
+    @apply border-amber-400/40 shadow-[0_0_24px_rgba(251,191,36,0.15)];
+  }
+
+  .banner-countdown-header {
+    @apply mb-3 flex flex-wrap items-center gap-2 text-[11px] text-white/75;
+  }
+
+  .banner-countdown-heading {
+    @apply font-semibold uppercase tracking-[0.16em] text-white/90;
+  }
+
+  .banner-countdown-date {
+    @apply ml-auto rounded-full border border-white/15 bg-white/10 px-2 py-0.5 text-[10px] font-medium text-white/85;
+  }
+
+  .banner-countdown-grid {
+    @apply flex flex-wrap items-center justify-center gap-1 sm:justify-start sm:gap-1.5;
+  }
+
+  .banner-countdown-unit {
+    @apply flex min-w-[52px] flex-col items-center rounded-xl border border-white/15 bg-gradient-to-b from-white/10 to-white/5 px-2 py-2 sm:min-w-[58px];
+  }
+
+  .banner-countdown-unit--accent {
+    @apply border-empire-purple-glow/50 bg-gradient-to-b from-empire-purple/30 to-empire-blue/20;
+  }
+
+  .banner-countdown-digit-wrap {
+    @apply relative flex h-8 w-full items-center justify-center overflow-hidden sm:h-9;
+  }
+
+  .banner-countdown-digit {
+    @apply font-display text-xl font-bold tabular-nums text-white sm:text-2xl;
+  }
+
+  .banner-countdown-label {
+    @apply mt-1 text-[9px] font-semibold uppercase tracking-wider text-white/65;
+  }
+
+  .banner-countdown-sep {
+    @apply -mt-4 font-display text-lg font-bold text-white/35;
+  }
+
+  .banner-countdown-live {
+    @apply inline-flex items-center gap-2 rounded-full border border-emerald-400/35 bg-emerald-500/15 px-3 py-1.5;
+  }
+
+  .banner-countdown-live-dot {
+    @apply h-2 w-2 animate-pulse rounded-full bg-emerald-400;
+  }
+
   .story-bubble {
     @apply flex w-[74px] flex-col items-center gap-1 text-center;
   }
@@ -774,12 +834,58 @@
     @apply mt-2 text-sm leading-relaxed text-white;
   }
 
-  .story-viewer-share {
-    @apply mt-3 flex flex-wrap gap-2;
+  .share-menu {
+    @apply relative z-30;
   }
 
-  .story-viewer-share-btn {
-    @apply rounded-lg border border-white/20 bg-white/10 px-2.5 py-1 text-[11px] font-semibold text-white hover:bg-white/20;
+  .share-menu--overlay {
+    @apply absolute right-2 top-2 opacity-0 transition duration-200 sm:right-3 sm:top-3;
+  }
+
+  .media-thumb-wrap:hover .share-menu--overlay,
+  .media-thumb-wrap:focus-within .share-menu--overlay,
+  .share-menu--overlay.share-menu--open {
+    @apply opacity-100;
+  }
+
+  .share-menu--overlay .share-menu-trigger {
+    @apply scale-95 group-hover:scale-100;
+  }
+
+  .share-menu-trigger {
+    @apply flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-black/50 text-white shadow-lg backdrop-blur-md transition hover:scale-105 hover:bg-black/65 active:scale-95;
+  }
+
+  .share-menu--toolbar .share-menu-trigger {
+    @apply h-10 w-10 border-white/15 bg-white/10;
+  }
+
+  .share-menu--floating {
+    @apply absolute bottom-4 right-4;
+  }
+
+  .share-menu-panel {
+    @apply absolute bottom-[calc(100%+0.5rem)] right-0 z-50 min-w-[168px] overflow-hidden rounded-2xl border border-white/15 bg-slate-950/95 p-1.5 shadow-2xl backdrop-blur-xl;
+  }
+
+  .share-menu--toolbar .share-menu-panel {
+    @apply bottom-auto top-[calc(100%+0.5rem)];
+  }
+
+  .share-menu-panel-title {
+    @apply flex items-center gap-1.5 px-2.5 pb-1 pt-1.5 text-[10px] font-semibold uppercase tracking-wider text-white/50;
+  }
+
+  .share-menu-list {
+    @apply m-0 list-none p-0;
+  }
+
+  .share-menu-item {
+    @apply flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-white/90 transition hover:bg-white/10;
+  }
+
+  .share-menu-toast {
+    @apply pointer-events-none absolute bottom-[calc(100%+3.25rem)] right-0 whitespace-nowrap rounded-lg border border-white/15 bg-black/80 px-2.5 py-1 text-[11px] font-medium text-white;
   }
 
   .story-viewer-nav {
