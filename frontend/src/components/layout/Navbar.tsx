@@ -48,7 +48,8 @@ export function Navbar() {
               else tapRef.current.count += 1
               tapRef.current.lastAt = now
               if (tapRef.current.count >= 4) {
-                window.location.assign('/admin-login')
+                window.history.pushState({}, '', '/admin-login')
+                window.dispatchEvent(new PopStateEvent('popstate'))
               }
             }}
             className="group flex flex-col text-left"
