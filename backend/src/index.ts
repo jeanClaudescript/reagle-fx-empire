@@ -6,11 +6,19 @@ import { cmsRoutes } from './routes/cmsRoutes.js'
 import { messageRoutes } from './routes/messageRoutes.js'
 
 const app = express()
+let dbReady = false
+
+function isAllowedOrigin(origin?: string): boolean {
+  if (!origin) return true
+  if (env.frontendOrigins.includes(origin)) return true
+  if (env.allowVercelPreviewOrigins && origin.endsWith('.vercel.app')) return true
+  return false
+}
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || env.frontendOrigins.includes(origin)) {
+      if (isAllowedOrigin(origin)) {
         callback(null, true)
         return
       }
@@ -25,13 +33,23 @@ app.get('/api/health', (_req, res) => {
   res.status(200).json({
     ok: true,
     service: 'coachpeter250-backend',
-    db: 'mongodb',
+    db: dbReady ? 'connected' : 'not_configured',
     timestamp: new Date().toISOString(),
   })
 })
 
-app.use('/api/cms', cmsRoutes)
-app.use('/api/messages', messageRoutes)
+app.use('/api/cms', (req, res, next) => {
+  if (!dbReady) {
+    return res.status(503).json({ error: 'Database not configured yet' })
+  }
+  return cmsRoutes(req, res, next)
+})
+app.use('/api/messages', (req, res, next) => {
+  if (!dbReady) {
+    return res.status(503).json({ error: 'Database not configured yet' })
+  }
+  return messageRoutes(req, res, next)
+})
 
 app.use(
   (
@@ -47,7 +65,7 @@ app.use(
 )
 
 async function start() {
-  await connectDatabase()
+  dbReady = await connectDatabase()
   app.listen(env.port, () => {
     console.log(`Backend listening on http://localhost:${env.port}`)
   })
