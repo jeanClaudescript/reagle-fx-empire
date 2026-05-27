@@ -22,6 +22,7 @@ export function CertificatesEditor() {
 
   const [title, setTitle] = useState('')
   const [imageUrl, setImageUrl] = useState('')
+  const [externalLink, setExternalLink] = useState('')
   const [uploadBusy, setUploadBusy] = useState(false)
 
   const addDisabled = uploadBusy
@@ -38,6 +39,15 @@ export function CertificatesEditor() {
             <div className="sm:col-span-2">
               <label className="mb-1 block text-sm font-semibold text-theme-primary">Certificate Title (optional)</label>
               <AdminTextInput value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Risk Management Certificate" />
+            </div>
+
+            <div className="sm:col-span-2">
+              <label className="mb-1 block text-sm font-semibold text-theme-primary">External Post Link (optional)</label>
+              <AdminTextInput
+                value={externalLink}
+                onChange={(e) => setExternalLink(e.target.value)}
+                placeholder="https://instagram.com/p/... or https://facebook.com/..."
+              />
             </div>
 
             <div className="sm:col-span-2">
@@ -62,6 +72,7 @@ export function CertificatesEditor() {
                         id: `cert-${Math.random().toString(16).slice(2)}`,
                         imageDataUrl: dataUrl,
                         title: title.trim() ? title.trim() : undefined,
+                        externalLink: externalLink.trim() ? externalLink.trim() : undefined,
                         order: certificates.length + 1,
                       }
                       updateDraft((prev) => ({
@@ -69,6 +80,7 @@ export function CertificatesEditor() {
                         certificates: normalize([...prev.certificates, next]),
                       }))
                       setTitle('')
+                      setExternalLink('')
                     } finally {
                       setUploadBusy(false)
                       e.target.value = ''
@@ -97,6 +109,7 @@ export function CertificatesEditor() {
                       id: `cert-${Math.random().toString(16).slice(2)}`,
                       imageDataUrl: imageUrl.trim(),
                       title: title.trim() ? title.trim() : undefined,
+                      externalLink: externalLink.trim() ? externalLink.trim() : undefined,
                       order: certificates.length + 1,
                     }
                     updateDraft((prev) => ({
@@ -105,6 +118,7 @@ export function CertificatesEditor() {
                     }))
                     setImageUrl('')
                     setTitle('')
+                    setExternalLink('')
                   }}
                 >
                   Use URL
@@ -151,6 +165,25 @@ export function CertificatesEditor() {
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-semibold text-theme-primary">#{idx + 1}</p>
                     <p className="mt-1 break-words text-xs text-theme-muted">{cert.title ?? 'Untitled'}</p>
+                    <div className="mt-2">
+                      <AdminTextInput
+                        value={cert.externalLink ?? ''}
+                        onChange={(e) => {
+                          const value = e.target.value
+                          updateDraft((prev) => ({
+                            ...prev,
+                            certificates: normalize(
+                              prev.certificates.map((c) =>
+                                c.id === cert.id
+                                  ? { ...c, externalLink: value.trim() ? value : undefined }
+                                  : c,
+                              ),
+                            ),
+                          }))
+                        }}
+                        placeholder="Optional external post link"
+                      />
+                    </div>
                   </div>
 
                   <div className="admin-editor-actions">

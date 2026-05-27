@@ -18,8 +18,10 @@ export interface UpcomingBanner {
   enabled: boolean
   title: string
   date: string // ISO date or free text
+  imageDataUrl?: string
   ctaLabel: string
   ctaLink: string
+  externalLink?: string
   order: number
 }
 
@@ -34,6 +36,7 @@ export interface Certificate {
   id: string
   imageDataUrl: string
   title?: string
+  externalLink?: string
   order: number
 }
 
@@ -44,6 +47,7 @@ export interface CMSMedia {
   title?: string
   mediaDataUrl?: string // image/video base64
   posterDataUrl?: string // optional for video
+  externalLink?: string
   order: number
 }
 

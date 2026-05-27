@@ -5,6 +5,8 @@ import { useCms } from '@/cms/CmsProvider'
 import { useAdminConfirm } from '@/admin/confirm'
 import { AdminCard } from '@/components/admin/AdminCard'
 import { AdminTextInput } from '@/components/admin/AdminInput'
+import { fileToDataUrl } from '@/admin/fileToDataUrl'
+import { AdminMediaThumb } from '@/components/admin/media/AdminMediaThumb'
 
 function normalizeByOrder(items: UpcomingBanner[]) {
   return items
@@ -22,7 +24,9 @@ export function UpcomingBannersEditor() {
   const [date, setDate] = useState('')
   const [ctaLabel, setCtaLabel] = useState('Join WhatsApp')
   const [ctaLink, setCtaLink] = useState('')
+  const [externalLink, setExternalLink] = useState('')
   const [enabled, setEnabled] = useState(true)
+  const [imageDataUrl, setImageDataUrl] = useState('')
 
   return (
     <div className="flex flex-col gap-4">
@@ -57,6 +61,43 @@ export function UpcomingBannersEditor() {
               <AdminTextInput value={ctaLabel} onChange={(e) => setCtaLabel(e.target.value)} />
             </div>
 
+            <div className="sm:col-span-2">
+              <label className="mb-1 block text-sm font-semibold text-theme-primary">
+                External Post Link (optional)
+              </label>
+              <AdminTextInput
+                value={externalLink}
+                onChange={(e) => setExternalLink(e.target.value)}
+                placeholder="https://instagram.com/... or https://facebook.com/..."
+              />
+            </div>
+
+            <div className="sm:col-span-2">
+              <label className="mb-1 block text-sm font-semibold text-theme-primary">Banner Image (optional)</label>
+              <div className="space-y-2">
+                <label className="inline-flex cursor-pointer items-center rounded-xl border border-theme bg-theme-elevated/60 px-3 py-2 text-sm font-semibold text-theme-primary">
+                  Upload image
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0]
+                      if (!file) return
+                      const dataUrl = await fileToDataUrl(file)
+                      setImageDataUrl(dataUrl)
+                      e.target.value = ''
+                    }}
+                  />
+                </label>
+                <AdminTextInput
+                  value={imageDataUrl}
+                  onChange={(e) => setImageDataUrl(e.target.value)}
+                  placeholder="Or paste image URL https://..."
+                />
+              </div>
+            </div>
+
             <div className="flex items-end">
               <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-theme bg-theme-surface/50 px-4 py-3 text-sm text-theme-primary">
                 <input
@@ -81,8 +122,10 @@ export function UpcomingBannersEditor() {
                   enabled,
                   title: title.trim(),
                   date: date.trim(),
+                  imageDataUrl: imageDataUrl.trim() || undefined,
                   ctaLabel: ctaLabel.trim() || 'Join WhatsApp',
-                  ctaLink: ctaLink.trim() || 'https://wa.me/',
+                  ctaLink: ctaLink.trim() || 'https://chat.whatsapp.com/IMEUxv246jvFUS2sLrjG8G',
+                  externalLink: externalLink.trim() || undefined,
                   order: banners.length + 1,
                 }
                 updateDraft((prev) => ({
@@ -91,6 +134,8 @@ export function UpcomingBannersEditor() {
                 }))
                 setTitle('')
                 setDate('')
+                setImageDataUrl('')
+                setExternalLink('')
               }}
               className="h-11 rounded-xl bg-gradient-to-r from-empire-purple to-empire-blue px-5 text-sm font-semibold text-white shadow-glow hover:shadow-glow-blue"
             >
@@ -214,6 +259,94 @@ export function UpcomingBannersEditor() {
                               }))
                             }}
                           />
+                        </div>
+
+                        <div className="sm:col-span-2">
+                          <label className="mb-1 block text-sm font-semibold text-theme-primary">
+                            External Post Link (optional)
+                          </label>
+                          <AdminTextInput
+                            value={banner.externalLink ?? ''}
+                            onChange={(e) => {
+                              const value = e.target.value
+                              updateDraft((prev) => ({
+                                ...prev,
+                                upcomingBanners: normalizeByOrder(
+                                  prev.upcomingBanners.map((b) =>
+                                    b.id === banner.id
+                                      ? { ...b, externalLink: value.trim() ? value : undefined }
+                                      : b,
+                                  ),
+                                ),
+                              }))
+                            }}
+                            placeholder="https://instagram.com/... or https://facebook.com/..."
+                          />
+                        </div>
+
+                        <div className="sm:col-span-2">
+                          <label className="mb-1 block text-sm font-semibold text-theme-primary">
+                            Banner Image (optional)
+                          </label>
+                          <div className="space-y-2">
+                            {banner.imageDataUrl ? (
+                              <div className="max-w-sm overflow-hidden rounded-2xl border border-theme">
+                                <AdminMediaThumb
+                                  kind="image"
+                                  src={banner.imageDataUrl}
+                                  alt={banner.title}
+                                  className="aspect-[16/6] w-full"
+                                >
+                                  <img
+                                    src={banner.imageDataUrl}
+                                    alt={banner.title}
+                                    className="h-full w-full object-cover"
+                                  />
+                                </AdminMediaThumb>
+                              </div>
+                            ) : null}
+
+                            <label className="inline-flex cursor-pointer items-center rounded-xl border border-theme bg-theme-elevated/60 px-3 py-2 text-sm font-semibold text-theme-primary">
+                              Upload image
+                              <input
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={async (e) => {
+                                  const file = e.target.files?.[0]
+                                  if (!file) return
+                                  const dataUrl = await fileToDataUrl(file)
+                                  updateDraft((prev) => ({
+                                    ...prev,
+                                    upcomingBanners: normalizeByOrder(
+                                      prev.upcomingBanners.map((b) =>
+                                        b.id === banner.id ? { ...b, imageDataUrl: dataUrl } : b,
+                                      ),
+                                    ),
+                                  }))
+                                  e.target.value = ''
+                                }}
+                              />
+                            </label>
+
+                            <AdminTextInput
+                              value={banner.imageDataUrl ?? ''}
+                              onChange={(e) => {
+                                const value = e.target.value
+                                updateDraft((prev) => ({
+                                  ...prev,
+                                  upcomingBanners: normalizeByOrder(
+                                    prev.upcomingBanners.map((b) =>
+                                      b.id === banner.id
+                                        ? { ...b, imageDataUrl: value.trim() ? value : undefined }
+                                        : b,
+                                    ),
+                                  ),
+                                }))
+                              }}
+                              placeholder="Or paste image URL https://..."
+                            />
+                          </div>
                         </div>
                       </div>
                     </div>

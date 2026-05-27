@@ -1,11 +1,22 @@
+import { useMemo } from 'react'
 import { motion } from 'framer-motion'
 import { useCmsContent } from '@/cms/CmsProvider'
 import { isSectionEnabled } from '@/cms/sectionVisibility'
+import { MediaThumb } from '@/components/media/MediaThumb'
+import type { ImageViewerItem } from '@/components/admin/media/MediaViewerContext'
 
 export function CertificatesCarousel() {
   const active = useCmsContent()
 
   const certificates = [...active.certificates].sort((a, b) => a.order - b.order)
+
+  const gallery = useMemo<ImageViewerItem[]>(
+    () =>
+      certificates
+        .filter((c) => c.imageDataUrl)
+        .map((c) => ({ src: c.imageDataUrl!, alt: c.title ?? 'Certificate' })),
+    [certificates],
+  )
 
   if (!isSectionEnabled(active, 'certificates') || certificates.length === 0) return null
 
@@ -28,21 +39,39 @@ export function CertificatesCarousel() {
                   <div className="glass-card overflow-hidden p-3">
                     <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-empire-navy/40">
                       {hasImg ? (
-                        <img
-                          src={c.imageDataUrl}
+                        <MediaThumb
+                          kind="image"
+                          src={c.imageDataUrl!}
                           alt={c.title ?? 'Certificate'}
-                          loading="lazy"
-                          decoding="async"
-                          className="h-full w-full object-cover"
-                        />
+                          gallery={gallery}
+                          className="absolute inset-0 h-full w-full rounded-xl"
+                        >
+                          <img
+                            src={c.imageDataUrl}
+                            alt={c.title ?? 'Certificate'}
+                            loading="lazy"
+                            decoding="async"
+                            className="h-full w-full object-cover"
+                          />
+                        </MediaThumb>
                       ) : (
                         <div className="h-full w-full animate-pulse bg-gradient-to-br from-empire-purple/20 to-empire-blue-electric/10" />
                       )}
-                      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-black/60 to-transparent" />
-                      <div className="absolute inset-x-0 bottom-0 p-2">
+                      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-14 bg-gradient-to-t from-black/60 to-transparent" />
+                      <div className="absolute inset-x-0 bottom-0 z-[1] p-2">
                         <p className="truncate text-[11px] font-semibold text-white">
                           {c.title ?? `Certificate ${i + 1}`}
                         </p>
+                        {c.externalLink ? (
+                          <a
+                            href={c.externalLink}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="mt-1 inline-flex text-[10px] font-semibold text-white/90 underline decoration-white/40 underline-offset-2"
+                          >
+                            Open post
+                          </a>
+                        ) : null}
                       </div>
                     </div>
                   </div>
@@ -52,12 +81,10 @@ export function CertificatesCarousel() {
           })}
         </div>
 
-        {/* fade edges hinting it's scrollable */}
         <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-10 bg-gradient-to-r from-theme-bg to-transparent" />
         <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-theme-bg to-transparent" />
       </div>
 
-      {/* mini preview indicators */}
       <div className="mt-1 flex items-center gap-2 overflow-hidden">
         <div className="flex gap-2">
           {certificates.slice(0, 4).map((c) => (
@@ -74,4 +101,3 @@ export function CertificatesCarousel() {
     </div>
   )
 }
-

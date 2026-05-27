@@ -48,21 +48,21 @@ export function VideoLightbox({ src, poster, title, onClose }: VideoLightboxProp
         onClick={onClose}
       >
         <motion.div
-          initial={{ opacity: 0, y: 16, scale: 0.98 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: 8 }}
-          transition={{ type: 'spring', stiffness: 360, damping: 32 }}
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.98 }}
+          transition={{ duration: 0.2 }}
           className="media-video-shell"
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="media-lightbox-toolbar">
-            <p className="truncate text-sm font-medium text-white/80">{title ?? 'Video preview'}</p>
+          <div className="media-lightbox-chrome">
+            <p className="media-lightbox-caption">{title ?? 'Video'}</p>
             <button type="button" className="media-lightbox-btn" onClick={onClose} aria-label="Close">
               <X className="h-5 w-5" />
             </button>
           </div>
 
-          <div className="media-video-stage">
+          <div className="media-video-stage flex-1">
             {!ready && (
               <div className="media-video-loading">
                 <div className="cms-shimmer h-2 w-32 rounded-full" />

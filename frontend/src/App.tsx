@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 import { PublicSite } from '@/pages/PublicSite'
 import { AdminLogin } from '@/admin/AdminLogin'
 import { AdminDashboard } from '@/admin/AdminDashboard'
+import { MediaViewerProvider } from '@/components/admin/media/MediaViewerContext'
 
 function App() {
   const [path, setPath] = useState(() => window.location.pathname)
@@ -24,7 +25,9 @@ function App() {
           ) : path.startsWith('/admin') ? (
             <AdminDashboard />
           ) : (
-            <PublicSite />
+            <MediaViewerProvider>
+              <PublicSite />
+            </MediaViewerProvider>
           )}
         </LanguageProvider>
       </CmsProvider>

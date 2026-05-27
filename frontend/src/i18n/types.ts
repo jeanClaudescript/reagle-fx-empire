@@ -94,6 +94,7 @@ export interface Translations {
     whatsapp: string
     instagram: string
     facebook: string
+    youtube: string
     joinNow: string
     members: string
     activeDaily: string

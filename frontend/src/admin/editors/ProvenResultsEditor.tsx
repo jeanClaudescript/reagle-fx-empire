@@ -21,6 +21,7 @@ export function ProvenResultsEditor() {
   const [orientation, setOrientation] = useState<MediaOrientation>('horizontal')
   const [title, setTitle] = useState('MT5 profits')
   const [mediaUrl, setMediaUrl] = useState('')
+  const [externalLink, setExternalLink] = useState('')
   const [busy, setBusy] = useState(false)
 
   return (
@@ -63,6 +64,16 @@ export function ProvenResultsEditor() {
             </div>
 
             <div className="sm:col-span-2">
+              <label className="mb-1 block text-sm font-semibold text-theme-primary">External Post Link (optional)</label>
+              <AdminTextInput
+                type="url"
+                value={externalLink}
+                onChange={(e) => setExternalLink(e.target.value)}
+                placeholder="https://instagram.com/p/... or https://facebook.com/..."
+              />
+            </div>
+
+            <div className="sm:col-span-2">
               <label
                 className={`cursor-pointer rounded-2xl border border-theme bg-theme-surface/60 px-4 py-3 text-sm font-semibold text-theme-primary ${
                   type === 'placeholder' ? 'opacity-60' : ''
@@ -91,6 +102,7 @@ export function ProvenResultsEditor() {
                         orientation,
                         title: title.trim() ? title.trim() : undefined,
                         mediaDataUrl: type === 'placeholder' ? undefined : dataUrl,
+                        externalLink: externalLink.trim() ? externalLink.trim() : undefined,
                         order: media.length + 1,
                       }
 
@@ -102,6 +114,7 @@ export function ProvenResultsEditor() {
                         },
                       }))
                       setTitle('MT5 profits')
+                      setExternalLink('')
                     } finally {
                       setBusy(false)
                     }
@@ -140,6 +153,7 @@ export function ProvenResultsEditor() {
                       orientation,
                       title: title.trim() ? title.trim() : undefined,
                       mediaDataUrl: value,
+                      externalLink: externalLink.trim() ? externalLink.trim() : undefined,
                       order: media.length + 1,
                     }
                     updateDraft((prev) => ({
@@ -151,6 +165,7 @@ export function ProvenResultsEditor() {
                     }))
                     setMediaUrl('')
                     setTitle('MT5 profits')
+                    setExternalLink('')
                   }}
                 >
                   Use URL
@@ -265,6 +280,27 @@ export function ProvenResultsEditor() {
                           placeholder="Optional"
                         />
                       </div>
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-xs font-semibold text-theme-muted">External post link</label>
+                      <AdminTextInput
+                        value={item.externalLink ?? ''}
+                        onChange={(e) => {
+                          const value = e.target.value
+                          updateDraft((prev) => ({
+                            ...prev,
+                            provenResults: {
+                              ...prev.provenResults,
+                              media: prev.provenResults.media.map((m) =>
+                                m.id === item.id
+                                  ? { ...m, externalLink: value.trim() ? value : undefined }
+                                  : m,
+                              ),
+                            },
+                          }))
+                        }}
+                        placeholder="Optional"
+                      />
                     </div>
                   </div>
 

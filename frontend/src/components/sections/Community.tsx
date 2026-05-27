@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Facebook, Instagram, MessageCircle, Users } from 'lucide-react'
+import { Facebook, Instagram, MessageCircle, Users, Youtube } from 'lucide-react'
 import { useState } from 'react'
 import { BRAND } from '@/constants/brand'
 import { useLanguage } from '@/context/LanguageContext'
@@ -31,6 +31,13 @@ const channels = [
     icon: Facebook,
     color: 'from-blue-500/20 to-blue-600/10 border-blue-500/30 hover:shadow-[0_0_30px_rgba(59,130,246,0.25)]',
     iconColor: 'text-blue-400',
+  },
+  {
+    key: 'youtube',
+    href: BRAND.youtubeLink,
+    icon: Youtube,
+    color: 'from-rose-500/20 to-red-600/10 border-rose-500/30 hover:shadow-[0_0_30px_rgba(244,63,94,0.3)]',
+    iconColor: 'text-rose-400',
   },
 ] as const
 
@@ -92,7 +99,7 @@ export function Community() {
           </motion.div>
         </ScrollReveal>
 
-        <div className="grid gap-4 sm:grid-cols-3 sm:gap-6">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 sm:gap-6">
           {channels.map(({ key, href, icon: Icon, color, iconColor }, i) => (
             <ScrollReveal key={key} delay={i * 0.1}>
               <motion.a
