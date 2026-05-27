@@ -76,13 +76,13 @@ cd backend && npm run build
 
 ### Production env checklist
 
-**Render (backend):**
+**Render (backend)** — [reagle-fx-empire.onrender.com](https://reagle-fx-empire.onrender.com/api/health):
 - `PORT=4000` (or Render-provided port)
-- `MONGODB_URI=<atlas-uri>`
-- `FRONTEND_ORIGIN=https://<your-frontend>.vercel.app`
+- `MONGODB_URI=mongodb+srv://<user>:<password>@cluster0.kbthmhy.mongodb.net/coachpeter250?retryWrites=true&w=majority&appName=Cluster0`
+- `FRONTEND_ORIGIN=http://localhost:5173,https://reagle-fx-empire.vercel.app`
 - `ALLOW_VERCEL_PREVIEW_ORIGINS=true`
 - `ADMIN_API_KEY=<strong-secret>`
 
-**Vercel (frontend):**
-- `VITE_API_URL=https://<your-render-backend>.onrender.com`
+**Vercel (frontend)** — [reagle-fx-empire.vercel.app](https://reagle-fx-empire.vercel.app/):
+- `VITE_API_URL=https://reagle-fx-empire.onrender.com`
 - `VITE_ADMIN_API_KEY=<same-as-backend-admin-key>`
