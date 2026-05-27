@@ -692,32 +692,97 @@
     @apply absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/30;
   }
 
+  .upcoming-banner--plain .upcoming-banner-eyebrow {
+    @apply text-theme-muted;
+  }
+
+  .upcoming-banner--plain .upcoming-banner-title {
+    @apply text-theme-primary;
+  }
+
+  .upcoming-banner--plain .upcoming-banner-date {
+    @apply border bg-theme-surface/60 text-theme-primary;
+    border-color: rgb(var(--color-border) / 0.12);
+  }
+
+  .upcoming-banner--plain .upcoming-banner-link {
+    @apply border text-theme-primary hover:bg-theme-accent/10;
+    border-color: rgb(var(--color-border) / 0.12);
+  }
+
+  .upcoming-banner--media .upcoming-banner-eyebrow {
+    @apply text-white/70;
+  }
+
+  .upcoming-banner--media .upcoming-banner-title {
+    @apply text-white;
+  }
+
+  .upcoming-banner--media .upcoming-banner-date {
+    @apply border-white/15 bg-black/25 text-white/85;
+  }
+
+  .upcoming-banner--media .upcoming-banner-link {
+    @apply border-white/20 text-white hover:bg-white/15;
+  }
+
+  .upcoming-banner-share.share-menu--overlay {
+    @apply opacity-100;
+  }
+
   .banner-countdown {
-    @apply rounded-2xl border border-white/15 bg-black/30 p-3 backdrop-blur-md sm:p-4;
+    @apply rounded-2xl border p-3 backdrop-blur-md sm:p-4;
+  }
+
+  .banner-countdown--on-media {
+    @apply border-white/15 bg-black/30;
+  }
+
+  .banner-countdown--plain {
+    @apply border bg-theme-surface/70;
+    border-color: rgb(var(--color-border) / 0.12);
   }
 
   .banner-countdown--urgent {
     @apply border-amber-400/40 shadow-[0_0_24px_rgba(251,191,36,0.15)];
   }
 
-  .banner-countdown-header {
+  .banner-countdown--on-media .banner-countdown-header {
     @apply mb-3 flex flex-wrap items-center gap-2 text-[11px] text-white/75;
   }
 
-  .banner-countdown-heading {
+  .banner-countdown--plain .banner-countdown-header {
+    @apply mb-3 flex flex-wrap items-center gap-2 text-[11px] text-theme-muted;
+  }
+
+  .banner-countdown--on-media .banner-countdown-heading {
     @apply font-semibold uppercase tracking-[0.16em] text-white/90;
   }
 
-  .banner-countdown-date {
+  .banner-countdown--plain .banner-countdown-heading {
+    @apply font-semibold uppercase tracking-[0.16em] text-theme-primary;
+  }
+
+  .banner-countdown--on-media .banner-countdown-date {
     @apply ml-auto rounded-full border border-white/15 bg-white/10 px-2 py-0.5 text-[10px] font-medium text-white/85;
+  }
+
+  .banner-countdown--plain .banner-countdown-date {
+    @apply ml-auto rounded-full border bg-theme-elevated/80 px-2 py-0.5 text-[10px] font-medium text-theme-primary;
+    border-color: rgb(var(--color-border) / 0.12);
   }
 
   .banner-countdown-grid {
     @apply flex flex-wrap items-center justify-center gap-1 sm:justify-start sm:gap-1.5;
   }
 
-  .banner-countdown-unit {
+  .banner-countdown--on-media .banner-countdown-unit {
     @apply flex min-w-[52px] flex-col items-center rounded-xl border border-white/15 bg-gradient-to-b from-white/10 to-white/5 px-2 py-2 sm:min-w-[58px];
+  }
+
+  .banner-countdown--plain .banner-countdown-unit {
+    @apply flex min-w-[52px] flex-col items-center rounded-xl border bg-theme-elevated/80 px-2 py-2 sm:min-w-[58px];
+    border-color: rgb(var(--color-border) / 0.12);
   }
 
   .banner-countdown-unit--accent {
@@ -728,16 +793,28 @@
     @apply relative flex h-8 w-full items-center justify-center overflow-hidden sm:h-9;
   }
 
-  .banner-countdown-digit {
+  .banner-countdown--on-media .banner-countdown-digit {
     @apply font-display text-xl font-bold tabular-nums text-white sm:text-2xl;
   }
 
-  .banner-countdown-label {
+  .banner-countdown--plain .banner-countdown-digit {
+    @apply font-display text-xl font-bold tabular-nums text-theme-primary sm:text-2xl;
+  }
+
+  .banner-countdown--on-media .banner-countdown-label {
     @apply mt-1 text-[9px] font-semibold uppercase tracking-wider text-white/65;
   }
 
-  .banner-countdown-sep {
+  .banner-countdown--plain .banner-countdown-label {
+    @apply mt-1 text-[9px] font-semibold uppercase tracking-wider text-theme-muted;
+  }
+
+  .banner-countdown--on-media .banner-countdown-sep {
     @apply -mt-4 font-display text-lg font-bold text-white/35;
+  }
+
+  .banner-countdown--plain .banner-countdown-sep {
+    @apply -mt-4 font-display text-lg font-bold text-theme-muted/40;
   }
 
   .banner-countdown-live {
@@ -844,8 +921,14 @@
 
   .media-thumb-wrap:hover .share-menu--overlay,
   .media-thumb-wrap:focus-within .share-menu--overlay,
+  .upcoming-banner:hover .share-menu--overlay,
   .share-menu--overlay.share-menu--open {
     @apply opacity-100;
+  }
+
+  .light .share-menu-trigger {
+    @apply border bg-theme-surface/90 text-theme-primary shadow-md hover:bg-theme-elevated;
+    border-color: rgb(var(--color-border) / 0.12);
   }
 
   .share-menu--overlay .share-menu-trigger {

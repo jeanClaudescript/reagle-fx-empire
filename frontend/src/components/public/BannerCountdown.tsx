@@ -7,6 +7,7 @@ interface BannerCountdownProps {
   dateText: string
   targetMs: number
   nowMs: number
+  theme?: 'on-media' | 'plain'
 }
 
 function CountdownUnit({
@@ -49,7 +50,7 @@ function Separator() {
   )
 }
 
-export function BannerCountdown({ dateText, targetMs, nowMs }: BannerCountdownProps) {
+export function BannerCountdown({ dateText, targetMs, nowMs, theme = 'on-media' }: BannerCountdownProps) {
   const countdown = useMemo(() => getCountdownParts(targetMs, nowMs), [targetMs, nowMs])
   const formattedDate = useMemo(() => formatEventDate(dateText, targetMs), [dateText, targetMs])
 
@@ -71,7 +72,9 @@ export function BannerCountdown({ dateText, targetMs, nowMs }: BannerCountdownPr
   ].filter((u) => u.show)
 
   return (
-    <div className={`banner-countdown ${urgent ? 'banner-countdown--urgent' : ''}`}>
+    <div
+      className={`banner-countdown banner-countdown--${theme} ${urgent ? 'banner-countdown--urgent' : ''}`}
+    >
       <div className="banner-countdown-header">
         <Clock className="h-3.5 w-3.5 text-empire-purple-glow" />
         <span className="banner-countdown-heading">Starts in</span>

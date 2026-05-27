@@ -6,6 +6,7 @@ import { useCmsContent } from '@/cms/CmsProvider'
 import { SectionHeading } from '@/components/ui/SectionHeading'
 import { ScrollReveal, StaggerContainer, StaggerItem } from '@/components/ui/ScrollReveal'
 import { CertificatesCarousel } from '@/components/public/CertificatesCarousel'
+import { MediaThumb } from '@/components/media/MediaThumb'
 
 const statKeys = [
   { key: 'statYears', valueKey: 'yearsValue', icon: Award },
@@ -56,15 +57,23 @@ export function About() {
                       transition={{ duration: 30, repeat: Infinity, ease: 'linear' }}
                       className="mb-6 h-32 w-32 rounded-full border border-empire-purple/30 bg-gradient-to-br from-empire-purple/20 to-transparent p-1 sm:h-40 sm:w-40"
                     >
-                      <div className="flex h-full w-full items-center justify-center overflow-hidden rounded-full border border-theme/20 bg-theme-bg/90 shadow-glass">
+                      <div className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-full border border-theme/20 bg-theme-bg/90 shadow-glass">
                         {active.about.coachImageDataUrl ? (
-                          <img
+                          <MediaThumb
+                            kind="image"
                             src={active.about.coachImageDataUrl}
                             alt={active.about.title}
-                            className="h-full w-full object-cover"
-                            loading="lazy"
-                            decoding="async"
-                          />
+                            title={active.about.title}
+                            className="absolute inset-0 h-full w-full rounded-full"
+                          >
+                            <img
+                              src={active.about.coachImageDataUrl}
+                              alt={active.about.title}
+                              className="h-full w-full object-cover"
+                              loading="lazy"
+                              decoding="async"
+                            />
+                          </MediaThumb>
                         ) : (
                           <span className="font-display text-4xl font-bold text-gradient-brand sm:text-5xl">
                             CP
