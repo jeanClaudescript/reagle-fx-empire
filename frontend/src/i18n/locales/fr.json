@@ -21,7 +21,11 @@
     "profitLabel": "Croissance Hebdo",
     "profitValue": "+24,8%",
     "sessionLabel": "Sessions Live",
-    "sessionValue": "Quotidien"
+    "sessionValue": "Quotidien",
+    "dailyUpdatesTitle": "Actu marché du jour",
+    "dailyUpdatesHint": "Appuyez pour lire",
+    "dailyUpdatesFallback": "Actu",
+    "dailyUpdatesCommunity": "Rejoindre"
   },
   "about": {
     "label": "À propos de Reagle FX Empire",

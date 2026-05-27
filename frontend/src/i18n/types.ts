@@ -24,6 +24,10 @@ export interface Translations {
     profitValue: string
     sessionLabel: string
     sessionValue: string
+    dailyUpdatesTitle: string
+    dailyUpdatesHint: string
+    dailyUpdatesFallback: string
+    dailyUpdatesCommunity: string
   }
   about: {
     label: string

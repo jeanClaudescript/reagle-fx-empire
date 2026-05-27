@@ -11,6 +11,20 @@ export type DeepPartial<T> = T extends (...args: unknown[]) => unknown
       ? { [K in keyof T]?: DeepPartial<T[K]> }
       : T
 
+export type DailyUpdateType = 'text' | 'image' | 'video'
+
+export interface DailyUpdate {
+  id: string
+  enabled: boolean
+  type: DailyUpdateType
+  caption: string
+  mediaDataUrl?: string
+  posterDataUrl?: string
+  externalLink?: string
+  createdAt: string
+  order: number
+}
+
 export interface UpcomingBanner {
   id: string
   enabled: boolean
@@ -72,6 +86,7 @@ export interface CMSSectionVisibility {
   community: boolean
   certificates: boolean
   lessons: boolean
+  dailyUpdates: boolean
 }
 
 export interface CMSSettings {
@@ -80,6 +95,7 @@ export interface CMSSettings {
 
 export interface CMSData {
   version: 1
+  dailyUpdates: DailyUpdate[]
   upcomingBanners: UpcomingBanner[]
   about: CoachProfile
   certificates: Certificate[]

@@ -11,6 +11,9 @@ export function mergeSectionIntoPublished(
   const base = { ...published }
 
   switch (section) {
+    case 'updates':
+      base.dailyUpdates = draft.dailyUpdates
+      break
     case 'upcoming':
       base.upcomingBanners = draft.upcomingBanners
       break

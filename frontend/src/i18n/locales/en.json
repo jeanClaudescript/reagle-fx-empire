@@ -21,7 +21,11 @@
     "profitLabel": "Weekly Growth",
     "profitValue": "+24.8%",
     "sessionLabel": "Live Sessions",
-    "sessionValue": "Daily"
+    "sessionValue": "Daily",
+    "dailyUpdatesTitle": "Daily market news",
+    "dailyUpdatesHint": "Tap to read",
+    "dailyUpdatesFallback": "Update",
+    "dailyUpdatesCommunity": "Join"
   },
   "about": {
     "label": "About Reagle FX Empire",

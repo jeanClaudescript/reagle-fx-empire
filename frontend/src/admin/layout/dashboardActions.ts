@@ -1,6 +1,7 @@
 import type { LucideIcon } from 'lucide-react'
 import {
   Megaphone,
+  Newspaper,
   User,
   Award,
   TrendingUp,
@@ -23,6 +24,12 @@ export type DashboardAction = {
 
 /** Clickable CMS tasks shown on the dashboard home. */
 export const DASHBOARD_CONTENT_ACTIONS: DashboardAction[] = [
+  {
+    tab: 'updates',
+    title: 'Daily updates',
+    description: 'Post market news like stories / WhatsApp status',
+    icon: Newspaper,
+  },
   {
     tab: 'upcoming',
     title: 'Upcoming banners',

@@ -2,6 +2,7 @@ import type { CMSData } from '../types/cms.js'
 
 export const DEFAULT_CMS_DATA: CMSData = {
   version: 1,
+  dailyUpdates: [],
   upcomingBanners: [],
   about: {
     coachImageDataUrl: undefined,
@@ -40,6 +41,7 @@ export const DEFAULT_CMS_DATA: CMSData = {
       community: true,
       certificates: true,
       lessons: true,
+      dailyUpdates: true,
     },
   },
 }

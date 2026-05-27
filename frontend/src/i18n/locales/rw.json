@@ -21,7 +21,11 @@
     "profitLabel": "Iterambere ry'Icyumweru",
     "profitValue": "+24.8%",
     "sessionLabel": "Amasomo Azima",
-    "sessionValue": "Buri munsi"
+    "sessionValue": "Buri munsi",
+    "dailyUpdatesTitle": "Amakuru y'isoko uyu munsi",
+    "dailyUpdatesHint": "Kanda usome",
+    "dailyUpdatesFallback": "Amakuru",
+    "dailyUpdatesCommunity": "Jya"
   },
   "about": {
     "label": "Ibyerekeye Reagle FX Empire",

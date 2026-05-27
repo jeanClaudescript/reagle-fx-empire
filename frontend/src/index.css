@@ -688,6 +688,112 @@
     @apply absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/30;
   }
 
+  .story-bubble {
+    @apply flex w-[74px] flex-col items-center gap-1 text-center;
+  }
+
+  .story-bubble-ring {
+    @apply rounded-full bg-gradient-to-br from-empire-purple via-empire-blue-electric to-emerald-400 p-[2.5px];
+  }
+
+  .story-bubble-ring--community {
+    @apply from-emerald-400 to-emerald-600;
+  }
+
+  .story-bubble-inner {
+    @apply flex h-[62px] w-[62px] items-center justify-center overflow-hidden rounded-full border border-black/30 bg-theme-bg;
+  }
+
+  .story-bubble-inner--community {
+    @apply bg-emerald-500/20 text-lg font-bold text-emerald-300;
+  }
+
+  .story-bubble-text-icon {
+    @apply font-display text-sm font-bold text-theme-accent;
+  }
+
+  .story-bubble-label {
+    @apply line-clamp-1 w-full text-[10px] font-semibold text-theme-primary;
+  }
+
+  .story-bubble-time {
+    @apply text-[9px] text-theme-muted;
+  }
+
+  .story-viewer-backdrop {
+    @apply fixed inset-0 z-[450] flex items-center justify-center bg-black/95 p-2;
+    padding-top: max(0.5rem, env(safe-area-inset-top));
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+  }
+
+  .story-viewer-progress {
+    @apply absolute inset-x-3 top-[max(0.5rem,env(safe-area-inset-top))] z-20 flex gap-1;
+  }
+
+  .story-viewer-progress-bar {
+    @apply h-0.5 flex-1 rounded-full bg-white/25;
+  }
+
+  .story-viewer-progress-bar.is-active {
+    @apply bg-white;
+  }
+
+  .story-viewer-panel {
+    @apply relative h-[min(92dvh,760px)] w-[min(100vw,420px)] overflow-hidden rounded-3xl border border-white/10 bg-slate-950 shadow-2xl;
+  }
+
+  .story-viewer-close {
+    @apply absolute right-3 top-3 z-30 flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-black/50 text-white;
+  }
+
+  .story-viewer-stage {
+    @apply relative flex h-full w-full flex-col;
+  }
+
+  .story-viewer-media {
+    @apply h-full w-full flex-1 object-contain bg-black;
+  }
+
+  .story-viewer-text-card {
+    @apply flex flex-1 items-center justify-center bg-gradient-to-br from-empire-purple/35 via-slate-950 to-empire-blue/30 p-6;
+  }
+
+  .story-viewer-text {
+    @apply text-center text-lg font-medium leading-relaxed text-white sm:text-xl;
+  }
+
+  .story-viewer-caption-wrap {
+    @apply absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/50 to-transparent p-4 pt-12;
+  }
+
+  .story-viewer-time {
+    @apply text-[11px] font-semibold uppercase tracking-wide text-white/70;
+  }
+
+  .story-viewer-caption {
+    @apply mt-2 text-sm leading-relaxed text-white;
+  }
+
+  .story-viewer-share {
+    @apply mt-3 flex flex-wrap gap-2;
+  }
+
+  .story-viewer-share-btn {
+    @apply rounded-lg border border-white/20 bg-white/10 px-2.5 py-1 text-[11px] font-semibold text-white hover:bg-white/20;
+  }
+
+  .story-viewer-nav {
+    @apply absolute top-1/2 z-30 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/50 text-white;
+  }
+
+  .story-viewer-nav--prev {
+    @apply left-2;
+  }
+
+  .story-viewer-nav--next {
+    @apply right-2;
+  }
+
   .admin-mobile-drawer {
     @apply fixed inset-y-0 left-0 z-[90] flex w-[min(100vw-2.5rem,340px)] flex-col border-r border-theme bg-theme-surface/95 shadow-2xl backdrop-blur-2xl;
     padding-top: env(safe-area-inset-top);

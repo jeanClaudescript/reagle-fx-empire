@@ -21,6 +21,26 @@ function isNonEmpty(value: string | undefined) {
 export function validateSection(section: ContentSectionId, data: CMSData): ValidationIssue[] {
   const issues: ValidationIssue[] = []
 
+  if (section === 'updates') {
+    for (const update of data.dailyUpdates ?? []) {
+      if (!update.enabled) continue
+      if (update.type === 'text' && !isNonEmpty(update.caption)) {
+        issues.push({
+          section,
+          field: `update:${update.id}.caption`,
+          message: 'Text update needs a message',
+        })
+      }
+      if ((update.type === 'image' || update.type === 'video') && !update.mediaDataUrl) {
+        issues.push({
+          section,
+          field: `update:${update.id}.media`,
+          message: `Update "${update.caption.slice(0, 24) || update.id}" needs media`,
+        })
+      }
+    }
+  }
+
   if (section === 'upcoming') {
     for (const banner of data.upcomingBanners) {
       if (!banner.enabled) continue
@@ -113,6 +133,7 @@ export function validateSection(section: ContentSectionId, data: CMSData): Valid
 }
 
 export const CONTENT_SECTIONS: ContentSectionId[] = [
+  'updates',
   'upcoming',
   'about',
   'certificates',
@@ -130,6 +151,8 @@ export function validatePublish(data: CMSData): PublishValidationResult {
 
 export function pickSectionData(section: ContentSectionId, data: CMSData): unknown {
   switch (section) {
+    case 'updates':
+      return data.dailyUpdates
     case 'upcoming':
       return data.upcomingBanners
     case 'about':

@@ -92,6 +92,12 @@ export function normalizeCmsData(data: CMSData): CMSData {
 export function ensureMediaOrders(data: CMSData): CMSData {
   return {
     ...data,
+    dailyUpdates: [...(data.dailyUpdates ?? [])].sort((a, b) => {
+      const ta = Date.parse(a.createdAt) || 0
+      const tb = Date.parse(b.createdAt) || 0
+      if (tb !== ta) return tb - ta
+      return a.order - b.order
+    }),
     upcomingBanners: [...data.upcomingBanners].sort((a, b) => a.order - b.order),
     certificates: [...data.certificates].sort((a, b) => a.order - b.order),
     provenResults: {

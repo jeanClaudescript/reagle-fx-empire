@@ -13,6 +13,7 @@ import { scrollToSection } from '@/hooks/useScrollSpy'
 import { GlowButton } from '@/components/ui/GlowButton'
 import { ParticlesBackground } from '@/components/ui/ParticlesBackground'
 import { LiveForexChart } from '@/components/ui/LiveForexChart'
+import { DailyUpdatesStrip } from '@/components/public/DailyUpdatesStrip'
 import { UpcomingBannerSlot } from '@/components/public/UpcomingBannerSlot'
 
 const stats = [
@@ -72,6 +73,8 @@ export function Hero() {
           <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-theme-muted sm:mt-6 sm:text-lg md:text-xl">
             {t.hero.subheadline}
           </p>
+
+          <DailyUpdatesStrip />
 
           <UpcomingBannerSlot />
 

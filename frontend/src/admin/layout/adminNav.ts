@@ -2,6 +2,7 @@ import type { LucideIcon } from 'lucide-react'
 import {
   LayoutDashboard,
   Megaphone,
+  Newspaper,
   User,
   Award,
   TrendingUp,
@@ -13,6 +14,7 @@ import {
 
 export type AdminTab =
   | 'dashboard'
+  | 'updates'
   | 'upcoming'
   | 'about'
   | 'certificates'
@@ -31,6 +33,7 @@ export type AdminNavItem = {
 
 export const ADMIN_NAV: AdminNavItem[] = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, group: 'main' },
+  { id: 'updates', label: 'Daily Updates', icon: Newspaper, group: 'content' },
   { id: 'upcoming', label: 'Upcoming Banners', icon: Megaphone, group: 'content' },
   { id: 'about', label: 'About', icon: User, group: 'content' },
   { id: 'certificates', label: 'Certificates', icon: Award, group: 'content' },

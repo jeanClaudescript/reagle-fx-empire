@@ -21,7 +21,11 @@
     "profitLabel": "Ukuaji wa Wiki",
     "profitValue": "+24.8%",
     "sessionLabel": "Vipindi Hai",
-    "sessionValue": "Kila Siku"
+    "sessionValue": "Kila Siku",
+    "dailyUpdatesTitle": "Habari za soko leo",
+    "dailyUpdatesHint": "Gusa kusoma",
+    "dailyUpdatesFallback": "Habari",
+    "dailyUpdatesCommunity": "Jiunge"
   },
   "about": {
     "label": "Kuhusu Reagle FX Empire",

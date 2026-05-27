@@ -32,6 +32,7 @@ export function DashboardHome({ onNavigate, onWorkflow }: DashboardHomeProps) {
   const { draft, published, sectionStates, hasDraftChanges } = useCms()
 
   const stats = [
+    { label: 'Daily updates', value: (draft.dailyUpdates ?? []).filter((u) => u.enabled).length },
     { label: 'Banners', value: draft.upcomingBanners.filter((b) => b.enabled).length },
     { label: 'Certificates', value: draft.certificates.length },
     { label: 'Proven media', value: draft.provenResults.media.length },

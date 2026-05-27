@@ -4,6 +4,7 @@ import { useCms } from '@/cms/CmsProvider'
 import { AdminToastProvider, useAdminToast } from '@/admin/toast'
 import { AdminConfirmProvider, useAdminConfirm } from '@/admin/confirm'
 import { CmsValidationProvider } from '@/admin/CmsValidationContext'
+import { DailyUpdatesEditor } from '@/admin/editors/DailyUpdatesEditor'
 import { UpcomingBannersEditor } from '@/admin/editors/UpcomingBannersEditor'
 import { AboutEditor } from '@/admin/editors/AboutEditor'
 import { CertificatesEditor } from '@/admin/editors/CertificatesEditor'
@@ -161,6 +162,7 @@ function AdminDashboardInner() {
 
     const section = tab as ContentSectionId
     const editors: Record<ContentSectionId, React.ReactNode> = {
+      updates: <DailyUpdatesEditor />,
       upcoming: <UpcomingBannersEditor />,
       about: <AboutEditor />,
       certificates: <CertificatesEditor />,
