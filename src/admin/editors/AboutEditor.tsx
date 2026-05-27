@@ -25,6 +25,8 @@ export function AboutEditor() {
   const { push } = useAdminToast()
   const [busy, setBusy] = useState(false)
   const [bgBusy, setBgBusy] = useState(false)
+  const [coachImageUrl, setCoachImageUrl] = useState('')
+  const [backgroundUrl, setBackgroundUrl] = useState('')
 
   const coach = draft.about
 
@@ -103,6 +105,36 @@ export function AboutEditor() {
                     }}
                   />
                 </label>
+                <div className="w-full space-y-2">
+                  <p className="text-xs font-semibold text-theme-muted">Or paste image URL</p>
+                  <div className="flex flex-col gap-2 sm:flex-row">
+                    <AdminTextInput
+                      type="url"
+                      value={coachImageUrl}
+                      onChange={(e) => setCoachImageUrl(e.target.value)}
+                      placeholder="https://..."
+                      disabled={busy || bgBusy}
+                      className="w-full"
+                    />
+                    <button
+                      type="button"
+                      className="admin-btn admin-btn--secondary admin-btn--sm"
+                      disabled={busy || bgBusy || !coachImageUrl.trim()}
+                      onClick={() => {
+                        const value = coachImageUrl.trim()
+                        if (!value) return
+                        updateDraft((prev) => ({
+                          ...prev,
+                          about: { ...prev.about, coachImageDataUrl: value },
+                        }))
+                        setCoachImageUrl('')
+                        push('Coach photo URL set.', 'success')
+                      }}
+                    >
+                      Use URL
+                    </button>
+                  </div>
+                </div>
               </div>
 
               <p className="mb-2 mt-4 text-sm font-semibold text-theme-primary">
@@ -144,6 +176,36 @@ export function AboutEditor() {
                     }}
                   />
                 </label>
+                <div className="w-full space-y-2">
+                  <p className="text-xs font-semibold text-theme-muted">Or paste background image URL</p>
+                  <div className="flex flex-col gap-2 sm:flex-row">
+                    <AdminTextInput
+                      type="url"
+                      value={backgroundUrl}
+                      onChange={(e) => setBackgroundUrl(e.target.value)}
+                      placeholder="https://..."
+                      disabled={busy || bgBusy}
+                      className="w-full"
+                    />
+                    <button
+                      type="button"
+                      className="admin-btn admin-btn--secondary admin-btn--sm"
+                      disabled={busy || bgBusy || !backgroundUrl.trim()}
+                      onClick={() => {
+                        const value = backgroundUrl.trim()
+                        if (!value) return
+                        updateDraft((prev) => ({
+                          ...prev,
+                          about: { ...prev.about, coachBackgroundDataUrl: value },
+                        }))
+                        setBackgroundUrl('')
+                        push('Background URL set.', 'success')
+                      }}
+                    >
+                      Use URL
+                    </button>
+                  </div>
+                </div>
 
                 {coach.coachBackgroundDataUrl && (
                   <button

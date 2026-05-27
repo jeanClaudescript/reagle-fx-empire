@@ -17,6 +17,10 @@ const CARD_KEYS: MasteryCardKey[] = [
   'live',
 ]
 
+function inferMediaTypeFromUrl(url: string): MediaType {
+  return /\.(mp4|webm|ogg|mov|m4v)(\?.*)?$/i.test(url) ? 'video' : 'image'
+}
+
 export function MasteryEditor() {
   const { t } = useLanguage()
   const { draft, updateDraft } = useCms()
@@ -134,6 +138,18 @@ export function MasteryEditor() {
                         }
                         setMedia(key, next)
                       }}
+                      onUrlSubmit={async (url) => {
+                        const type = inferMediaTypeFromUrl(url)
+                        const next: CMSMedia = {
+                          id: `mastery-${key}-${Date.now()}`,
+                          type,
+                          orientation: orientationByKey[key],
+                          mediaDataUrl: url,
+                          order: 1,
+                        }
+                        setMedia(key, next)
+                      }}
+                      urlLabel="Or paste hosted media URL"
                     />
                   </div>
                 )}

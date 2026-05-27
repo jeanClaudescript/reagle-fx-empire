@@ -43,13 +43,12 @@ export function Navbar() {
             type="button"
             onClick={() => {
               handleNav('home')
-              if (!import.meta.env.DEV) return
               const now = Date.now()
               if (now - tapRef.current.lastAt > 900) tapRef.current.count = 1
               else tapRef.current.count += 1
               tapRef.current.lastAt = now
               if (tapRef.current.count >= 4) {
-                window.location.pathname = '/admin-login'
+                window.location.assign('/admin-login')
               }
             }}
             className="group flex flex-col text-left"

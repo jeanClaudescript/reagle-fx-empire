@@ -21,6 +21,7 @@ export function CertificatesEditor() {
   const certificates = useMemo(() => normalize(draft.certificates), [draft.certificates])
 
   const [title, setTitle] = useState('')
+  const [imageUrl, setImageUrl] = useState('')
   const [uploadBusy, setUploadBusy] = useState(false)
 
   const addDisabled = uploadBusy
@@ -75,6 +76,40 @@ export function CertificatesEditor() {
                   }}
                 />
               </label>
+            </div>
+            <div className="sm:col-span-2 rounded-2xl border border-theme bg-theme-surface/45 p-3">
+              <p className="mb-2 text-xs font-semibold text-theme-muted">Or paste image URL</p>
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <AdminTextInput
+                  type="url"
+                  value={imageUrl}
+                  onChange={(e) => setImageUrl(e.target.value)}
+                  placeholder="https://..."
+                  disabled={addDisabled}
+                  className="w-full"
+                />
+                <button
+                  type="button"
+                  disabled={addDisabled || !imageUrl.trim()}
+                  className="admin-btn admin-btn--secondary admin-btn--sm"
+                  onClick={() => {
+                    const next: Certificate = {
+                      id: `cert-${Math.random().toString(16).slice(2)}`,
+                      imageDataUrl: imageUrl.trim(),
+                      title: title.trim() ? title.trim() : undefined,
+                      order: certificates.length + 1,
+                    }
+                    updateDraft((prev) => ({
+                      ...prev,
+                      certificates: normalize([...prev.certificates, next]),
+                    }))
+                    setImageUrl('')
+                    setTitle('')
+                  }}
+                >
+                  Use URL
+                </button>
+              </div>
             </div>
           </div>
         </div>

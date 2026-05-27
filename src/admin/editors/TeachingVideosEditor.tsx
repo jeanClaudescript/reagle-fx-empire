@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 import type { TeachingVideoItem } from '@/cms/types'
 import { useCms } from '@/cms/CmsProvider'
@@ -12,9 +12,14 @@ function sort(items: TeachingVideoItem[]) {
   return items.slice().sort((a, b) => a.order - b.order)
 }
 
+function isVideoUrl(url: string) {
+  return /\.(mp4|webm|ogg|mov|m4v)(\?.*)?$/i.test(url)
+}
+
 export function TeachingVideosEditor() {
   const { draft, updateDraft } = useCms()
   const { confirm } = useAdminConfirm()
+  const [urlById, setUrlById] = useState<Record<string, string>>({})
 
   const items = useMemo(() => sort(draft.teachingVideos), [draft.teachingVideos])
 
@@ -105,6 +110,47 @@ export function TeachingVideosEditor() {
                       }}
                     />
                   </label>
+                  <div className="rounded-xl border border-theme bg-theme-surface/45 p-2.5">
+                    <p className="mb-2 text-xs font-semibold text-theme-muted">Or paste image/video URL</p>
+                    <div className="flex flex-col gap-2 sm:flex-row">
+                      <AdminTextInput
+                        type="url"
+                        value={urlById[item.id] ?? ''}
+                        onChange={(e) =>
+                          setUrlById((prev) => ({
+                            ...prev,
+                            [item.id]: e.target.value,
+                          }))
+                        }
+                        placeholder="https://..."
+                        className="w-full"
+                      />
+                      <button
+                        type="button"
+                        className="admin-btn admin-btn--secondary admin-btn--sm"
+                        disabled={!(urlById[item.id] ?? '').trim()}
+                        onClick={() => {
+                          const value = (urlById[item.id] ?? '').trim()
+                          if (!value) return
+                          const urlIsVideo = isVideoUrl(value)
+                          updateDraft((prev) => ({
+                            ...prev,
+                            teachingVideos: prev.teachingVideos.map((v) => {
+                              if (v.id !== item.id) return v
+                              return {
+                                ...v,
+                                posterDataUrl: urlIsVideo ? v.posterDataUrl : value,
+                                videoDataUrl: urlIsVideo ? value : v.videoDataUrl,
+                              }
+                            }),
+                          }))
+                          setUrlById((prev) => ({ ...prev, [item.id]: '' }))
+                        }}
+                      >
+                        Use URL
+                      </button>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="admin-editor-actions">

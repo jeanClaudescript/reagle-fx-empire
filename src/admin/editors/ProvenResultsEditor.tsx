@@ -20,6 +20,7 @@ export function ProvenResultsEditor() {
   const [type, setType] = useState<MediaType>('placeholder')
   const [orientation, setOrientation] = useState<MediaOrientation>('horizontal')
   const [title, setTitle] = useState('MT5 profits')
+  const [mediaUrl, setMediaUrl] = useState('')
   const [busy, setBusy] = useState(false)
 
   return (
@@ -114,6 +115,47 @@ export function ProvenResultsEditor() {
                       ? 'Upload video file'
                       : 'Upload image file'}
               </label>
+            </div>
+            <div className="sm:col-span-2 rounded-2xl border border-theme bg-theme-surface/45 p-3">
+              <p className="mb-2 text-xs font-semibold text-theme-muted">Or paste media URL</p>
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <AdminTextInput
+                  type="url"
+                  value={mediaUrl}
+                  onChange={(e) => setMediaUrl(e.target.value)}
+                  placeholder={type === 'video' ? 'https://...mp4' : 'https://...jpg'}
+                  disabled={type === 'placeholder' || busy}
+                  className="w-full"
+                />
+                <button
+                  type="button"
+                  disabled={type === 'placeholder' || busy || !mediaUrl.trim()}
+                  className="admin-btn admin-btn--secondary admin-btn--sm"
+                  onClick={() => {
+                    const value = mediaUrl.trim()
+                    if (!value) return
+                    const next: CMSMedia = {
+                      id: `pr-${Math.random().toString(16).slice(2)}`,
+                      type,
+                      orientation,
+                      title: title.trim() ? title.trim() : undefined,
+                      mediaDataUrl: value,
+                      order: media.length + 1,
+                    }
+                    updateDraft((prev) => ({
+                      ...prev,
+                      provenResults: {
+                        ...prev.provenResults,
+                        media: sortByOrder([...prev.provenResults.media, next]),
+                      },
+                    }))
+                    setMediaUrl('')
+                    setTitle('MT5 profits')
+                  }}
+                >
+                  Use URL
+                </button>
+              </div>
             </div>
           </div>
         </div>
