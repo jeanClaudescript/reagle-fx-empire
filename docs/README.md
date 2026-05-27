@@ -22,6 +22,7 @@ copy .env.example .env
 ```
 
 Set `MONGODB_URI` in `backend/.env`.
+If you set `ADMIN_API_KEY` in backend, set matching `VITE_ADMIN_API_KEY` in `frontend/.env`.
 
 ### 2) Run apps
 

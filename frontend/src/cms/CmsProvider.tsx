@@ -23,6 +23,7 @@ import {
   type PublishValidationResult,
   type ValidationIssue,
 } from './validation'
+import { cmsApi } from '@/services/api'
 
 export type CmsRenderSource = 'published' | 'draft'
 
@@ -94,18 +95,44 @@ export function CmsProvider({ children }: { children: React.ReactNode }) {
   const [validationIssues, setValidationIssues] = useState<ValidationIssue[]>([])
   const [sectionMeta, setSectionMeta] = useState<Partial<Record<ContentSectionId, number>>>({})
   const prevDraftRef = useRef<CMSData>(DEFAULT_CMS_DATA)
+  const draftSyncTimeoutRef = useRef<number | null>(null)
 
   useEffect(() => {
-    const p = normalizeCmsData(loadPublishedCMS())
-    const d = normalizeCmsData(loadDraftCMS())
-    const h = loadHistory()
-    const meta = loadSectionMeta()
-    setPublished(p)
-    setDraftState(d)
-    prevDraftRef.current = d
-    setHistory(h)
-    setSectionMeta(meta)
-    setIsHydrated(true)
+    const hydrate = async () => {
+      const localPublished = normalizeCmsData(loadPublishedCMS())
+      const localDraft = normalizeCmsData(loadDraftCMS())
+      const h = loadHistory()
+      const meta = loadSectionMeta()
+
+      setPublished(localPublished)
+      setDraftState(localDraft)
+      prevDraftRef.current = localDraft
+      setHistory(h)
+      setSectionMeta(meta)
+      setIsHydrated(true)
+
+      try {
+        const [publishedRes, draftRes] = await Promise.all([cmsApi.getPublished(), cmsApi.getDraft()])
+        const remotePublished = normalizeCmsData(publishedRes.data as CMSData)
+        const remoteDraft = normalizeCmsData(draftRes.data as CMSData)
+        setPublished(remotePublished)
+        setDraftState(remoteDraft)
+        prevDraftRef.current = remoteDraft
+        savePublishedCMS(remotePublished)
+        saveDraftCMS(remoteDraft)
+      } catch {
+        // Backend not reachable: keep localStorage mode.
+      }
+    }
+    void hydrate()
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      if (draftSyncTimeoutRef.current) {
+        window.clearTimeout(draftSyncTimeoutRef.current)
+      }
+    }
   }, [])
 
   const effectiveRenderSource: CmsRenderSource = previewLock ?? renderSource
@@ -152,6 +179,15 @@ export function CmsProvider({ children }: { children: React.ReactNode }) {
     })
     setRenderSourceState('draft')
     setValidationIssues([])
+
+    if (draftSyncTimeoutRef.current) {
+      window.clearTimeout(draftSyncTimeoutRef.current)
+    }
+    draftSyncTimeoutRef.current = window.setTimeout(() => {
+      void cmsApi.putDraft(prevDraftRef.current).catch(() => {
+        // Keep local mode if API fails.
+      })
+    }, 450)
   }, [])
 
   const setRenderSource = useCallback((source: CmsRenderSource) => {
@@ -178,6 +214,8 @@ export function CmsProvider({ children }: { children: React.ReactNode }) {
 
     setRenderSourceState('published')
     setValidationIssues([])
+    void cmsApi.putDraft(nextPublished).catch(() => {})
+    void cmsApi.publish().catch(() => {})
   }, [draft, history, published])
 
   const publishValidated = useCallback((): PublishValidationResult => {
@@ -213,6 +251,8 @@ export function CmsProvider({ children }: { children: React.ReactNode }) {
       setPublished(nextPublished)
       savePublishedCMS(nextPublished)
       setValidationIssues([])
+      void cmsApi.putDraft(draft).catch(() => {})
+      void cmsApi.publish().catch(() => {})
       return { ok: true, issues: [] }
     },
     [draft, history, published],
@@ -240,6 +280,7 @@ export function CmsProvider({ children }: { children: React.ReactNode }) {
     prevDraftRef.current = published
     setRenderSourceState('published')
     setValidationIssues([])
+    void cmsApi.resetDraft().catch(() => {})
   }, [published])
 
   const value = useMemo<CmsContextValue>(

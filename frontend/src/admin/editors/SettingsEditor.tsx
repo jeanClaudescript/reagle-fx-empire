@@ -3,9 +3,11 @@ import { useAdminConfirm } from '@/admin/confirm'
 import type { CMSSectionId } from '@/cms/types'
 import { AdminCard } from '@/components/admin/AdminCard'
 import { useAdminToast } from '@/admin/toast'
+import { useEffect, useState } from 'react'
 import { loadDraftCMS, loadPublishedCMS, saveDraftCMS, savePublishedCMS } from '@/cms/storage'
 import { DEFAULT_CMS_DATA } from '@/cms/defaultCms'
 import { normalizeCmsData } from '@/cms/storage'
+import { messageApi, type ApiMessage } from '@/services/api'
 
 const SECTION_LABELS: Record<CMSSectionId, string> = {
   results: 'Proven Results',
@@ -20,6 +22,23 @@ export function SettingsEditor() {
   const { push } = useAdminToast()
   const { confirm } = useAdminConfirm()
   const sections = draft.settings.sections ?? DEFAULT_CMS_DATA.settings.sections
+  const [messages, setMessages] = useState<ApiMessage[]>([])
+  const [loadingMessages, setLoadingMessages] = useState(false)
+
+  useEffect(() => {
+    const run = async () => {
+      setLoadingMessages(true)
+      try {
+        const res = await messageApi.list()
+        setMessages(res.data)
+      } catch {
+        setMessages([])
+      } finally {
+        setLoadingMessages(false)
+      }
+    }
+    void run()
+  }, [])
 
   const toggle = (id: CMSSectionId, enabled: boolean) => {
     updateDraft((prev) => ({
@@ -114,6 +133,83 @@ export function SettingsEditor() {
               Check storage
             </button>
           </div>
+        </div>
+      </AdminCard>
+
+      <AdminCard>
+        <div className="admin-card-body">
+          <h3 className="font-display text-md font-bold text-theme-primary">User messages</h3>
+          <p className="mt-2 text-sm text-theme-muted">
+            Messages submitted from the public community section.
+          </p>
+          <div className="mt-4 flex justify-end">
+            <button
+              type="button"
+              className="admin-btn admin-btn--secondary admin-btn--sm"
+              onClick={async () => {
+                setLoadingMessages(true)
+                try {
+                  const res = await messageApi.list()
+                  setMessages(res.data)
+                  push(`Loaded ${res.data.length} message(s).`, 'info')
+                } catch {
+                  push('Could not load messages. Check backend/API key.', 'error')
+                } finally {
+                  setLoadingMessages(false)
+                }
+              }}
+            >
+              Refresh messages
+            </button>
+          </div>
+
+          {loadingMessages ? (
+            <p className="mt-4 text-sm text-theme-muted">Loading messages...</p>
+          ) : messages.length === 0 ? (
+            <p className="mt-4 text-sm text-theme-muted">No messages yet.</p>
+          ) : (
+            <div className="mt-4 space-y-3">
+              {messages.map((msg) => (
+                <div key={msg.id} className="rounded-2xl border border-theme bg-theme-surface/60 p-4">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="text-sm font-semibold text-theme-primary">{msg.name}</p>
+                    <span className="rounded-full border border-theme px-2 py-0.5 text-[10px] text-theme-muted">
+                      {msg.status}
+                    </span>
+                    <span className="text-xs text-theme-muted">
+                      {new Date(msg.createdAt).toLocaleString()}
+                    </span>
+                  </div>
+                  <p className="mt-2 whitespace-pre-wrap text-sm text-theme-primary">{msg.message}</p>
+                  <p className="mt-2 text-xs text-theme-muted">
+                    {msg.phone ? `Phone: ${msg.phone} · ` : ''}
+                    {msg.email ? `Email: ${msg.email} · ` : ''}
+                    {msg.channel ? `Channel: ${msg.channel}` : ''}
+                  </p>
+                  {msg.status !== 'read' ? (
+                    <div className="mt-3">
+                      <button
+                        type="button"
+                        className="admin-btn admin-btn--secondary admin-btn--sm"
+                        onClick={async () => {
+                          try {
+                            await messageApi.markRead(msg.id)
+                            setMessages((prev) =>
+                              prev.map((item) => (item.id === msg.id ? { ...item, status: 'read' } : item)),
+                            )
+                          } catch {
+                            push('Could not update message status.', 'error')
+                          }
+                        }}
+                      >
+                        Mark as read
+                      </button>
+                    </div>
+                  ) : null}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </AdminCard>
     </div>

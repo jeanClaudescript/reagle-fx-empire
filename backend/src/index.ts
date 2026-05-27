@@ -3,6 +3,7 @@ import express from 'express'
 import { env } from './config/env.js'
 import { connectDatabase } from './db/connect.js'
 import { cmsRoutes } from './routes/cmsRoutes.js'
+import { messageRoutes } from './routes/messageRoutes.js'
 
 const app = express()
 
@@ -30,6 +31,7 @@ app.get('/api/health', (_req, res) => {
 })
 
 app.use('/api/cms', cmsRoutes)
+app.use('/api/messages', messageRoutes)
 
 app.use(
   (

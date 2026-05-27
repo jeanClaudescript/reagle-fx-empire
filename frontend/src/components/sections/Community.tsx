@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import { Facebook, Instagram, MessageCircle, Users } from 'lucide-react'
+import { useState } from 'react'
 import { BRAND } from '@/constants/brand'
 import { useLanguage } from '@/context/LanguageContext'
 import { SectionHeading } from '@/components/ui/SectionHeading'
@@ -7,6 +8,7 @@ import { GlowButton } from '@/components/ui/GlowButton'
 import { ScrollReveal } from '@/components/ui/ScrollReveal'
 import { useCmsContent } from '@/cms/CmsProvider'
 import { isSectionEnabled } from '@/cms/sectionVisibility'
+import { messageApi } from '@/services/api'
 
 const channels = [
   {
@@ -35,6 +37,12 @@ const channels = [
 export function Community() {
   const { t } = useLanguage()
   const active = useCmsContent()
+  const [name, setName] = useState('')
+  const [phone, setPhone] = useState('')
+  const [email, setEmail] = useState('')
+  const [message, setMessage] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [feedback, setFeedback] = useState<string | null>(null)
 
   if (!isSectionEnabled(active, 'community')) return null
 
@@ -103,6 +111,79 @@ export function Community() {
             </ScrollReveal>
           ))}
         </div>
+
+        <ScrollReveal>
+          <div className="mt-10 rounded-3xl border border-theme bg-theme-surface/55 p-5 sm:p-6">
+            <h4 className="font-display text-lg font-bold text-theme-primary">Send message to admin</h4>
+            <p className="mt-1 text-sm text-theme-muted">
+              Ask about mentorship, signals, or course access. Admin receives this in dashboard.
+            </p>
+            <form
+              className="mt-4 grid gap-3 sm:grid-cols-2"
+              onSubmit={async (e) => {
+                e.preventDefault()
+                const trimmedName = name.trim()
+                const trimmedMessage = message.trim()
+                if (!trimmedName || !trimmedMessage) {
+                  setFeedback('Name and message are required.')
+                  return
+                }
+                setBusy(true)
+                setFeedback(null)
+                try {
+                  await messageApi.send({
+                    name: trimmedName,
+                    phone: phone.trim() || undefined,
+                    email: email.trim() || undefined,
+                    channel: 'community',
+                    message: trimmedMessage,
+                  })
+                  setName('')
+                  setPhone('')
+                  setEmail('')
+                  setMessage('')
+                  setFeedback('Message sent successfully.')
+                } catch {
+                  setFeedback('Could not send message right now. Please try WhatsApp.')
+                } finally {
+                  setBusy(false)
+                }
+              }}
+            >
+              <input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Your name"
+                className="rounded-xl border border-theme bg-theme-elevated/60 px-3 py-2.5 text-sm text-theme-primary outline-none ring-theme-accent/40 transition focus:ring-2"
+              />
+              <input
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="Phone / WhatsApp (optional)"
+                className="rounded-xl border border-theme bg-theme-elevated/60 px-3 py-2.5 text-sm text-theme-primary outline-none ring-theme-accent/40 transition focus:ring-2"
+              />
+              <input
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Email (optional)"
+                className="sm:col-span-2 rounded-xl border border-theme bg-theme-elevated/60 px-3 py-2.5 text-sm text-theme-primary outline-none ring-theme-accent/40 transition focus:ring-2"
+              />
+              <textarea
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                rows={4}
+                placeholder="Write your message..."
+                className="sm:col-span-2 rounded-xl border border-theme bg-theme-elevated/60 px-3 py-2.5 text-sm text-theme-primary outline-none ring-theme-accent/40 transition focus:ring-2"
+              />
+              <div className="sm:col-span-2 flex flex-wrap items-center gap-3">
+                <button type="submit" disabled={busy} className="admin-btn admin-btn--primary">
+                  {busy ? 'Sending...' : 'Send message'}
+                </button>
+                {feedback ? <p className="text-sm text-theme-muted">{feedback}</p> : null}
+              </div>
+            </form>
+          </div>
+        </ScrollReveal>
       </div>
     </section>
   )
