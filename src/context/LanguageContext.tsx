@@ -8,6 +8,8 @@ import {
   type ReactNode,
 } from 'react'
 import { getTranslations, type Language, type Translations } from '@/i18n'
+import { useCms } from '@/cms/CmsProvider'
+import { deepMerge } from '@/cms/merge'
 
 interface LanguageContextValue {
   language: Language
@@ -36,13 +38,20 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     document.documentElement.lang = language === 'rw' ? 'rw' : language
   }, [language])
 
+  const cms = useCms()
+
   const value = useMemo(
     () => ({
       language,
       setLanguage,
-      t: getTranslations(language),
+      t: deepMerge(
+        getTranslations(language),
+        cms.effectiveRenderSource === 'draft'
+          ? cms.draft.textOverridesByLang[language]
+          : cms.published.textOverridesByLang[language],
+      ) as Translations,
     }),
-    [language, setLanguage],
+    [cms.draft, cms.published, cms.effectiveRenderSource, language, setLanguage],
   )
 
   return (

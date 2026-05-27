@@ -3,8 +3,8 @@ import { Play } from 'lucide-react'
 import { useLanguage } from '@/context/LanguageContext'
 import { SectionHeading } from '@/components/ui/SectionHeading'
 import { ScrollReveal } from '@/components/ui/ScrollReveal'
-
-const reelKeys = ['reel1', 'reel2', 'reel3', 'reel4', 'reel5', 'reel6'] as const
+import { useCmsContent } from '@/cms/CmsProvider'
+import { isSectionEnabled } from '@/cms/sectionVisibility'
 
 const gradients = [
   'from-purple-900/80 to-blue-900/60',
@@ -17,6 +17,12 @@ const gradients = [
 
 export function Videos() {
   const { t } = useLanguage()
+  const active = useCmsContent()
+  const teaching = [...active.teachingVideos].sort((a, b) => a.order - b.order)
+
+  if (!isSectionEnabled(active, 'videos') || teaching.length === 0) return null
+
+  const reelKeys = teaching.map((x) => x.reelKey)
 
   return (
     <section id="videos" className="relative py-20 md:py-28">
@@ -29,7 +35,14 @@ export function Videos() {
 
         <ScrollReveal>
           <div className="scrollbar-hide -mx-4 flex gap-4 overflow-x-auto px-4 pb-6 snap-x snap-mandatory md:gap-6">
-            {reelKeys.map((key, i) => (
+            {reelKeys.map((key, i) => {
+              const item = teaching[i]
+              const label = item?.label?.trim() ? item.label : t.videos[key]
+              const hasVideo = Boolean(item?.videoDataUrl)
+              const hasPoster = Boolean(item?.posterDataUrl)
+              const gradientsClass = gradients[i] ?? gradients[0]
+
+              return (
               <motion.div
                 key={key}
                 whileHover={{ scale: 1.03, y: -4 }}
@@ -37,9 +50,30 @@ export function Videos() {
               >
                 <div className="neon-border">
                   <div
-                    className={`relative aspect-[9/16] overflow-hidden rounded-2xl bg-gradient-to-br ${gradients[i]}`}
+                    className={`relative aspect-[9/16] overflow-hidden rounded-2xl bg-gradient-to-br ${gradientsClass}`}
                   >
-                    <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTTAgMGg0MHY0MEgweiIgZmlsbD0ibm9uZSIvPjxwYXRoIGQ9Ik0wIDQwTDQwIDAiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjAzKSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2cpIi8+PC9zdmc+')] opacity-50" />
+                    {/* Media background (when uploaded) */}
+                    {hasVideo ? (
+                      <video
+                        src={item.videoDataUrl}
+                        muted
+                        loop
+                        playsInline
+                        autoPlay
+                        preload="metadata"
+                        className="absolute inset-0 h-full w-full object-cover"
+                      />
+                    ) : hasPoster ? (
+                      <img
+                        src={item.posterDataUrl}
+                        alt={label}
+                        loading="lazy"
+                        decoding="async"
+                        className="absolute inset-0 h-full w-full object-cover"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTTAgMGg0MHY0MEgweiIgZmlsbD0ibm9uZSIvPjxwYXRoIGQ9Ik0wIDQwTDQwIDAiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjAzKSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2cpIi8+PC9zdmc+')] opacity-50" />
+                    )}
 
                     <motion.div
                       className="absolute inset-0 flex items-center justify-center"
@@ -52,7 +86,7 @@ export function Videos() {
 
                     <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-4 pt-16">
                       <p className="text-sm font-semibold text-white">
-                        {t.videos[key]}
+                        {label}
                       </p>
                       <p className="mt-1 text-xs text-empire-purple-glow">Reagle FX Empire</p>
                     </div>
@@ -66,7 +100,8 @@ export function Videos() {
                   </div>
                 </div>
               </motion.div>
-            ))}
+              )
+            })}
           </div>
         </ScrollReveal>
       </div>

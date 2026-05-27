@@ -2,8 +2,10 @@ import { motion } from 'framer-motion'
 import { Award, BookOpen, TrendingUp, Video } from 'lucide-react'
 import { BRAND } from '@/constants/brand'
 import { useLanguage } from '@/context/LanguageContext'
+import { useCmsContent } from '@/cms/CmsProvider'
 import { SectionHeading } from '@/components/ui/SectionHeading'
 import { ScrollReveal, StaggerContainer, StaggerItem } from '@/components/ui/ScrollReveal'
+import { CertificatesCarousel } from '@/components/public/CertificatesCarousel'
 
 const statKeys = [
   { key: 'statYears', valueKey: 'yearsValue', icon: Award },
@@ -14,6 +16,8 @@ const statKeys = [
 
 export function About() {
   const { t } = useLanguage()
+  const active = useCmsContent()
+  const coachBackground = active.about.coachBackgroundDataUrl
 
   return (
     <section id="about" className="relative py-20 md:py-28">
@@ -27,27 +31,58 @@ export function About() {
 
         <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
           <ScrollReveal direction="left">
-            <div className="neon-border">
-              <div className="glass-card relative aspect-[4/5] overflow-hidden sm:aspect-square">
-                <div className="absolute inset-0 bg-gradient-to-br from-empire-purple/30 via-empire-navy to-empire-blue/20" />
-                <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center">
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 30, repeat: Infinity, ease: 'linear' }}
-                    className="mb-6 h-32 w-32 rounded-full border border-empire-purple/30 bg-gradient-to-br from-empire-purple/20 to-transparent p-1 sm:h-40 sm:w-40"
-                  >
-                    <div className="flex h-full w-full items-center justify-center rounded-full bg-theme-bg/90">
-                      <span className="font-display text-4xl font-bold text-gradient-brand sm:text-5xl">
-                        CP
-                      </span>
-                    </div>
-                  </motion.div>
-                  <p className="font-display text-xl font-bold text-theme-primary">{BRAND.mentor}</p>
-                  <p className="mt-1 text-sm text-theme-accent">{BRAND.brand}</p>
-                  <p className="mt-4 text-sm text-theme-muted">{BRAND.location}</p>
+            <div>
+              <div className="neon-border">
+                <div className="glass-card relative aspect-[4/5] overflow-hidden sm:aspect-square">
+                  {coachBackground ? (
+                    <>
+                      <img
+                        src={coachBackground}
+                        alt=""
+                        className="absolute inset-0 h-full w-full object-cover"
+                        loading="lazy"
+                        decoding="async"
+                        aria-hidden
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-b from-theme-bg/20 via-theme-bg/50 to-theme-bg/85" />
+                    </>
+                  ) : (
+                    <div className="absolute inset-0 bg-gradient-to-br from-empire-purple/30 via-empire-navy to-empire-blue/20" />
+                  )}
+
+                  <div className="relative z-10 flex h-full flex-col items-center justify-center p-8 text-center">
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 30, repeat: Infinity, ease: 'linear' }}
+                      className="mb-6 h-32 w-32 rounded-full border border-empire-purple/30 bg-gradient-to-br from-empire-purple/20 to-transparent p-1 sm:h-40 sm:w-40"
+                    >
+                      <div className="flex h-full w-full items-center justify-center overflow-hidden rounded-full border border-theme/20 bg-theme-bg/90 shadow-glass">
+                        {active.about.coachImageDataUrl ? (
+                          <img
+                            src={active.about.coachImageDataUrl}
+                            alt={active.about.title}
+                            className="h-full w-full object-cover"
+                            loading="lazy"
+                            decoding="async"
+                          />
+                        ) : (
+                          <span className="font-display text-4xl font-bold text-gradient-brand sm:text-5xl">
+                            CP
+                          </span>
+                        )}
+                      </div>
+                    </motion.div>
+                    <p className="font-display text-xl font-bold text-theme-primary">{active.about.title}</p>
+                    <p className="mt-1 text-sm text-theme-accent">{BRAND.brand}</p>
+                    <p className="mt-4 text-sm text-theme-muted">{BRAND.location}</p>
+                    {active.about.bio.trim() ? (
+                      <p className="mt-2 text-xs text-theme-muted/90">{active.about.bio}</p>
+                    ) : null}
+                  </div>
                 </div>
-                <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-empire-black to-transparent" />
               </div>
+
+              <CertificatesCarousel />
             </div>
           </ScrollReveal>
 

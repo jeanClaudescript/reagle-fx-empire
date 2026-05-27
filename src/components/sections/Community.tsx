@@ -5,6 +5,8 @@ import { useLanguage } from '@/context/LanguageContext'
 import { SectionHeading } from '@/components/ui/SectionHeading'
 import { GlowButton } from '@/components/ui/GlowButton'
 import { ScrollReveal } from '@/components/ui/ScrollReveal'
+import { useCmsContent } from '@/cms/CmsProvider'
+import { isSectionEnabled } from '@/cms/sectionVisibility'
 
 const channels = [
   {
@@ -32,6 +34,9 @@ const channels = [
 
 export function Community() {
   const { t } = useLanguage()
+  const active = useCmsContent()
+
+  if (!isSectionEnabled(active, 'community')) return null
 
   return (
     <section id="community" className="relative py-20 md:py-28">

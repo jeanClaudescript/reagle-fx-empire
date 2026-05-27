@@ -4,6 +4,9 @@ import { useState, useCallback } from 'react'
 import { useLanguage } from '@/context/LanguageContext'
 import { SectionHeading } from '@/components/ui/SectionHeading'
 import { ScrollReveal } from '@/components/ui/ScrollReveal'
+import { useCmsContent } from '@/cms/CmsProvider'
+import { isSectionEnabled } from '@/cms/sectionVisibility'
+import { ProvenResultsMediaGallery } from '@/components/public/ProvenResultsMediaGallery'
 
 const slides = [
   { type: 'mt5', profit: '+$2,450', label: 'profitToday', color: 'emerald' },
@@ -28,8 +31,12 @@ const galleryItems = [
 
 export function Results() {
   const { t } = useLanguage()
+  const active = useCmsContent()
+
   const [slide, setSlide] = useState(0)
   const [testimonialIdx, setTestimonialIdx] = useState(0)
+
+  if (!isSectionEnabled(active, 'results')) return null
 
   const next = useCallback(() => setSlide((s) => (s + 1) % slides.length), [])
   const prev = useCallback(() => setSlide((s) => (s - 1 + slides.length) % slides.length), [])
@@ -150,6 +157,8 @@ export function Results() {
             ))}
           </div>
         </ScrollReveal>
+
+        <ProvenResultsMediaGallery />
 
         {/* Testimonials */}
         <ScrollReveal delay={0.2} className="mt-12">

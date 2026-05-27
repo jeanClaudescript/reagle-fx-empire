@@ -8,6 +8,8 @@ import {
   Radio,
 } from 'lucide-react'
 import { useLanguage } from '@/context/LanguageContext'
+import { useCmsContent } from '@/cms/CmsProvider'
+import { isSectionEnabled } from '@/cms/sectionVisibility'
 import { SectionHeading } from '@/components/ui/SectionHeading'
 import { StaggerContainer, StaggerItem } from '@/components/ui/ScrollReveal'
 
@@ -22,6 +24,9 @@ const lessons = [
 
 export function Lessons() {
   const { t } = useLanguage()
+  const active = useCmsContent()
+
+  if (!isSectionEnabled(active, 'lessons')) return null
 
   return (
     <section id="lessons" className="relative py-20 md:py-28">
@@ -49,6 +54,52 @@ export function Lessons() {
                 <p className="mt-2 text-sm leading-relaxed text-theme-muted">
                   {t.lessons[descKey]}
                 </p>
+
+                {(() => {
+                    const media = active.mastery.byKey[titleKey]
+                    if (!media?.mediaDataUrl || media.type === 'placeholder') return null
+                    const isVertical = media.orientation === 'vertical'
+                    const aspect = isVertical ? 'aspect-[9/16]' : 'aspect-[16/9]'
+                    const hasMedia = Boolean(media.mediaDataUrl)
+
+                    return (
+                      <motion.div
+                        initial={{ opacity: 0, y: 8 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5 }}
+                        className="mt-5"
+                      >
+                        <div className="neon-border rounded-2xl">
+                          <div className="glass-card overflow-hidden">
+                            <div className={`relative w-full ${aspect} bg-empire-navy/40`}>
+                              {media.type === 'image' && hasMedia ? (
+                                <img
+                                  src={media.mediaDataUrl}
+                                  alt={media.title ?? 'Lesson media'}
+                                  loading="lazy"
+                                  decoding="async"
+                                  className="h-full w-full object-cover"
+                                />
+                              ) : media.type === 'video' && hasMedia ? (
+                                <video
+                                  src={media.mediaDataUrl}
+                                  muted
+                                  loop
+                                  playsInline
+                                  autoPlay
+                                  preload="metadata"
+                                  className="h-full w-full object-cover"
+                                />
+                              ) : (
+                                <div className="h-full w-full animate-pulse bg-gradient-to-br from-empire-purple/25 to-empire-blue-electric/10" />
+                              )}
+                              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-black/60 to-transparent" />
+                            </div>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )
+                  })()}
               </motion.div>
             </StaggerItem>
           ))}

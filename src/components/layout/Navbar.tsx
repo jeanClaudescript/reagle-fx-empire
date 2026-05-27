@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 import { Menu, X } from 'lucide-react'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { BRAND, NAV_SECTIONS } from '@/constants/brand'
 import { useLanguage } from '@/context/LanguageContext'
 import { useScrollSpy, scrollToSection } from '@/hooks/useScrollSpy'
@@ -13,6 +13,7 @@ export function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
   const sectionIds = NAV_SECTIONS.map((s) => s.id)
   const activeId = useScrollSpy(sectionIds)
+  const tapRef = useRef({ count: 0, lastAt: 0 })
 
   const navLabels: Record<string, string> = {
     home: t.nav.home,
@@ -40,7 +41,17 @@ export function Navbar() {
         <div className="section-container flex h-14 items-center justify-between sm:h-[72px]">
           <button
             type="button"
-            onClick={() => handleNav('home')}
+            onClick={() => {
+              handleNav('home')
+              if (!import.meta.env.DEV) return
+              const now = Date.now()
+              if (now - tapRef.current.lastAt > 900) tapRef.current.count = 1
+              else tapRef.current.count += 1
+              tapRef.current.lastAt = now
+              if (tapRef.current.count >= 4) {
+                window.location.pathname = '/admin-login'
+              }
+            }}
             className="group flex flex-col text-left"
           >
             <span className="font-display text-base font-bold leading-none tracking-tight text-gradient-brand sm:text-xl">

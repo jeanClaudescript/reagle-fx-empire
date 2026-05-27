@@ -68,6 +68,14 @@
     scroll-behavior: smooth;
   }
 
+  html.theme-transition,
+  html.theme-transition body {
+    transition:
+      background-color 0.35s ease,
+      color 0.35s ease,
+      border-color 0.35s ease;
+  }
+
   body {
     @apply bg-theme-bg font-body text-theme-muted antialiased transition-colors duration-500;
     overflow-x: hidden;
@@ -231,6 +239,526 @@
 
   .futuristic-card {
     @apply glass-card-glow rounded-3xl border-theme p-5 shadow-mobile sm:p-6;
+  }
+
+  .cms-shimmer {
+    background: linear-gradient(
+      90deg,
+      rgb(var(--color-elevated) / 0.4) 0%,
+      rgb(var(--color-accent) / 0.12) 50%,
+      rgb(var(--color-elevated) / 0.4) 100%
+    );
+    background-size: 200% 100%;
+    animation: cms-shimmer 1.4s ease-in-out infinite;
+  }
+
+  @keyframes cms-shimmer {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
+
+  /* ─── Admin app shell ─── */
+  .admin-app {
+    --admin-sidebar-w: 260px;
+    --admin-sidebar-collapsed-w: 72px;
+    --admin-header-h: 64px;
+    @apply relative min-h-[100svh] min-w-0 bg-theme-bg;
+  }
+
+  .admin-app-bg {
+    @apply absolute inset-0 overflow-hidden;
+  }
+
+  .admin-sidebar {
+    @apply fixed inset-y-0 left-0 z-[80] flex w-[var(--admin-sidebar-w)] flex-col border-r border-theme bg-theme-surface/95 backdrop-blur-2xl;
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .admin-sidebar--collapsed {
+    @apply w-[var(--admin-sidebar-collapsed-w)];
+  }
+
+  .admin-sidebar--drawer {
+    @apply w-[min(100vw-3rem,var(--admin-sidebar-w))] shadow-2xl;
+  }
+
+  .admin-sidebar-brand {
+    @apply flex h-[var(--admin-header-h)] shrink-0 items-center justify-between border-b border-theme;
+  }
+
+  .admin-sidebar-nav {
+    @apply flex flex-1 flex-col gap-0.5 overflow-y-auto px-2 py-3;
+  }
+
+  .admin-sidebar-section-label {
+    @apply px-3 pb-1 pt-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-theme-muted;
+  }
+
+  .admin-sidebar-nav-item {
+    @apply flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-theme-muted transition-colors;
+  }
+
+  .admin-sidebar-nav-item:hover {
+    @apply bg-theme-accent/10 text-theme-primary;
+  }
+
+  .admin-sidebar-nav-item--active {
+    @apply bg-theme-accent/15 font-semibold text-theme-accent shadow-glow-sm;
+  }
+
+  .admin-sidebar-nav-icon {
+    @apply flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-theme-elevated/50;
+  }
+
+  .admin-sidebar-nav-item--active .admin-sidebar-nav-icon {
+    @apply bg-theme-accent/20;
+  }
+
+  .admin-sidebar-footer {
+    @apply shrink-0 border-t border-theme p-2;
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+  }
+
+  .admin-sidebar-footer-btn {
+    @apply flex w-full items-center gap-3 rounded-xl border border-theme bg-theme-elevated/50 px-3 py-2.5 text-sm font-semibold text-theme-primary transition hover:bg-theme-accent/10;
+  }
+
+  .admin-sidebar-icon-btn {
+    @apply flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-theme bg-theme-surface/60 text-theme-muted transition hover:text-theme-primary;
+  }
+
+  .admin-drawer-backdrop {
+    @apply fixed inset-0 z-[70] bg-black/50 backdrop-blur-sm;
+  }
+
+  .admin-main {
+    @apply relative flex min-h-[100svh] min-w-0 flex-col transition-[margin] duration-300 ease-out;
+    margin-left: var(--admin-sidebar-w);
+    padding-bottom: max(5rem, env(safe-area-inset-bottom));
+  }
+
+  .admin-app--sidebar-collapsed .admin-main {
+    margin-left: var(--admin-sidebar-collapsed-w);
+  }
+
+  @media (max-width: 767px) {
+    .admin-main {
+      margin-left: 0;
+    }
+  }
+
+  .admin-header {
+    @apply sticky top-0 z-[60] flex h-[var(--admin-header-h)] shrink-0 items-center justify-between gap-3 border-b border-theme bg-theme-surface/80 px-4 backdrop-blur-2xl sm:px-6;
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .admin-header-start {
+    @apply flex min-w-0 flex-1 items-center gap-3;
+  }
+
+  .admin-header-actions {
+    @apply flex shrink-0 items-center gap-2;
+  }
+
+  .admin-header-icon-btn {
+    @apply flex h-10 w-10 items-center justify-center rounded-xl border border-theme bg-theme-surface/70 text-theme-primary transition hover:bg-theme-accent/10;
+  }
+
+  .admin-breadcrumb {
+    @apply flex items-center gap-1.5 text-xs font-medium text-theme-muted;
+  }
+
+  .admin-breadcrumb-sep {
+    @apply text-theme-muted/50;
+  }
+
+  .admin-btn {
+    @apply inline-flex min-h-10 items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold transition duration-200 disabled:pointer-events-none disabled:opacity-50;
+  }
+
+  .admin-btn--primary,
+  .admin-btn-primary {
+    @apply admin-btn bg-gradient-to-r from-empire-purple to-empire-blue text-white shadow-glow hover:shadow-glow-blue;
+  }
+
+  .admin-btn--secondary,
+  .admin-btn-secondary {
+    @apply admin-btn border border-theme bg-theme-surface/70 text-theme-primary hover:border-theme-accent/35 hover:bg-theme-accent/10;
+  }
+
+  .admin-btn--ghost,
+  .admin-btn-ghost {
+    @apply admin-btn text-theme-primary hover:bg-theme-accent/10;
+  }
+
+  .admin-btn--sm {
+    @apply min-h-9 gap-1.5 px-3 text-xs;
+  }
+
+  .admin-btn--danger {
+    @apply admin-btn border border-rose-500/35 bg-rose-500/10 text-rose-400 hover:bg-rose-500/15;
+  }
+
+  .admin-more-menu[open] > summary {
+    @apply bg-theme-accent/15 text-theme-accent;
+  }
+
+  .admin-more-dropdown {
+    @apply absolute right-0 top-[calc(100%+0.5rem)] z-50 flex min-w-[180px] flex-col gap-0.5 rounded-2xl border border-theme bg-theme-surface p-1.5 shadow-xl;
+  }
+
+  .admin-more-dropdown button,
+  .admin-more-dropdown a {
+    @apply rounded-xl px-3 py-2.5 text-left text-sm font-medium text-theme-primary transition hover:bg-theme-accent/10;
+  }
+
+  .admin-more-dropdown--mobile {
+    @apply right-0;
+  }
+
+  .admin-content-area {
+    @apply relative flex-1 min-w-0 overflow-x-hidden;
+  }
+
+  .admin-content-inner {
+    @apply w-full min-w-0 max-w-none px-4 py-5 sm:px-6 sm:py-6 lg:px-8 lg:py-8;
+  }
+
+  .admin-section-frame {
+    @apply flex w-full min-w-0 flex-col gap-4;
+  }
+
+  .admin-section-toolbar {
+    @apply shrink-0 rounded-2xl border border-theme bg-theme-surface/60 p-3 sm:p-4;
+  }
+
+  .admin-section-toolbar-top {
+    @apply flex items-center gap-2 sm:gap-3;
+  }
+
+  .admin-section-toolbar-actions {
+    @apply mt-3 border-t border-theme pt-3;
+  }
+
+  .admin-section-toolbar-actions .admin-section-actions {
+    @apply w-full justify-stretch;
+  }
+
+  .admin-section-toolbar-actions .admin-section-actions > button {
+    @apply min-h-10 flex-1;
+  }
+
+  @media (min-width: 1024px) {
+    .admin-section-toolbar {
+      @apply flex flex-wrap items-start justify-between gap-3;
+    }
+
+    .admin-section-toolbar-top {
+      @apply min-w-[200px] flex-1;
+    }
+
+    .admin-section-toolbar-actions {
+      @apply mt-0 w-auto shrink-0 border-0 pt-0;
+    }
+
+    .admin-section-toolbar-actions .admin-section-actions {
+      @apply w-auto justify-end;
+    }
+
+    .admin-section-toolbar-actions .admin-section-actions > button {
+      @apply min-h-10 flex-none flex-initial;
+    }
+
+    .admin-section-toolbar-meta {
+      @apply w-full basis-full;
+    }
+  }
+
+  .admin-section-toolbar-meta {
+    @apply mt-3 empty:hidden;
+  }
+
+  .admin-section-body {
+    @apply flex min-w-0 flex-col gap-4;
+  }
+
+  .admin-section-actions {
+    @apply flex flex-wrap items-center justify-end gap-2;
+  }
+
+  .admin-editor-card-intro {
+    @apply text-sm text-theme-muted;
+  }
+
+  .admin-mobile-action-bar {
+    @apply fixed bottom-0 left-0 right-0 z-[55] flex gap-2 border-t border-theme bg-theme-surface/95 p-3 backdrop-blur-2xl;
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  }
+
+  @media (min-width: 1024px) {
+    .admin-mobile-action-bar {
+      @apply hidden;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .admin-main {
+      padding-bottom: calc(4.5rem + env(safe-area-inset-bottom));
+    }
+  }
+
+  .admin-confirm-backdrop {
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(8px);
+  }
+
+  .admin-confirm-panel {
+    @apply glass-card-glow neon-border rounded-3xl border border-theme bg-theme-surface shadow-2xl;
+  }
+
+  .admin-lang-trigger {
+    @apply inline-flex min-h-10 items-center justify-center gap-1.5 rounded-xl border border-theme bg-theme-surface/70 px-3 text-sm font-semibold text-theme-primary transition hover:bg-theme-accent/10;
+  }
+
+  .admin-lang-trigger--compact {
+    @apply min-h-10 w-10 px-0;
+  }
+
+  .admin-lang-dropdown {
+    @apply absolute right-0 top-[calc(100%+0.5rem)] z-50 min-w-[148px] overflow-hidden rounded-2xl border border-theme bg-theme-surface p-1 shadow-xl;
+  }
+
+  .admin-lang-option {
+    @apply w-full rounded-xl px-3 py-2.5 text-left text-sm font-medium text-theme-muted transition hover:bg-theme-accent/10 hover:text-theme-primary;
+  }
+
+  .admin-lang-option--active {
+    @apply bg-theme-accent/15 font-semibold text-theme-accent;
+  }
+
+  .admin-nav-grid {
+    @apply grid gap-3 sm:grid-cols-2;
+  }
+
+  .admin-nav-grid--3 {
+    @apply sm:grid-cols-1 md:grid-cols-3;
+  }
+
+  .admin-nav-tile {
+    @apply flex min-h-[4.75rem] w-full items-center gap-3 rounded-2xl border border-theme bg-theme-surface/45 p-4 text-left shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-theme-accent/35 hover:bg-theme-accent/10 hover:shadow-glow-sm active:scale-[0.99];
+  }
+
+  .admin-nav-tile--compact {
+    @apply min-h-[3.25rem] py-3;
+  }
+
+  .admin-nav-tile--highlight {
+    @apply border-theme-accent/40 bg-theme-accent/10;
+  }
+
+  .admin-nav-tile-icon {
+    @apply flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-theme-accent/25 bg-theme-accent/15 text-theme-accent;
+  }
+
+  .admin-nav-tile-body {
+    @apply min-w-0 flex-1;
+  }
+
+  .admin-nav-tile-title {
+    @apply block text-sm font-semibold text-theme-primary;
+  }
+
+  .admin-nav-tile-desc {
+    @apply mt-0.5 block text-xs leading-relaxed text-theme-muted;
+  }
+
+  .admin-nav-tile-chevron {
+    @apply h-4 w-4 shrink-0 text-theme-muted transition group-hover:text-theme-accent;
+  }
+
+  .admin-stat-tile {
+    @apply rounded-2xl border border-theme bg-theme-surface/45 p-4 shadow-sm;
+  }
+
+  .admin-status-pill {
+    @apply rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide;
+  }
+
+  .admin-status-pill--ok {
+    @apply bg-emerald-500/15 text-emerald-400;
+  }
+
+  .admin-status-pill--warn {
+    @apply bg-amber-500/15 text-amber-400;
+  }
+
+  .admin-status-pill--danger {
+    @apply bg-rose-500/15 text-rose-400;
+  }
+
+  .admin-media-thumb {
+    @apply relative block overflow-hidden rounded-2xl border border-theme bg-theme-elevated/60 transition hover:border-theme-accent/40;
+  }
+
+  .admin-media-thumb-overlay {
+    @apply absolute inset-0 flex items-center justify-center bg-black/0 text-white opacity-0 transition duration-200 group-hover:bg-black/35 group-hover:opacity-100;
+  }
+
+  .media-lightbox-backdrop {
+    @apply fixed inset-0 z-[400] flex items-center justify-center bg-black/90 p-3 backdrop-blur-md;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .media-lightbox-shell {
+    @apply relative flex h-[min(92vh,900px)] w-[min(96vw,1200px)] flex-col overflow-hidden rounded-2xl border border-white/10 bg-black/40 shadow-2xl;
+  }
+
+  .media-video-shell {
+    @apply relative flex w-[min(96vw,1100px)] flex-col overflow-hidden rounded-2xl border border-white/10 bg-black/50 shadow-2xl;
+  }
+
+  .media-lightbox-toolbar {
+    @apply flex shrink-0 items-center justify-between gap-3 border-b border-white/10 px-4 py-3;
+  }
+
+  .media-lightbox-btn {
+    @apply flex h-10 w-10 items-center justify-center rounded-xl border border-white/15 bg-white/10 text-white transition hover:bg-white/20;
+  }
+
+  .media-lightbox-stage {
+    @apply relative flex flex-1 touch-none items-center justify-center overflow-hidden;
+  }
+
+  .media-lightbox-image {
+    @apply max-h-full max-w-full select-none object-contain transition-transform duration-100;
+  }
+
+  .media-lightbox-nav {
+    @apply absolute top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/50 text-white transition hover:bg-black/70;
+  }
+
+  .media-lightbox-nav--prev {
+    @apply left-3;
+  }
+
+  .media-lightbox-nav--next {
+    @apply right-3;
+  }
+
+  .media-lightbox-counter {
+    @apply absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full border border-white/15 bg-black/50 px-3 py-1 text-xs font-medium text-white/80;
+  }
+
+  .media-video-stage {
+    @apply relative aspect-video w-full bg-black;
+  }
+
+  .media-video-player {
+    @apply h-full w-full object-contain;
+  }
+
+  .media-video-loading {
+    @apply absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/60;
+  }
+
+  .media-video-play {
+    @apply absolute inset-0 z-20 flex items-center justify-center;
+  }
+
+  .media-video-play-ring {
+    @apply absolute h-20 w-20 rounded-full border border-white/30 bg-white/10 backdrop-blur-sm;
+  }
+
+  .media-video-vignette {
+    @apply absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/30;
+  }
+
+  .admin-mobile-drawer {
+    @apply fixed inset-y-0 left-0 z-[90] flex w-[min(100vw-2.5rem,340px)] flex-col border-r border-theme bg-theme-surface/95 shadow-2xl backdrop-blur-2xl;
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .admin-mobile-drawer-header {
+    @apply flex h-16 shrink-0 items-center justify-between gap-3 border-b border-theme px-4;
+  }
+
+  .admin-mobile-quick-grid {
+    @apply grid shrink-0 grid-cols-2 gap-2 p-3;
+  }
+
+  .admin-mobile-quick-btn {
+    @apply flex flex-col items-center justify-center gap-1.5 rounded-2xl border border-theme bg-theme-elevated/50 px-2 py-3 text-xs font-semibold text-theme-primary transition active:scale-[0.98];
+  }
+
+  .admin-mobile-quick-btn--primary {
+    @apply border-transparent bg-gradient-to-br from-empire-purple to-empire-blue text-white shadow-glow-sm;
+  }
+
+  .admin-mobile-drawer-nav {
+    @apply flex flex-1 flex-col gap-0.5 overflow-y-auto px-2 py-2;
+  }
+
+  .admin-mobile-drawer-tools {
+    @apply shrink-0 border-t border-theme px-4 py-3;
+  }
+
+  .admin-mobile-drawer-footer {
+    @apply grid shrink-0 grid-cols-2 gap-2 border-t border-theme p-3;
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  }
+
+  .admin-mobile-footer-btn {
+    @apply flex items-center justify-center gap-2 rounded-xl border border-theme bg-theme-surface/70 px-2 py-2.5 text-xs font-semibold text-theme-primary transition hover:bg-theme-accent/10 disabled:opacity-50;
+  }
+
+  .admin-mobile-bar-icon {
+    @apply flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-theme bg-theme-surface/80 text-theme-primary transition;
+  }
+
+  .admin-mobile-bar-icon--active {
+    @apply border-theme-accent/40 bg-theme-accent/15 text-theme-accent;
+  }
+
+  .admin-shell {
+    @apply min-w-0 overflow-x-hidden pb-24;
+  }
+
+  .admin-card-body {
+    @apply p-4 sm:p-5;
+  }
+
+  .admin-toolbar-actions {
+    @apply grid w-full grid-cols-2 gap-2 xs:grid-cols-3 sm:flex sm:flex-wrap sm:justify-end;
+  }
+
+  .admin-toolbar-actions > a,
+  .admin-toolbar-actions > button {
+    @apply min-h-10 w-full justify-center text-center sm:w-auto;
+  }
+
+  .admin-editor-row {
+    @apply flex min-w-0 flex-col gap-3 rounded-2xl border border-theme bg-theme-surface/60 p-4 sm:gap-4;
+  }
+
+  .admin-editor-row--media {
+    @apply grid gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,140px)_1fr_auto];
+  }
+
+  .admin-editor-actions {
+    @apply flex w-full flex-col gap-2 sm:col-span-2 sm:flex-row sm:flex-wrap lg:col-span-1 lg:flex-col lg:items-stretch;
+  }
+
+  .admin-editor-actions > button {
+    @apply min-h-10 w-full sm:w-auto lg:w-full;
+  }
+
+  .admin-preview-frame {
+    @apply min-w-0 overflow-x-hidden;
   }
 
   .hero-mesh {
