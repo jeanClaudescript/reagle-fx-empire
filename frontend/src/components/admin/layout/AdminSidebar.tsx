@@ -23,7 +23,9 @@ interface AdminSidebarProps {
 
 function SectionNavDot({ sectionId }: { sectionId: AdminTab }) {
   const { sectionStates } = useCms()
-  if (sectionId === 'dashboard') return null
+  if (sectionId === 'dashboard' || !['updates', 'upcoming', 'about', 'certificates', 'proven', 'mastery', 'videos', 'texts', 'settings'].includes(sectionId)) {
+    return null
+  }
   const state = sectionStates[sectionId as ContentSectionId]
   if (!state) return null
 
@@ -85,7 +87,7 @@ export function AdminSidebar({
           <div className="min-w-0">
             <p className="font-display text-sm font-bold text-gradient-brand">REAGLE FX</p>
             <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-theme-muted">
-              Empire CMS
+              Content studio
             </p>
           </div>
         ) : (
@@ -105,10 +107,13 @@ export function AdminSidebar({
 
       <nav className="admin-sidebar-nav scrollbar-hide">
         {!collapsed && <p className="admin-sidebar-section-label">Overview</p>}
-        {ADMIN_NAV.filter((n) => n.group === 'main').map(navButton)}
+        {ADMIN_NAV.filter((n) => n.group === 'overview').map(navButton)}
 
-        {!collapsed && <p className="admin-sidebar-section-label mt-4">Content</p>}
-        {ADMIN_NAV.filter((n) => n.group === 'content').map(navButton)}
+        {!collapsed && <p className="admin-sidebar-section-label mt-4">Website</p>}
+        {ADMIN_NAV.filter((n) => n.group === 'website').map(navButton)}
+
+        {!collapsed && <p className="admin-sidebar-section-label mt-4">Operations</p>}
+        {ADMIN_NAV.filter((n) => n.group === 'operations').map(navButton)}
 
         {!collapsed && <p className="admin-sidebar-section-label mt-4">System</p>}
         {ADMIN_NAV.filter((n) => n.group === 'system').map(navButton)}

@@ -3,6 +3,9 @@ export type Language = 'en' | 'rw' | 'fr' | 'sw'
 export interface Translations {
   nav: {
     home: string
+    login: string
+    tools: string
+    live: string
     about: string
     results: string
     lessons: string
@@ -10,12 +13,220 @@ export interface Translations {
     community: string
     contact: string
   }
+  tools: {
+    label: string
+    title: string
+    subtitle: string
+    perk1: string
+    perk2: string
+    perk3: string
+    perk4: string
+    catAll: string
+    catMarket: string
+    catRisk: string
+    catAnalysis: string
+    catLive: string
+    catEmpty: string
+    watchTitle: string
+    pair: string
+    sessionTitle: string
+    sessionDesc: string
+    sessionTokyo: string
+    sessionLondon: string
+    sessionNy: string
+    sessionOpen: string
+    sessionClosed: string
+    pipTitle: string
+    pipDesc: string
+    lotSize: string
+    pips: string
+    estimatedProfit: string
+    positionTitle: string
+    positionDesc: string
+    accountBalance: string
+    riskPercent: string
+    stopLossPips: string
+    suggestedLots: string
+    rrTitle: string
+    rrDesc: string
+    entry: string
+    stop: string
+    target: string
+    riskRewardRatio: string
+    rrGood: string
+    rrReview: string
+    chartTitle: string
+    chartDesc: string
+    ctaPay: string
+    ctaLessons: string
+    dragHint: string
+    resetLayout: string
+    dragHandle: string
+    marginTitle: string
+    marginDesc: string
+    leverage: string
+    price: string
+    contractSize: string
+    requiredMargin: string
+    beTitle: string
+    beDesc: string
+    spreadPips: string
+    commission: string
+    breakEvenPrice: string
+    compoundTitle: string
+    compoundDesc: string
+    startBalance: string
+    monthlyReturn: string
+    months: string
+    projectedBalance: string
+    paperTitle: string
+    paperDesc: string
+    paperLocked: string
+    paperLive: string
+    balance: string
+    floating: string
+    openTrades: string
+    closeAll: string
+    tagMarket: string
+    tagRisk: string
+    tagAnalysis: string
+    tagSignals: string
+    pivotTitle: string
+    pivotDesc: string
+    fibTitle: string
+    fibDesc: string
+    lotConvTitle: string
+    lotConvDesc: string
+    standardLots: string
+    miniLots: string
+    microLots: string
+    units: string
+    dayHigh: string
+    dayLow: string
+    dayClose: string
+    swingHigh: string
+    swingLow: string
+    journalTitle: string
+    journalDesc: string
+    journalNote: string
+    journalNotePh: string
+    journalSave: string
+    journalEmpty: string
+    calendarTitle: string
+    calendarDesc: string
+    calendarDemo: string
+    signalBoardTitle: string
+    signalBoardDesc: string
+    copySignal: string
+    shareVia: string
+    side: string
+  }
+  pay: {
+    badge: string
+    title: string
+    subtitle: string
+    stepDetails: string
+    stepPay: string
+    stepDone: string
+    howItWorks: string
+    flowStep1: string
+    flowStep2: string
+    flowStep3: string
+    phoneLabel: string
+    emailLabel: string
+    nameLabel: string
+    referralLabel: string
+    networkLabel: string
+    networkMtn: string
+    networkAirtel: string
+    amountLabel: string
+    amountFixed: string
+    payTo: string
+    continueCta: string
+    creating: string
+    createFailed: string
+    disabled: string
+    completeTitle: string
+    completeSubtitle: string
+    statusLabel: string
+    referenceLabel: string
+    merchantLabel: string
+    methodUssdTitle: string
+    methodUssdDesc: string
+    ussdFormat: string
+    copyUssd: string
+    openDialer: string
+    dialerCopiedHint: string
+    dialerPasteHint: string
+    dialerFootnote: string
+    methodManualTitle: string
+    methodManualDesc: string
+    manualStep1: string
+    manualStep2: string
+    manualStep3: string
+    copyNumber: string
+    callMerchant: string
+    confirmTitle: string
+    confirmDesc: string
+    txLabel: string
+    txPlaceholder: string
+    submitTx: string
+    submitting: string
+    txSubmitted: string
+    txFailed: string
+    txSaved: string
+    checkingStatus: string
+    failedHint: string
+    doneTitle: string
+    doneRef: string
+    yourReferral: string
+    referralHint: string
+    backHome: string
+    copied: string
+    copyFailed: string
+  }
+  live: {
+    label: string
+    title: string
+    subtitle: string
+    liveNow: string
+    joinLive: string
+    openTools: string
+    paidPopupTitle: string
+    paidPopupBody: string
+    unlockPopupTitle: string
+    unlockPopupBody: string
+    perkLive: string
+    perkPaper: string
+    perkTools: string
+    unlockCta: string
+    later: string
+    lockedTitle: string
+    lockedBody: string
+    verifyAccess: string
+    coachNote: string
+    openMeeting: string
+    signalTitle: string
+    signalEmpty: string
+    signedInAs: string
+    paidBadge: string
+    upgradeHint: string
+    gateTitle: string
+    gateSubtitle: string
+    gatePhone: string
+    gateEmail: string
+    gateSubmit: string
+    gateNeedContact: string
+    gateNotPaid: string
+  }
   hero: {
     badge: string
     headline: string
     subheadline: string
     ctaWhatsapp: string
+    ctaUnlock: string
     ctaResults: string
+    ctaTools: string
     statFollowers: string
     statCommunity: string
     statMentorship: string
@@ -116,6 +327,79 @@ export interface Translations {
     quickLinks: string
     connect: string
     rights: string
+  }
+  authPage: {
+    tabLogin: string
+    tabSignup: string
+    tabStudent: string
+    tabAdmin: string
+    loginWelcome: string
+    loginSubtitle: string
+    signupWelcome: string
+    signupSubtitle: string
+    signIn: string
+    createAccount: string
+    createAccountLink: string
+    alreadyHaveAccount: string
+    signInLink: string
+    noAccount: string
+    backToStudent: string
+    brandMark: string
+    studentWelcome: string
+    studentSubtitle: string
+    adminWelcome: string
+    adminSubtitle: string
+    adminEmail: string
+    adminPassword: string
+    adminSignIn: string
+    adminCreateAndSignIn: string
+    adminFirstSetup: string
+    adminFirstSetupHint: string
+    adminRemember: string
+    adminFootnote: string
+    studentFootnote: string
+    continue: string
+    or: string
+    backHome: string
+    heroTitle: string
+    heroText: string
+    perk1: string
+    perk2: string
+    perk3: string
+    openFullPage: string
+  }
+  studentZone: {
+    title: string
+    subtitle: string
+    membersOnly: string
+  }
+  studentLogin: {
+    title: string
+    subtitle: string
+    phone: string
+    email: string
+    submit: string
+    needContact: string
+    error: string
+    signedInAs: string
+    paidBadge: string
+    unpaidBadge: string
+    notFoundBadge: string
+    paidTitle: string
+    paidBody: string
+    unpaidTitle: string
+    unpaidBody: string
+    notFoundTitle: string
+    notFoundBody: string
+    payCta: string
+    registerCta: string
+    previewTools: string
+    tryAgain: string
+    logout: string
+    referralTitle: string
+    referralHint: string
+    copyLink: string
+    copied: string
   }
   mobile: {
     joinWhatsapp: string

@@ -24,6 +24,7 @@ import {
   type ValidationIssue,
 } from './validation'
 import { cmsApi } from '@/services/api'
+import { isAdminApp } from '@/lib/isAdminApp'
 
 export type CmsRenderSource = 'published' | 'draft'
 
@@ -112,14 +113,18 @@ export function CmsProvider({ children }: { children: React.ReactNode }) {
       setIsHydrated(true)
 
       try {
-        const [publishedRes, draftRes] = await Promise.all([cmsApi.getPublished(), cmsApi.getDraft()])
+        const publishedRes = await cmsApi.getPublished()
         const remotePublished = normalizeCmsData(publishedRes.data as CMSData)
-        const remoteDraft = normalizeCmsData(draftRes.data as CMSData)
         setPublished(remotePublished)
-        setDraftState(remoteDraft)
-        prevDraftRef.current = remoteDraft
         savePublishedCMS(remotePublished)
-        saveDraftCMS(remoteDraft)
+
+        if (isAdminApp()) {
+          const draftRes = await cmsApi.getDraft()
+          const remoteDraft = normalizeCmsData(draftRes.data as CMSData)
+          setDraftState(remoteDraft)
+          prevDraftRef.current = remoteDraft
+          saveDraftCMS(remoteDraft)
+        }
       } catch {
         // Backend not reachable: keep localStorage mode.
       }
@@ -183,6 +188,8 @@ export function CmsProvider({ children }: { children: React.ReactNode }) {
     if (draftSyncTimeoutRef.current) {
       window.clearTimeout(draftSyncTimeoutRef.current)
     }
+    if (!isAdminApp()) return
+
     draftSyncTimeoutRef.current = window.setTimeout(() => {
       void cmsApi.putDraft(prevDraftRef.current).catch(() => {
         // Keep local mode if API fails.

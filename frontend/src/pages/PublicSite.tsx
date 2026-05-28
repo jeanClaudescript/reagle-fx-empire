@@ -5,6 +5,7 @@ import { Footer } from '@/components/layout/Footer'
 import { FloatingWhatsApp } from '@/components/layout/FloatingWhatsApp'
 import { StickyMobileCTA } from '@/components/layout/StickyMobileCTA'
 import { Hero } from '@/components/sections/Hero'
+import { StudentPaidZone } from '@/components/sections/StudentPaidZone'
 
 const About = lazy(() => import('@/components/sections/About').then((m) => ({ default: m.About })))
 const Results = lazy(() => import('@/components/sections/Results').then((m) => ({ default: m.Results })))
@@ -50,6 +51,7 @@ export function PublicSite({
           <Videos />
           <Community />
         </Suspense>
+        <StudentPaidZone />
       </main>
       <Footer />
       {showOverlays ? (
@@ -61,4 +63,3 @@ export function PublicSite({
     </div>
   )
 }
-

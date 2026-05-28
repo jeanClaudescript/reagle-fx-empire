@@ -7,6 +7,17 @@ type RequestInitLite = {
   admin?: boolean
 }
 
+export function parseApiError(text: string, status: number) {
+  try {
+    const body = JSON.parse(text) as { error?: string }
+    if (body.error) return body.error
+  } catch {
+    /* plain text */
+  }
+  if (text.trim()) return text
+  return `Request failed with ${status}`
+}
+
 async function apiFetch<T>(path: string, init: RequestInitLite = {}): Promise<T> {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -22,9 +33,27 @@ async function apiFetch<T>(path: string, init: RequestInitLite = {}): Promise<T>
   })
   if (!res.ok) {
     const text = await res.text()
-    throw new Error(text || `Request failed with ${res.status}`)
+    throw new Error(parseApiError(text, res.status))
   }
   return (await res.json()) as T
+}
+
+export type HealthStatus = {
+  ok: boolean
+  service: string
+  db: 'connected' | 'connection_failed' | 'not_configured'
+  dbError?: string
+  media: 'cloudinary' | 'not_configured'
+  adminKeyConfigured: boolean
+  timestamp: string
+}
+
+export const healthApi = {
+  check: () => apiFetch<HealthStatus>('/api/health'),
+}
+
+export function hasAdminApiKey() {
+  return Boolean(ADMIN_API_KEY)
 }
 
 export type ApiMessage = {
@@ -73,6 +102,301 @@ export const mediaApi = {
     }
     return (await res.json()) as { ok: true; url: string; publicId: string }
   },
+}
+
+export type PaymentRecord = {
+  id: string
+  userId: string
+  phone: string
+  displayPhone: string
+  amount: number
+  currency: string
+  status: 'PENDING' | 'PAID' | 'FAILED' | 'EXPIRED'
+  referenceCode: string
+  transactionId?: string
+  provider?: string
+  confirmedBy?: string
+  confirmedAt?: string
+  createdAt: string
+}
+
+export type PaymentSettings = {
+  merchantPhone: string
+  defaultAmount: number
+  currency: string
+  ussdTemplate: string
+  referralRewardAmount: number
+  paymentNote: string
+  paymentsEnabled: boolean
+  allowCustomAmount: boolean
+  updatedAt?: string
+}
+
+export type PaymentConfig = PaymentSettings & {
+  displayMerchantPhone?: string
+}
+
+export type PaymentInstructions = {
+  merchantPhone: string
+  merchantPhoneE164: string
+  amount: number
+  currency: string
+  referenceCode: string
+  provider: 'MTN' | 'AIRTEL'
+  ussdDial: string
+  mtnUssdDial: string
+  airtelUssdDial: string
+  telMerchant: string
+  telUssd: string
+  telMtnUssd: string
+  telAirtelUssd: string
+  note: string
+}
+
+export type ReferralRewardRecord = {
+  id: string
+  referrerId: string
+  referredUserId: string
+  referrerName?: string
+  referredName?: string
+  paymentId: string
+  rewardAmount: number
+  currency: string
+  status: 'PENDING' | 'CREDITED' | 'CANCELLED'
+  createdAt: string
+  creditedAt?: string
+}
+
+export type StudentPendingPayment = {
+  id: string
+  referenceCode: string
+  amount: number
+  currency: string
+  transactionId?: string
+  createdAt: string
+}
+
+export type StudentRecord = {
+  id: string
+  name?: string
+  phone?: string
+  displayPhone?: string
+  email?: string
+  referralCode: string
+  referredByCode?: string
+  referredByUserId?: string
+  referrerName?: string
+  membershipStatus: 'paid' | 'unpaid'
+  paidAt?: string
+  notes: string
+  walletBalance: number
+  totalPaid: number
+  paymentCount: number
+  lastPaymentAt?: string
+  pendingPayment?: StudentPendingPayment
+  createdAt: string
+  updatedAt: string
+}
+
+export type StudentStats = {
+  totalStudents: number
+  paidStudents: number
+  unpaidStudents: number
+  pendingPayments: number
+  totalRevenue: number
+  currency: string
+  referralRewardAmount: number
+  recentPaid: StudentRecord[]
+  recentUnpaid: StudentRecord[]
+}
+
+export type LiveSession = {
+  id: string
+  title: string
+  description?: string
+  status: 'scheduled' | 'live' | 'ended'
+  streamUrl?: string
+  meetingUrl?: string
+  pair: string
+  coachNote: string
+  signalSide: 'buy' | 'sell' | 'neutral'
+  signalEntry?: number
+  signalStop?: number
+  signalTarget?: number
+  scheduledAt?: string
+  startedAt?: string
+  endedAt?: string
+  createdAt: string
+  updatedAt: string
+}
+
+export const studentApi = {
+  checkAccess: (body: { phone?: string; email?: string }) =>
+    apiFetch<{
+      data: {
+        found: boolean
+        membershipStatus: 'paid' | 'unpaid'
+        name?: string
+        referralCode?: string
+      }
+    }>('/api/students/access/check', { method: 'POST', body }),
+  getStats: () => apiFetch<{ data: StudentStats }>('/api/students/admin/stats', { admin: true }),
+  list: (params: { status?: 'paid' | 'unpaid' | 'all'; q?: string }) => {
+    const search = new URLSearchParams()
+    if (params.status) search.set('status', params.status)
+    if (params.q) search.set('q', params.q)
+    const qs = search.toString()
+    return apiFetch<{ data: StudentRecord[] }>(`/api/students/admin/list${qs ? `?${qs}` : ''}`, {
+      admin: true,
+    })
+  },
+  create: (body: {
+    name?: string
+    phone?: string
+    email?: string
+    referrerCode?: string
+    notes?: string
+    membershipStatus?: 'paid' | 'unpaid'
+  }) =>
+    apiFetch<{ ok: true; data: StudentRecord }>('/api/students/admin/create', {
+      method: 'POST',
+      admin: true,
+      body,
+    }),
+  update: (
+    id: string,
+    body: {
+      name?: string
+      phone?: string
+      email?: string
+      notes?: string
+      membershipStatus?: 'paid' | 'unpaid'
+      walletBalance?: number
+    },
+  ) =>
+    apiFetch<{ ok: true; data: StudentRecord }>(`/api/students/admin/${id}`, {
+      method: 'PATCH',
+      admin: true,
+      body,
+    }),
+  grantAccess: (id: string) =>
+    apiFetch<{ ok: true; data: StudentRecord }>(`/api/students/admin/${id}/grant-access`, {
+      method: 'POST',
+      admin: true,
+    }),
+  revokeAccess: (id: string) =>
+    apiFetch<{ ok: true; data: StudentRecord }>(`/api/students/admin/${id}/revoke-access`, {
+      method: 'POST',
+      admin: true,
+    }),
+}
+
+export const liveApi = {
+  getActive: () => apiFetch<{ data: LiveSession | null }>('/api/live/active'),
+  adminList: () => apiFetch<{ data: LiveSession[] }>('/api/live/admin/list', { admin: true }),
+  adminCreate: (body: {
+    title: string
+    description?: string
+    streamUrl?: string
+    meetingUrl?: string
+    pair?: string
+    scheduledAt?: string
+  }) =>
+    apiFetch<{ ok: true; data: LiveSession }>('/api/live/admin/create', {
+      method: 'POST',
+      admin: true,
+      body,
+    }),
+  adminUpdate: (
+    id: string,
+    body: Partial<{
+      title: string
+      description: string
+      streamUrl: string
+      meetingUrl: string
+      pair: string
+      coachNote: string
+      signalSide: 'buy' | 'sell' | 'neutral'
+      signalEntry: number
+      signalStop: number
+      signalTarget: number
+    }>,
+  ) =>
+    apiFetch<{ ok: true; data: LiveSession }>(`/api/live/admin/${id}`, {
+      method: 'PATCH',
+      admin: true,
+      body,
+    }),
+  adminSetStatus: (id: string, status: 'scheduled' | 'live' | 'ended') =>
+    apiFetch<{ ok: true; data: LiveSession }>(`/api/live/admin/${id}/status`, {
+      method: 'POST',
+      admin: true,
+      body: { status },
+    }),
+}
+
+export const paymentApi = {
+  getConfig: () => apiFetch<{ data: PaymentConfig }>('/api/payments/config'),
+  adminGetSettings: () =>
+    apiFetch<{ data: PaymentSettings }>('/api/payments/admin/settings', { admin: true }),
+  adminUpdateSettings: (body: PaymentSettings) =>
+    apiFetch<{ ok: true; data: PaymentSettings }>('/api/payments/admin/settings', {
+      method: 'PUT',
+      admin: true,
+      body,
+    }),
+  create: (body: {
+    phone?: string
+    email?: string
+    name?: string
+    amount?: number
+    referrerCode?: string
+    provider?: 'MTN' | 'AIRTEL'
+  }) =>
+    apiFetch<{
+      ok: true
+      data: {
+        payment: PaymentRecord
+        referralCode: string
+        instructions: PaymentInstructions
+      }
+    }>('/api/payments/create', { method: 'POST', body }),
+  getStatus: (referenceCode: string) =>
+    apiFetch<{ data: PaymentRecord }>(`/api/payments/status/${encodeURIComponent(referenceCode)}`),
+  submitTransaction: (id: string, transactionId: string) =>
+    apiFetch<{ ok: true; data: PaymentRecord }>(`/api/payments/${id}/submit-transaction`, {
+      method: 'POST',
+      body: { transactionId },
+    }),
+  adminList: (params: { status?: string; q?: string }) => {
+    const search = new URLSearchParams()
+    if (params.status) search.set('status', params.status)
+    if (params.q) search.set('q', params.q)
+    const qs = search.toString()
+    return apiFetch<{ data: PaymentRecord[] }>(
+      `/api/payments/admin/list${qs ? `?${qs}` : ''}`,
+      { admin: true },
+    )
+  },
+  adminApprove: (id: string, body?: { transactionId?: string }) =>
+    apiFetch<{ ok: true; data: PaymentRecord }>(`/api/payments/admin/${id}/approve`, {
+      method: 'POST',
+      admin: true,
+      body,
+    }),
+  adminReferrals: () =>
+    apiFetch<{ data: ReferralRewardRecord[] }>('/api/payments/admin/referrals', { admin: true }),
+  adminReject: (id: string) =>
+    apiFetch<{ ok: true; data: PaymentRecord }>(`/api/payments/admin/${id}/reject`, {
+      method: 'POST',
+      admin: true,
+    }),
+  adminUpdatePayment: (id: string, body: { amount?: number; phone?: string }) =>
+    apiFetch<{ ok: true; data: PaymentRecord }>(`/api/payments/admin/${id}`, {
+      method: 'PATCH',
+      admin: true,
+      body,
+    }),
 }
 
 export const messageApi = {

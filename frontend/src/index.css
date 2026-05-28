@@ -99,12 +99,13 @@
   }
 
   .glass-card-glow {
-    @apply glass-card transition-all duration-500;
+    @apply glass-card transition-all duration-300 ease-out;
   }
 
   .glass-card-glow:hover {
     border-color: rgb(var(--color-accent) / 0.45);
     box-shadow: var(--shadow-glow-sm), var(--shadow-glass);
+    transform: translateY(-4px);
   }
 
   .border-theme {
@@ -600,6 +601,86 @@
     @apply bg-rose-500/15 text-rose-400;
   }
 
+  .admin-hub-hero {
+    @apply relative overflow-hidden rounded-3xl border border-theme bg-theme-surface/50 p-6 sm:p-8;
+  }
+
+  .admin-hub-hero__glow {
+    @apply pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-empire-purple/25 blur-3xl;
+  }
+
+  .admin-hub-workflow-btn {
+    @apply inline-flex items-center gap-2 rounded-xl border border-theme bg-theme-elevated/50 px-4 py-2.5 text-sm font-semibold text-theme-primary transition hover:border-theme-accent/40 hover:bg-theme-accent/10;
+  }
+
+  .admin-hub-workflow-btn--primary {
+    @apply border-theme-accent/40 bg-gradient-to-r from-empire-purple to-empire-blue text-white shadow-glow-sm hover:opacity-95;
+  }
+
+  .admin-hub-filters {
+    @apply flex flex-wrap gap-2;
+  }
+
+  .admin-hub-filter {
+    @apply rounded-full border border-transparent px-4 py-2 text-xs font-semibold text-theme-muted transition hover:text-theme-primary;
+  }
+
+  .admin-hub-filter--active {
+    @apply border-theme-accent/40 bg-theme-accent/15 text-theme-accent;
+  }
+
+  .admin-hub-bento {
+    @apply grid gap-3 sm:grid-cols-2 xl:grid-cols-3;
+  }
+
+  .admin-hub-card {
+    @apply flex items-start gap-3 rounded-2xl border border-theme bg-theme-elevated/30 p-4 text-left transition hover:-translate-y-0.5 hover:border-theme-accent/35 hover:bg-theme-accent/5 hover:shadow-glow-sm;
+  }
+
+  .admin-hub-card__icon {
+    @apply flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-theme bg-theme-surface/80 text-theme-accent;
+  }
+
+  .admin-hub-card__body {
+    @apply min-w-0 flex-1;
+  }
+
+  .admin-hub-card__title {
+    @apply font-display text-sm font-bold text-theme-primary sm:text-base;
+  }
+
+  .admin-hub-card__desc {
+    @apply mt-1 block text-xs text-theme-muted leading-relaxed;
+  }
+
+  .admin-hub-card__chevron {
+    @apply mt-1 h-5 w-5 shrink-0 text-theme-muted opacity-0 transition group-hover:opacity-100;
+  }
+
+  .admin-hub-card--purple .admin-hub-card__icon {
+    @apply border-empire-purple/30 bg-empire-purple/10 text-empire-purple-glow;
+  }
+
+  .admin-hub-card--emerald .admin-hub-card__icon {
+    @apply border-emerald-500/30 bg-emerald-500/10 text-emerald-400;
+  }
+
+  .admin-hub-card--amber .admin-hub-card__icon {
+    @apply border-amber-500/30 bg-amber-500/10 text-amber-400;
+  }
+
+  .admin-hub-card--sky .admin-hub-card__icon {
+    @apply border-sky-500/30 bg-sky-500/10 text-sky-400;
+  }
+
+  .admin-hub-card--rose .admin-hub-card__icon {
+    @apply border-rose-500/30 bg-rose-500/10 text-rose-400;
+  }
+
+  .admin-stat-tile--ops {
+    @apply border-emerald-500/20 bg-gradient-to-br from-emerald-500/5 to-transparent;
+  }
+
   .media-thumb-wrap {
     @apply overflow-hidden;
   }
@@ -1066,6 +1147,738 @@
     @apply min-w-0 overflow-x-hidden;
   }
 
+  .manage-subnav {
+    @apply flex flex-wrap gap-2 rounded-2xl border border-theme bg-theme-surface/50 p-1.5;
+  }
+
+  .manage-subnav__btn {
+    @apply rounded-xl px-4 py-2 text-sm font-semibold text-theme-muted transition;
+  }
+
+  .manage-subnav__btn--active {
+    @apply bg-theme-accent/15 text-theme-accent shadow-sm;
+  }
+
+  .manage-stat-card {
+    @apply rounded-2xl border p-4;
+  }
+
+  .manage-student-row,
+  .manage-student-mini {
+    @apply flex flex-col gap-3 rounded-2xl border border-theme bg-theme-surface/60 p-4 sm:flex-row sm:items-center;
+  }
+
+  .manage-badge {
+    @apply shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide;
+  }
+
+  .manage-badge--paid {
+    @apply bg-emerald-500/15 text-emerald-400;
+  }
+
+  .manage-badge--unpaid {
+    @apply bg-amber-500/15 text-amber-400;
+  }
+
+  .forex-bento {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 768px) {
+    .forex-bento {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-areas:
+        'watch watch'
+        'session session'
+        'pip position'
+        'rr rr'
+        'chart chart';
+    }
+
+    .forex-bento__watch {
+      grid-area: watch;
+    }
+    .forex-bento__session {
+      grid-area: session;
+    }
+    .forex-bento__pip {
+      grid-area: pip;
+    }
+    .forex-bento__position {
+      grid-area: position;
+    }
+    .forex-bento__rr {
+      grid-area: rr;
+    }
+    .forex-bento__chart {
+      grid-area: chart;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .forex-bento {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      grid-template-areas:
+        'watch watch watch watch watch watch watch session session session session session'
+        'pip pip pip pip position position position position rr rr rr rr'
+        'chart chart chart chart chart chart chart chart chart chart chart chart';
+    }
+
+    .forex-bento--arrangeable {
+      grid-template-areas: none;
+      grid-auto-rows: minmax(180px, auto);
+    }
+
+    .forex-bento--arrangeable .forex-bento__watch {
+      grid-column: span 7;
+    }
+    .forex-bento--arrangeable .forex-bento__session {
+      grid-column: span 5;
+    }
+    .forex-bento--arrangeable .forex-bento__pip,
+    .forex-bento--arrangeable .forex-bento__position,
+    .forex-bento--arrangeable .forex-bento__margin,
+    .forex-bento--arrangeable .forex-bento__breakeven {
+      grid-column: span 3;
+    }
+    .forex-bento--arrangeable .forex-bento__rr,
+    .forex-bento--arrangeable .forex-bento__compound {
+      grid-column: span 6;
+    }
+    .forex-bento--arrangeable .forex-bento__signals,
+    .forex-bento--arrangeable .forex-bento__journal {
+      grid-column: span 6;
+    }
+    .forex-bento--arrangeable .forex-bento__paper,
+    .forex-bento--arrangeable .forex-bento__chart {
+      grid-column: span 6;
+    }
+    .forex-bento--arrangeable .forex-bento__calendar,
+    .forex-bento--arrangeable .forex-bento__pivot,
+    .forex-bento--arrangeable .forex-bento__fib,
+    .forex-bento--arrangeable .forex-bento__lots {
+      grid-column: span 4;
+    }
+  }
+
+  .forex-bento-item {
+    @apply relative;
+  }
+
+  .forex-bento-item .forex-tool-card {
+    @apply h-full;
+  }
+
+  .forex-bento-item:not(.forex-bento-item--dragging) .forex-tool-card {
+    @apply fintech-card--glow;
+  }
+
+  .forex-bento-item__handle {
+    @apply absolute right-3 top-3 z-20 flex h-9 w-9 cursor-grab items-center justify-center rounded-xl border border-theme-accent/30 bg-theme-surface/95 text-theme-accent shadow-glow-sm backdrop-blur-md active:cursor-grabbing;
+  }
+
+  .forex-bento-item--dragging {
+    @apply opacity-60 ring-2 ring-theme-accent/40;
+  }
+
+  .forex-tool-card--locked {
+    @apply border-dashed border-theme-accent/30;
+  }
+
+  .paper-trade-btn {
+    @apply inline-flex h-11 items-center justify-center gap-2 rounded-xl text-sm font-bold text-white transition;
+  }
+
+  .paper-trade-btn--buy {
+    @apply bg-emerald-500 hover:bg-emerald-600;
+  }
+
+  .paper-trade-btn--sell {
+    @apply bg-rose-500 hover:bg-rose-600;
+  }
+
+  .live-room-grid {
+    @apply grid gap-6 lg:grid-cols-[1.4fr_1fr];
+  }
+
+  .live-pill {
+    @apply inline-flex items-center gap-2 rounded-full border border-rose-500/40 bg-rose-500/10 px-4 py-2 text-sm font-semibold text-rose-400;
+  }
+
+  .student-popup-backdrop {
+    @apply fixed inset-0 z-[80] bg-black/60 backdrop-blur-sm;
+  }
+
+  .student-popup {
+    @apply fixed left-1/2 top-1/2 z-[81] w-[min(92vw,420px)] -translate-x-1/2 -translate-y-1/2 rounded-3xl border border-theme bg-theme-surface p-8 text-center shadow-2xl;
+  }
+
+  .student-popup--compact {
+    @apply w-[min(92vw,380px)] p-6;
+  }
+
+  .student-popup__close {
+    @apply absolute right-3 top-3 rounded-lg p-2 text-theme-muted hover:bg-theme-elevated/60 hover:text-theme-primary;
+  }
+
+  .student-popup__glow {
+    @apply pointer-events-none absolute -inset-px rounded-3xl bg-gradient-to-br from-empire-purple/20 via-transparent to-empire-blue/20;
+    z-index: -1;
+  }
+
+  .student-popup__icon {
+    @apply mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-theme-accent/15 text-theme-accent;
+  }
+
+  .student-popup__icon--paid {
+    @apply bg-emerald-500/15 text-emerald-400;
+  }
+
+  .student-status-badge {
+    @apply inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-bold uppercase tracking-wide sm:text-xs;
+  }
+
+  .student-status-badge--paid {
+    @apply border-emerald-500/40 bg-emerald-500/15 text-emerald-400;
+  }
+
+  .student-status-badge--unpaid {
+    @apply border-amber-500/40 bg-amber-500/15 text-amber-400;
+  }
+
+  .student-status-badge--missing {
+    @apply border-rose-500/35 bg-rose-500/10 text-rose-400;
+  }
+
+  .student-login-logout {
+    @apply mt-1 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-theme px-3 py-2.5 text-sm font-medium text-theme-muted transition hover:bg-theme-elevated/60 hover:text-theme-primary;
+  }
+
+  /* —— Auth page & modal (Dribbble-style) —— */
+  .auth-page {
+    @apply relative min-h-[100svh] bg-theme-bg text-theme-primary;
+  }
+
+  .auth-page__toolbar {
+    @apply relative z-20 flex items-center justify-between px-4 py-4 sm:px-8;
+  }
+
+  .auth-back-btn {
+    @apply inline-flex items-center gap-2 rounded-xl border border-theme bg-theme-surface/80 px-3 py-2 text-sm font-medium text-theme-primary transition hover:bg-theme-elevated;
+  }
+
+  .auth-page__grid {
+    @apply relative z-10 mx-auto grid min-h-[calc(100svh-4rem)] w-full max-w-6xl gap-0 px-4 pb-8 sm:px-8 lg:grid-cols-2 lg:items-stretch lg:gap-8;
+  }
+
+  .auth-page__form-side {
+    @apply flex items-center justify-center py-4 lg:py-10;
+  }
+
+  .auth-page__hero-side {
+    @apply hidden lg:flex lg:items-center;
+  }
+
+  .auth-card {
+    @apply w-full max-w-[440px] rounded-3xl border border-theme bg-theme-surface p-6 shadow-2xl sm:p-8;
+  }
+
+  .auth-card__body {
+    @apply mt-6;
+  }
+
+  .auth-tabs {
+    @apply flex gap-1 rounded-2xl border border-theme bg-theme-elevated/50 p-1;
+  }
+
+  .auth-tabs--modal {
+    @apply mb-4;
+  }
+
+  .auth-tab {
+    @apply flex-1 rounded-xl px-3 py-2.5 text-center text-sm font-semibold text-theme-muted transition;
+  }
+
+  .auth-tab--active {
+    @apply bg-theme-surface text-theme-primary shadow-sm;
+  }
+
+  .auth-form-stack {
+    @apply flex w-full flex-col items-stretch;
+  }
+
+  .auth-logo {
+    @apply mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-empire-purple to-empire-blue shadow-glow-sm;
+  }
+
+  .auth-logo__mark {
+    @apply font-display text-sm font-bold text-white;
+  }
+
+  .auth-logo--admin {
+    @apply from-empire-navy to-empire-purple;
+  }
+
+  .auth-form-title {
+    @apply text-center font-display text-2xl font-bold tracking-tight text-theme-primary sm:text-[1.65rem];
+  }
+
+  .auth-form-subtitle {
+    @apply mb-6 mt-2 text-center text-sm leading-relaxed text-theme-muted;
+  }
+
+  .auth-field {
+    @apply flex w-full flex-col gap-1.5 text-left;
+  }
+
+  .auth-field__label {
+    @apply text-xs font-semibold text-theme-muted;
+  }
+
+  .auth-input {
+    @apply h-12 w-full rounded-xl border border-theme bg-theme-elevated/40 px-4 text-sm text-theme-primary outline-none transition placeholder:text-theme-muted/60 focus:border-theme-accent/50 focus:ring-2 focus:ring-theme-accent/25;
+  }
+
+  .auth-divider {
+    @apply relative my-5 text-center text-xs font-medium text-theme-muted;
+  }
+
+  .auth-divider::before,
+  .auth-divider::after {
+    content: '';
+    @apply absolute top-1/2 h-px w-[42%] bg-theme-border;
+  }
+
+  .auth-divider::before {
+    @apply left-0;
+  }
+
+  .auth-divider::after {
+    @apply right-0;
+  }
+
+  .auth-primary-btn {
+    @apply mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-xl text-sm font-bold;
+  }
+
+  .auth-primary-btn--solid {
+    @apply bg-theme-primary text-theme-bg transition hover:opacity-90 disabled:opacity-50;
+  }
+
+  .light .auth-primary-btn--solid {
+    @apply bg-empire-navy text-white;
+  }
+
+  .dark .auth-primary-btn--solid {
+    @apply bg-white text-empire-navy;
+  }
+
+  .auth-secondary-btn {
+    @apply w-full justify-center;
+  }
+
+  .auth-error {
+    @apply text-center text-sm text-rose-500;
+  }
+
+  .auth-footnote {
+    @apply mt-4 text-center text-xs leading-relaxed text-theme-muted;
+  }
+
+  .auth-switch-line {
+    @apply mt-4 text-center text-sm text-theme-muted;
+  }
+
+  .auth-switch-link {
+    @apply font-semibold text-theme-accent hover:underline;
+  }
+
+  .auth-logo {
+    @apply cursor-default border-0 bg-transparent p-0;
+  }
+
+  .auth-text-link {
+    @apply text-sm font-medium text-theme-accent hover:underline;
+  }
+
+  .auth-logout-btn {
+    @apply mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-theme py-2.5 text-sm text-theme-muted hover:bg-theme-elevated;
+  }
+
+  .auth-result-icon {
+    @apply mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-theme-elevated/60;
+  }
+
+  .auth-hero {
+    @apply relative h-full min-h-[520px] w-full overflow-hidden rounded-3xl bg-gradient-to-br from-empire-blue via-empire-purple to-empire-navy p-10 text-white shadow-2xl;
+  }
+
+  .auth-hero__eyebrow {
+    @apply text-xs font-bold uppercase tracking-[0.25em] text-white/70;
+  }
+
+  .auth-hero__title {
+    @apply mt-4 font-display text-3xl font-bold leading-tight xl:text-4xl;
+  }
+
+  .auth-hero__text {
+    @apply mt-3 max-w-md text-sm leading-relaxed text-white/85;
+  }
+
+  .auth-hero__perks {
+    @apply mt-8 space-y-4 text-sm font-medium;
+  }
+
+  .auth-hero__perks li {
+    @apply flex items-center gap-3;
+  }
+
+  .auth-hero__preview {
+    @apply mt-10 flex gap-4;
+  }
+
+  .auth-preview-card {
+    @apply rounded-2xl border border-white/20 bg-white/10 px-5 py-4 backdrop-blur-md;
+  }
+
+  .auth-preview-card--dim {
+    @apply opacity-80;
+  }
+
+  .auth-modal-root {
+    @apply fixed inset-0 z-[100] flex items-end justify-center p-0 sm:items-center sm:p-4;
+  }
+
+  .auth-modal-backdrop {
+    @apply absolute inset-0 bg-black/55 backdrop-blur-sm;
+  }
+
+  .auth-modal-panel {
+    @apply relative z-10 flex max-h-[min(92svh,720px)] w-full max-w-[440px] flex-col rounded-t-3xl border border-theme bg-theme-surface p-5 shadow-2xl sm:rounded-3xl sm:p-6;
+  }
+
+  .auth-modal-close {
+    @apply absolute right-3 top-3 z-20 flex h-9 w-9 items-center justify-center rounded-full border border-theme bg-theme-elevated/80 text-theme-muted transition hover:text-theme-primary;
+  }
+
+  .auth-modal-panel__scroll {
+    @apply min-h-0 flex-1 overflow-y-auto overscroll-contain pr-1 pt-6;
+  }
+
+  .auth-modal-fullpage {
+    @apply mt-3 shrink-0 border-t border-theme pt-3 text-center;
+  }
+
+  @media (min-width: 640px) {
+    .auth-modal-panel {
+      @apply max-h-[90vh];
+    }
+  }
+
+  .premium-site {
+    @apply relative;
+  }
+
+  .section-premium {
+    @apply relative overflow-hidden;
+  }
+
+  .section-premium::before {
+    content: '';
+    @apply pointer-events-none absolute inset-0 opacity-60;
+    background: radial-gradient(ellipse 80% 50% at 50% 0%, rgb(var(--color-accent) / 0.08), transparent 55%);
+  }
+
+  .premium-badge {
+    @apply inline-flex items-center gap-2 rounded-full border border-theme-accent/35 bg-theme-accent/10 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.2em] text-theme-accent;
+  }
+
+  .premium-page-header {
+    @apply relative;
+  }
+
+  .pay-page-bg {
+    background: var(--mesh-hero);
+    @apply relative min-h-screen overflow-hidden;
+  }
+
+  .pay-page-bg::before {
+    content: '';
+    @apply pointer-events-none absolute -left-32 top-20 h-96 w-96 rounded-full bg-empire-purple/20 blur-3xl;
+  }
+
+  .pay-page-bg::after {
+    content: '';
+    @apply pointer-events-none absolute -right-20 bottom-0 h-80 w-80 rounded-full bg-empire-blue/15 blur-3xl;
+  }
+
+  .pay-flow-card {
+    @apply glass-card relative overflow-hidden rounded-3xl p-6 sm:p-8;
+    box-shadow: var(--shadow-mobile), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  }
+
+  .pay-steps {
+    @apply mb-8 flex items-center justify-center gap-2 sm:gap-4;
+  }
+
+  .pay-step {
+    @apply flex items-center gap-2 rounded-full border border-theme px-3 py-1.5 text-xs font-semibold text-theme-muted transition sm:px-4 sm:text-sm;
+  }
+
+  .pay-step--active {
+    @apply border-theme-accent/50 bg-theme-accent/15 text-theme-accent shadow-glow-sm;
+  }
+
+  .pay-step--done {
+    @apply border-emerald-500/30 bg-emerald-500/10 text-emerald-400;
+  }
+
+  .pay-step-line {
+    @apply hidden h-px w-8 bg-theme-border sm:block;
+  }
+
+  .pay-method-preview {
+    @apply rounded-2xl border border-theme bg-theme-surface/40 p-4;
+  }
+
+  .pay-method-card {
+    @apply rounded-2xl border border-theme bg-theme-elevated/30 p-4;
+  }
+
+  .pay-method-card__head {
+    @apply flex items-start gap-3;
+  }
+
+  .pay-action-btn {
+    @apply inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl text-sm font-semibold transition;
+  }
+
+  .pay-action-btn--primary {
+    @apply border border-theme-accent/40 bg-theme-accent/15 text-theme-accent hover:bg-theme-accent/25;
+  }
+
+  .pay-action-btn--secondary {
+    @apply border border-theme bg-theme-surface/60 text-theme-primary hover:border-theme-accent/30;
+  }
+
+  .pay-status {
+    @apply inline-flex rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider;
+  }
+
+  .pay-status--pending {
+    @apply bg-amber-500/15 text-amber-400;
+  }
+
+  .pay-status--paid {
+    @apply bg-emerald-500/15 text-emerald-400;
+  }
+
+  .pay-status--failed {
+    @apply bg-rose-500/15 text-rose-400;
+  }
+
+  .fintech-card {
+    @apply glass-card relative h-full overflow-hidden rounded-2xl p-5 sm:rounded-3xl sm:p-6;
+    transition: border-color 0.3s, box-shadow 0.3s, transform 0.3s;
+  }
+
+  .fintech-card--glow {
+    box-shadow: var(--shadow-glow-sm), var(--shadow-glass);
+  }
+
+  .fintech-card__shine {
+    @apply pointer-events-none absolute -inset-full z-0 opacity-0 transition-opacity duration-500;
+    background: linear-gradient(
+      105deg,
+      transparent 42%,
+      rgba(255, 255, 255, 0.06) 50%,
+      transparent 58%
+    );
+  }
+
+  .fintech-card:hover .fintech-card__shine {
+    @apply opacity-100;
+    animation: card-shine 0.85s ease-out;
+  }
+
+  @keyframes card-shine {
+    from {
+      transform: translateX(-30%) translateY(-30%);
+    }
+    to {
+      transform: translateX(30%) translateY(30%);
+    }
+  }
+
+  .perk-pill {
+    @apply inline-flex items-center gap-2 rounded-full border border-theme bg-theme-surface/70 px-4 py-2.5 text-sm font-semibold text-theme-primary backdrop-blur-md transition;
+    box-shadow: var(--shadow-glass);
+  }
+
+  .perk-pill:hover {
+    @apply border-theme-accent/40 bg-theme-accent/10;
+    transform: translateY(-2px);
+  }
+
+  .chart-frame-premium {
+    @apply neon-border overflow-hidden rounded-2xl sm:rounded-3xl;
+    box-shadow: var(--shadow-mobile);
+  }
+
+  .trust-strip {
+    @apply mt-10 flex flex-wrap items-center justify-center gap-3 sm:gap-6;
+  }
+
+  .trust-strip__item {
+    @apply flex items-center gap-2 rounded-2xl border border-theme bg-theme-surface/50 px-4 py-2.5 text-xs font-semibold text-theme-muted sm:text-sm;
+  }
+
+  .forex-tool-card {
+    @apply fintech-card;
+  }
+
+  .forex-tool-card--shell {
+    @apply flex h-full flex-col p-0;
+    background: linear-gradient(
+      145deg,
+      rgb(var(--color-surface) / 0.95) 0%,
+      rgb(var(--color-elevated) / 0.55) 100%
+    );
+  }
+
+  .forex-tool-card__head {
+    @apply flex gap-3 border-b border-theme p-4 sm:p-5;
+  }
+
+  .forex-tool-card__icon-wrap {
+    @apply flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-theme-accent/25 bg-theme-accent/10 text-theme-accent;
+  }
+
+  .forex-tool-card__tag {
+    @apply rounded-full border border-theme-accent/30 bg-theme-accent/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-theme-accent;
+  }
+
+  .forex-tool-card__body {
+    @apply flex-1 p-4 sm:p-5;
+  }
+
+  .forex-tool-card__foot {
+    @apply border-t border-theme p-4 sm:p-5;
+  }
+
+  .forex-tool-card--wide {
+    @apply min-h-0;
+  }
+
+  .forex-tool-card__title {
+    @apply font-display text-base font-bold text-theme-primary sm:text-lg;
+  }
+
+  .forex-tool-card__desc {
+    @apply mt-0.5 text-xs text-theme-muted sm:text-sm;
+  }
+
+  .forex-cat-bar {
+    @apply rounded-2xl border border-theme bg-theme-surface/40 p-2 backdrop-blur-md;
+  }
+
+  .forex-cat-pill {
+    @apply inline-flex items-center gap-1.5 rounded-xl border border-transparent px-3.5 py-2 text-xs font-semibold text-theme-muted transition hover:border-theme-accent/30 hover:text-theme-primary;
+  }
+
+  .forex-cat-pill--active {
+    @apply border-theme-accent/40 bg-theme-accent/15 text-theme-accent shadow-glow-sm;
+  }
+
+  .forex-level-list {
+    @apply space-y-1.5;
+  }
+
+  .forex-level-row {
+    @apply flex items-center justify-between rounded-xl border border-theme bg-theme-elevated/40 px-3 py-2 text-sm font-semibold;
+  }
+
+  .forex-level-row--resistance {
+    @apply border-rose-500/20 text-rose-300/90;
+  }
+
+  .forex-level-row--support {
+    @apply border-emerald-500/20 text-emerald-300/90;
+  }
+
+  .forex-level-row--pivot {
+    @apply border-theme-accent/30 text-theme-accent;
+  }
+
+  .forex-level-row--fib {
+    @apply text-theme-primary;
+  }
+
+  .forex-journal-item {
+    @apply rounded-xl border border-theme bg-theme-elevated/30 p-3;
+  }
+
+  .forex-calendar-row {
+    @apply flex items-center gap-2 rounded-xl border border-theme bg-theme-elevated/30 px-3 py-2.5;
+  }
+
+  .forex-impact {
+    @apply rounded-md px-1.5 py-0.5 text-[10px] font-bold uppercase;
+  }
+
+  .forex-impact--high {
+    @apply bg-rose-500/20 text-rose-400;
+  }
+
+  .forex-impact--medium {
+    @apply bg-amber-500/20 text-amber-400;
+  }
+
+  .forex-signal-card {
+    @apply rounded-2xl border border-theme-accent/25 bg-gradient-to-br from-theme-accent/10 via-theme-surface/30 to-transparent p-4;
+  }
+
+  .forex-tool-action {
+    @apply inline-flex w-full items-center justify-center gap-2 rounded-xl border border-theme-accent/40 bg-theme-accent/15 px-4 py-2.5 text-sm font-bold text-theme-accent transition hover:bg-theme-accent/25 disabled:opacity-40;
+  }
+
+  .forex-input-select {
+    @apply w-full;
+  }
+
+  .forex-tool-result--profit {
+    @apply border-emerald-500/30 from-emerald-500/15;
+  }
+
+  .forex-tool-result--loss {
+    @apply border-rose-500/30 from-rose-500/15;
+  }
+
+  .forex-tool-result--accent {
+    @apply border-theme-accent/30 from-theme-accent/10;
+  }
+
+  .forex-field {
+    @apply flex flex-col gap-1 text-xs font-semibold text-theme-muted;
+  }
+
+  .forex-field input,
+  .forex-field select,
+  .forex-field textarea {
+    @apply rounded-xl border border-theme bg-theme-elevated/60 px-3 py-2.5 text-sm font-medium text-theme-primary outline-none ring-theme-accent/30 transition focus:ring-2;
+  }
+
+  .forex-tool-result {
+    @apply rounded-xl border border-emerald-500/25 bg-gradient-to-br from-emerald-500/10 via-theme-surface/40 to-theme-surface/50 px-4 py-3;
+  }
+
+  .forex-watch-table tbody tr:hover {
+    background: rgb(var(--color-accent) / 0.06);
+  }
+
+  /* Offset main content for fixed market ticker */
   .hero-mesh {
     background: var(--mesh-hero);
   }

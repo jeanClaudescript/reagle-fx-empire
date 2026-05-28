@@ -17,6 +17,8 @@ export const BRAND = {
 
 export const NAV_SECTIONS = [
   { id: 'home', key: 'home' },
+  { id: 'tools', key: 'tools' },
+  { id: 'live', key: 'live' },
   { id: 'about', key: 'about' },
   { id: 'results', key: 'results' },
   { id: 'lessons', key: 'lessons' },

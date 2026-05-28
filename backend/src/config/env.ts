@@ -15,4 +15,13 @@ export const env = {
   cloudinaryApiKey: process.env.CLOUDINARY_API_KEY?.trim() || '',
   cloudinaryApiSecret: process.env.CLOUDINARY_API_SECRET?.trim() || '',
   cloudinaryFolder: process.env.CLOUDINARY_FOLDER?.trim() || 'reagle-fx',
+  paymentMerchantPhone: (process.env.PAYMENT_MERCHANT_PHONE || '250789880060').replace(/\D/g, ''),
+  paymentDefaultAmount: Number(process.env.PAYMENT_DEFAULT_AMOUNT || 5000),
+  paymentCurrency: process.env.PAYMENT_CURRENCY?.trim() || 'RWF',
+  paymentUssdTemplate:
+    process.env.PAYMENT_USSD_TEMPLATE?.trim() || '182*1*1*{phone}*{amount}#',
+  paymentAirtelUssdTemplate:
+    process.env.PAYMENT_AIRTEL_USSD_TEMPLATE?.trim() || '500*1*2*{phone}*{amount}#',
+  referralRewardAmount: Number(process.env.REFERRAL_REWARD_AMOUNT || 1000),
+  momoWebhookSecret: process.env.MOMO_WEBHOOK_SECRET?.trim() || '',
 }

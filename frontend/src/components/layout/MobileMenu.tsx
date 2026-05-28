@@ -9,6 +9,9 @@ import {
   Users,
   MessageCircle,
   ChevronRight,
+  Calculator,
+  Radio,
+  LogIn,
 } from 'lucide-react'
 import { useEffect } from 'react'
 import { BRAND, NAV_SECTIONS } from '@/constants/brand'
@@ -16,9 +19,12 @@ import { useLanguage } from '@/context/LanguageContext'
 import { scrollToSection } from '@/hooks/useScrollSpy'
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
+import { useStudentAccess } from '@/context/StudentAccessContext'
 
 const NAV_ICONS: Record<string, typeof Home> = {
   home: Home,
+  tools: Calculator,
+  live: Radio,
   about: User,
   results: TrendingUp,
   lessons: BookOpen,
@@ -49,9 +55,12 @@ const itemVariants = {
 
 export function MobileMenu({ open, onClose, activeId }: MobileMenuProps) {
   const { t } = useLanguage()
+  const { isLoggedIn, membershipStatus } = useStudentAccess()
 
   const navLabels: Record<string, string> = {
     home: t.nav.home,
+    tools: t.nav.tools,
+    live: t.nav.live,
     about: t.nav.about,
     results: t.nav.results,
     lessons: t.nav.lessons,
@@ -175,6 +184,30 @@ export function MobileMenu({ open, onClose, activeId }: MobileMenuProps) {
                 <ThemeToggle />
                 <LanguageSwitcher />
               </div>
+              <button
+                type="button"
+                onClick={() => {
+                  onClose()
+                  window.history.pushState({}, '', '/login')
+                  window.dispatchEvent(new PopStateEvent('popstate'))
+                }}
+                className={`mb-3 flex w-full items-center justify-center gap-2 rounded-2xl border py-3.5 text-sm font-semibold active:scale-[0.98] ${
+                  isLoggedIn && membershipStatus === 'paid'
+                    ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-400'
+                    : isLoggedIn && membershipStatus === 'unpaid'
+                      ? 'border-amber-500/40 bg-amber-500/10 text-amber-400'
+                      : 'border-theme-accent/35 bg-theme-accent/10 text-theme-accent'
+                }`}
+              >
+                <LogIn className="h-5 w-5" />
+                {isLoggedIn
+                  ? membershipStatus === 'paid'
+                    ? t.studentLogin.paidBadge
+                    : membershipStatus === 'unpaid'
+                      ? t.studentLogin.unpaidBadge
+                      : t.studentLogin.notFoundBadge
+                  : t.nav.login}
+              </button>
               <a
                 href={BRAND.whatsappLink}
                 target="_blank"

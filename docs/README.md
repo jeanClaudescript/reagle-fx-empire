@@ -91,3 +91,26 @@ cd backend && npm run build
 **Vercel (frontend)** — [reagle-fx-empire.vercel.app](https://reagle-fx-empire.vercel.app/):
 - `VITE_API_URL=https://reagle-fx-empire.onrender.com`
 - `VITE_ADMIN_API_KEY=<same-as-backend-admin-key>`
+
+## Payments & referrals (Mobile Money)
+
+Public flow: **`/pay`** (also linked from Community). Creates a **PENDING** payment with a unique **reference code** (`RFX-…`), shows USSD / merchant number, and polls until **PAID**.
+
+**Render payment env (optional):**
+- `PAYMENT_MERCHANT_PHONE=250789880060`
+- `PAYMENT_DEFAULT_AMOUNT=5000`
+- `PAYMENT_CURRENCY=RWF`
+- `PAYMENT_USSD_TEMPLATE=182*1*1*{phone}*{amount}#`
+- `REFERRAL_REWARD_AMOUNT=1000`
+- `MOMO_WEBHOOK_SECRET=<secret-for-webhook-header>`
+
+**API:**
+- `POST /api/payments/create` — start payment
+- `GET /api/payments/status/:referenceCode`
+- `POST /api/payments/:id/submit-transaction` — user submits MoMo transaction ID
+- `POST /api/payments/webhook/momo` — provider callback (match phone + amount + reference)
+- Admin: `GET /api/payments/admin/list`, `POST …/approve`, `POST …/reject`
+
+**Admin:** CMS → **Students & Pay** — dashboard (paid vs unpaid), create student accounts (phone and/or email), grant/revoke access, payments, MoMo settings.
+
+Referrals: new users can pass `?ref=REF-XXXX` or enter a code at checkout. On the referred user’s **first PAID** payment, the referrer’s wallet is credited (`REFERRAL_REWARD_AMOUNT`).

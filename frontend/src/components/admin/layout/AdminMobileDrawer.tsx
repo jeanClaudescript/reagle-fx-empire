@@ -14,9 +14,21 @@ const navItem = {
   show: { opacity: 1, x: 0, transition: { type: 'spring', stiffness: 400, damping: 30 } },
 }
 
+const CMS_TABS: ContentSectionId[] = [
+  'updates',
+  'upcoming',
+  'about',
+  'certificates',
+  'proven',
+  'mastery',
+  'videos',
+  'texts',
+  'settings',
+]
+
 function SectionNavDot({ sectionId }: { sectionId: AdminTab }) {
   const { sectionStates } = useCms()
-  if (sectionId === 'dashboard') return null
+  if (!CMS_TABS.includes(sectionId as ContentSectionId)) return null
   const state = sectionStates[sectionId as ContentSectionId]
   if (!state) return null
   let color = 'bg-emerald-400'

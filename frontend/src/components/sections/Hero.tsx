@@ -15,6 +15,7 @@ import { ParticlesBackground } from '@/components/ui/ParticlesBackground'
 import { LiveForexChart } from '@/components/ui/LiveForexChart'
 import { DailyUpdatesStrip } from '@/components/public/DailyUpdatesStrip'
 import { UpcomingBannerSlot } from '@/components/public/UpcomingBannerSlot'
+import { usePaymentConfig } from '@/hooks/usePaymentConfig'
 
 const stats = [
   { key: 'statFollowers', icon: Users },
@@ -25,6 +26,8 @@ const stats = [
 
 export function Hero() {
   const { t } = useLanguage()
+  const { priceLabel } = usePaymentConfig()
+  const unlockLabel = priceLabel ? `${t.hero.ctaUnlock} — ${priceLabel}` : t.hero.ctaUnlock
 
   return (
     <section
@@ -91,10 +94,13 @@ export function Hero() {
             />
           </motion.div>
 
-          <div className="mt-6 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:justify-center sm:gap-4">
+          <div className="mt-6 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-4">
             <GlowButton href={BRAND.whatsappLink} variant="whatsapp" className="w-full sm:w-auto">
               <MessageCircle className="h-5 w-5" />
               {t.hero.ctaWhatsapp}
+            </GlowButton>
+            <GlowButton href="/pay" variant="primary" external={false} className="w-full sm:w-auto">
+              {unlockLabel}
             </GlowButton>
             <GlowButton
               variant="secondary"

@@ -8,6 +8,7 @@ import { loadDraftCMS, loadPublishedCMS, saveDraftCMS, savePublishedCMS } from '
 import { DEFAULT_CMS_DATA } from '@/cms/defaultCms'
 import { normalizeCmsData } from '@/cms/storage'
 import { messageApi, type ApiMessage } from '@/services/api'
+import { AdminsEditor } from '@/admin/editors/AdminsEditor'
 
 const SECTION_LABELS: Record<CMSSectionId, string> = {
   results: 'Proven Results',
@@ -57,6 +58,8 @@ export function SettingsEditor() {
 
   return (
     <div className="flex flex-col gap-4">
+      <AdminsEditor />
+
       <AdminCard>
         <div className="admin-card-body">
           <p className="admin-editor-card-intro">

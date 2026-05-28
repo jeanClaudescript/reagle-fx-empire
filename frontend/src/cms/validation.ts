@@ -1,7 +1,10 @@
 import type { CMSData } from './types'
 import type { AdminTab } from '@/admin/layout/adminNav'
 
-export type ContentSectionId = Exclude<AdminTab, 'dashboard'>
+export type ContentSectionId = Exclude<
+  AdminTab,
+  'dashboard' | 'students' | 'payments' | 'live' | 'referrals' | 'pay-settings'
+>
 
 export interface ValidationIssue {
   section: ContentSectionId

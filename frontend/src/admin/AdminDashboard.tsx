@@ -13,13 +13,21 @@ import { MasteryEditor } from '@/admin/editors/MasteryEditor'
 import { TeachingVideosEditor } from '@/admin/editors/TeachingVideosEditor'
 import { TextsEditor } from '@/admin/editors/TextsEditor'
 import { SettingsEditor } from '@/admin/editors/SettingsEditor'
+import { StudentsManageEditor } from '@/admin/editors/StudentsManageEditor'
+import { PaymentsEditor } from '@/admin/editors/PaymentsEditor'
+import { LiveSessionsEditor } from '@/admin/editors/LiveSessionsEditor'
+import { ReferralsEditor } from '@/admin/editors/ReferralsEditor'
+import { PaymentSettingsPanel } from '@/admin/editors/PaymentSettingsPanel'
+import { OpsSectionFrame } from '@/components/admin/OpsSectionFrame'
+import { ContentHub } from '@/components/admin/ContentHub'
+import { isContentSectionTab, isOpsTab } from '@/admin/layout/adminHubActions'
 import { AdminSidebar } from '@/components/admin/layout/AdminSidebar'
 import { AdminHeader } from '@/components/admin/layout/AdminHeader'
 import { AdminMobileActionBar } from '@/components/admin/layout/AdminMobileActionBar'
 import { AdminPreviewPanel } from '@/components/admin/AdminPreviewPanel'
-import { DashboardHome } from '@/components/admin/DashboardHome'
 import { MediaViewerProvider } from '@/components/admin/media/MediaViewerContext'
 import { AdminSectionFrame } from '@/components/admin/AdminSectionFrame'
+import { AdminApiStatusBanner } from '@/components/admin/AdminApiStatusBanner'
 import type { AdminTab } from '@/admin/layout/adminNav'
 import { getAdminNavLabel } from '@/admin/layout/adminNav'
 import type { ContentSectionId } from '@/cms/validation'
@@ -65,7 +73,8 @@ function AdminDashboardInner() {
 
   useEffect(() => {
     if (!isAdminAuthenticated()) {
-      window.location.pathname = '/admin-login'
+      window.history.pushState({}, '', '/login?tab=admin')
+      window.dispatchEvent(new PopStateEvent('popstate'))
     }
   }, [])
 
@@ -103,7 +112,7 @@ function AdminDashboardInner() {
   useEffect(() => {
     if (validationIssues.length === 0) return
     const section = validationIssues[0]?.section
-    if (section && section !== tab) setTab(section)
+    if (section && isContentSectionTab(section) && section !== tab) setTab(section)
   }, [validationIssues, tab])
 
   const syncLabel = hasDraftChanges
@@ -157,10 +166,27 @@ function AdminDashboardInner() {
 
   const tabContent = useMemo(() => {
     if (tab === 'dashboard') {
-      return <DashboardHome onNavigate={setTab} onWorkflow={handleWorkflowFixed} />
+      return <ContentHub onNavigate={setTab} onWorkflow={handleWorkflowFixed} />
     }
 
-    const section = tab as ContentSectionId
+    if (isOpsTab(tab)) {
+      const opsEditors: Record<string, React.ReactNode> = {
+        students: <StudentsManageEditor />,
+        payments: <PaymentsEditor embedded />,
+        live: <LiveSessionsEditor />,
+        referrals: <ReferralsEditor />,
+        'pay-settings': <PaymentSettingsPanel />,
+      }
+      return (
+        <OpsSectionFrame tab={tab} onBack={goDashboard}>
+          {opsEditors[tab]}
+        </OpsSectionFrame>
+      )
+    }
+
+    if (!isContentSectionTab(tab)) return null
+
+    const section = tab
     const editors: Record<ContentSectionId, React.ReactNode> = {
       updates: <DailyUpdatesEditor />,
       upcoming: <UpcomingBannersEditor />,
@@ -261,6 +287,7 @@ function AdminDashboardInner() {
 
         <div className="admin-content-area">
           <div className="admin-content-inner">
+            <AdminApiStatusBanner />
             <PublishValidationBanner />
             <AdminPreviewPanel visible={showPreview} />
 

@@ -7,16 +7,21 @@ import { useScrollSpy, scrollToSection } from '@/hooks/useScrollSpy'
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import { MobileMenu } from '@/components/layout/MobileMenu'
+import { StudentLoginNav } from '@/components/student/StudentLoginNav'
+import { StudentLoginModal } from '@/components/student/StudentLoginModal'
 
 export function Navbar() {
   const { t } = useLanguage()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [loginOpen, setLoginOpen] = useState(false)
   const sectionIds = NAV_SECTIONS.map((s) => s.id)
   const activeId = useScrollSpy(sectionIds)
   const tapRef = useRef({ count: 0, lastAt: 0 })
 
   const navLabels: Record<string, string> = {
     home: t.nav.home,
+    tools: t.nav.tools,
+    live: t.nav.live,
     about: t.nav.about,
     results: t.nav.results,
     lessons: t.nav.lessons,
@@ -87,6 +92,7 @@ export function Navbar() {
           </nav>
 
           <div className="flex items-center gap-1.5 sm:gap-2">
+            <StudentLoginNav onOpen={() => setLoginOpen(true)} />
             <ThemeToggle compact />
             <LanguageSwitcher compact />
             <button
@@ -105,6 +111,7 @@ export function Navbar() {
       </motion.header>
 
       <MobileMenu open={menuOpen} onClose={() => setMenuOpen(false)} activeId={activeId} />
+      <StudentLoginModal open={loginOpen} onClose={() => setLoginOpen(false)} />
     </>
   )
 }
