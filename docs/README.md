@@ -51,6 +51,7 @@ Backend API: `http://localhost:4000`
 - `PUT /api/cms/draft` (admin, body: `{ "data": { ... } }`)
 - `POST /api/cms/publish` (admin)
 - `POST /api/cms/draft/reset` (admin)
+- `POST /api/media/upload` (admin, multipart `file` → Cloudinary URL)
 
 If `ADMIN_API_KEY` is set, send header:
 
@@ -82,6 +83,10 @@ cd backend && npm run build
 - `FRONTEND_ORIGIN=http://localhost:5173,https://reagle-fx-empire.vercel.app`
 - `ALLOW_VERCEL_PREVIEW_ORIGINS=true`
 - `ADMIN_API_KEY=<strong-secret>`
+- `CLOUDINARY_CLOUD_NAME=<your-cloud-name>`
+- `CLOUDINARY_API_KEY=<your-api-key>`
+- `CLOUDINARY_API_SECRET=<your-api-secret>`
+- `CLOUDINARY_FOLDER=reagle-fx` (optional)
 
 **Vercel (frontend)** — [reagle-fx-empire.vercel.app](https://reagle-fx-empire.vercel.app/):
 - `VITE_API_URL=https://reagle-fx-empire.onrender.com`

@@ -4,20 +4,10 @@ import { AdminCard } from '@/components/admin/AdminCard'
 import { AdminTextArea, AdminTextInput } from '@/components/admin/AdminInput'
 import { useCms } from '@/cms/CmsProvider'
 import { useCmsValidation } from '@/admin/CmsValidationContext'
-import { compressImageFile } from '@/admin/compressImage'
 import { AdminMediaThumb } from '@/components/admin/media/AdminMediaThumb'
 import { useAdminToast } from '@/admin/toast'
 import { CmsStorageError } from '@/cms/storage'
-
-async function uploadCoachImage(file: File, kind: 'profile' | 'background') {
-  const isProfile = kind === 'profile'
-  return compressImageFile(file, {
-    maxWidth: isProfile ? 640 : 1200,
-    maxHeight: isProfile ? 640 : 1600,
-    quality: isProfile ? 0.85 : 0.8,
-    maxBytes: 8 * 1024 * 1024,
-  })
-}
+import { uploadCoachImage } from '@/admin/uploadAdminMedia'
 
 export function AboutEditor() {
   const { draft, updateDraft } = useCms()
@@ -37,10 +27,10 @@ export function AboutEditor() {
   ) => {
     setLoading(true)
     try {
-      const dataUrl = await uploadCoachImage(file, field === 'coachImageDataUrl' ? 'profile' : 'background')
+      const url = await uploadCoachImage(file, field === 'coachImageDataUrl' ? 'profile' : 'background')
       updateDraft((prev) => ({
         ...prev,
-        about: { ...prev.about, [field]: dataUrl },
+        about: { ...prev.about, [field]: url },
       }))
       push(field === 'coachImageDataUrl' ? 'Coach photo updated.' : 'Card background updated.', 'success')
     } catch (err) {
@@ -61,7 +51,7 @@ export function AboutEditor() {
       <AdminCard>
         <div className="admin-card-body">
           <p className="admin-editor-card-intro">
-            Upload images (auto-compressed for smooth preview). JPG/PNG recommended.
+            Upload images to Cloudinary (synced across devices). JPG/PNG recommended.
           </p>
 
           <div className="mt-5 grid min-w-0 gap-4 md:grid-cols-2">

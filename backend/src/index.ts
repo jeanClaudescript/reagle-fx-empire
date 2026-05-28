@@ -4,6 +4,10 @@ import { env } from './config/env.js'
 import { connectDatabase } from './db/connect.js'
 import { cmsRoutes } from './routes/cmsRoutes.js'
 import { messageRoutes } from './routes/messageRoutes.js'
+import { mediaRoutes } from './routes/mediaRoutes.js'
+import { configureCloudinary, isCloudinaryConfigured } from './services/cloudinaryService.js'
+
+configureCloudinary()
 
 const app = express()
 let dbReady = false
@@ -34,9 +38,12 @@ app.get('/api/health', (_req, res) => {
     ok: true,
     service: 'coachpeter250-backend',
     db: dbReady ? 'connected' : 'not_configured',
+    media: isCloudinaryConfigured() ? 'cloudinary' : 'not_configured',
     timestamp: new Date().toISOString(),
   })
 })
+
+app.use('/api/media', mediaRoutes)
 
 app.use('/api/cms', (req, res, next) => {
   if (!dbReady) {

@@ -127,13 +127,13 @@ export function MasteryEditor() {
 
                     <MediaUploader
                       label="Upload image or video"
-                      onUpload={async (dataUrl, file) => {
+                      onUpload={async (mediaUrl, file) => {
                         const type: MediaType = file.type.startsWith('video/') ? 'video' : 'image'
                         const next: CMSMedia = {
                           id: `mastery-${key}-${Date.now()}`,
                           type,
                           orientation: orientationByKey[key],
-                          mediaDataUrl: dataUrl,
+                          mediaDataUrl: mediaUrl,
                           order: 1,
                         }
                         setMedia(key, next)

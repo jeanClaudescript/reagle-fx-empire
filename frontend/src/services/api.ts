@@ -49,6 +49,32 @@ export const cmsApi = {
   resetDraft: () => apiFetch<{ data: unknown }>('/api/cms/draft/reset', { method: 'POST', admin: true }),
 }
 
+export const mediaApi = {
+  upload: async (file: File) => {
+    const form = new FormData()
+    form.append('file', file)
+    const headers: Record<string, string> = {}
+    if (ADMIN_API_KEY) headers['x-admin-api-key'] = ADMIN_API_KEY
+
+    const res = await fetch(`${API_BASE}/api/media/upload`, {
+      method: 'POST',
+      headers,
+      body: form,
+    })
+    if (!res.ok) {
+      let message = `Upload failed (${res.status})`
+      try {
+        const body = (await res.json()) as { error?: string }
+        if (body.error) message = body.error
+      } catch {
+        /* ignore */
+      }
+      throw new Error(message)
+    }
+    return (await res.json()) as { ok: true; url: string; publicId: string }
+  },
+}
+
 export const messageApi = {
   send: (payload: { name: string; email?: string; phone?: string; channel?: string; message: string }) =>
     apiFetch<{ ok: true; data: { id: string; createdAt: string } }>('/api/messages', { method: 'POST', body: payload }),

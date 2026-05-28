@@ -6,7 +6,7 @@ import { useAdminConfirm } from '@/admin/confirm'
 import { AdminCard } from '@/components/admin/AdminCard'
 import { AdminMediaThumb } from '@/components/admin/media/AdminMediaThumb'
 import { AdminTextInput } from '@/components/admin/AdminInput'
-import { fileToDataUrl } from '@/admin/fileToDataUrl'
+import { uploadAdminMedia } from '@/admin/uploadAdminMedia'
 
 function sort(items: TeachingVideoItem[]) {
   return items.slice().sort((a, b) => a.order - b.order)
@@ -93,7 +93,7 @@ export function TeachingVideosEditor() {
                       onChange={async (e) => {
                         const file = e.target.files?.[0]
                         if (!file) return
-                        const dataUrl = await fileToDataUrl(file)
+                        const url = await uploadAdminMedia(file)
                         const isVideo = file.type.startsWith('video/')
                         updateDraft((prev) => ({
                           ...prev,
@@ -101,8 +101,8 @@ export function TeachingVideosEditor() {
                             if (v.id !== item.id) return v
                             return {
                               ...v,
-                              posterDataUrl: !isVideo ? dataUrl : v.posterDataUrl,
-                              videoDataUrl: isVideo ? dataUrl : v.videoDataUrl,
+                              posterDataUrl: !isVideo ? url : v.posterDataUrl,
+                              videoDataUrl: isVideo ? url : v.videoDataUrl,
                             }
                           }),
                         }))

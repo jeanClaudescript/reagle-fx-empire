@@ -5,7 +5,7 @@ import { useCms } from '@/cms/CmsProvider'
 import { useAdminConfirm } from '@/admin/confirm'
 import { AdminCard } from '@/components/admin/AdminCard'
 import { AdminSelect, AdminTextInput } from '@/components/admin/AdminInput'
-import { fileToDataUrl } from '@/admin/fileToDataUrl'
+import { uploadAdminMedia } from '@/admin/uploadAdminMedia'
 import { AdminMediaThumb } from '@/components/admin/media/AdminMediaThumb'
 
 function normalize(items: DailyUpdate[]) {
@@ -84,7 +84,7 @@ export function DailyUpdatesEditor() {
                       if (!file) return
                       setBusy(true)
                       try {
-                        setMediaDataUrl(await fileToDataUrl(file))
+                        setMediaDataUrl(await uploadAdminMedia(file))
                       } finally {
                         setBusy(false)
                         e.target.value = ''

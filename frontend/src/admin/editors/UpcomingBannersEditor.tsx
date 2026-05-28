@@ -5,7 +5,7 @@ import { useCms } from '@/cms/CmsProvider'
 import { useAdminConfirm } from '@/admin/confirm'
 import { AdminCard } from '@/components/admin/AdminCard'
 import { AdminTextInput } from '@/components/admin/AdminInput'
-import { fileToDataUrl } from '@/admin/fileToDataUrl'
+import { uploadAdminMedia } from '@/admin/uploadAdminMedia'
 import { AdminMediaThumb } from '@/components/admin/media/AdminMediaThumb'
 
 function normalizeByOrder(items: UpcomingBanner[]) {
@@ -101,8 +101,8 @@ export function UpcomingBannersEditor() {
                     onChange={async (e) => {
                       const file = e.target.files?.[0]
                       if (!file) return
-                      const dataUrl = await fileToDataUrl(file)
-                      setImageDataUrl(dataUrl)
+                      const url = await uploadAdminMedia(file)
+                      setImageDataUrl(url)
                       e.target.value = ''
                     }}
                   />
@@ -354,12 +354,12 @@ export function UpcomingBannersEditor() {
                                 onChange={async (e) => {
                                   const file = e.target.files?.[0]
                                   if (!file) return
-                                  const dataUrl = await fileToDataUrl(file)
+                                  const url = await uploadAdminMedia(file)
                                   updateDraft((prev) => ({
                                     ...prev,
                                     upcomingBanners: normalizeByOrder(
                                       prev.upcomingBanners.map((b) =>
-                                        b.id === banner.id ? { ...b, imageDataUrl: dataUrl } : b,
+                                        b.id === banner.id ? { ...b, imageDataUrl: url } : b,
                                       ),
                                     ),
                                   }))

@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 import type { Certificate } from '@/cms/types'
 import { useCms } from '@/cms/CmsProvider'
-import { fileToDataUrl } from '@/admin/fileToDataUrl'
+import { uploadAdminMedia } from '@/admin/uploadAdminMedia'
 import { useAdminConfirm } from '@/admin/confirm'
 import { AdminCard } from '@/components/admin/AdminCard'
 import { AdminTextInput } from '@/components/admin/AdminInput'
@@ -67,10 +67,10 @@ export function CertificatesEditor() {
                     if (!file) return
                     setUploadBusy(true)
                     try {
-                      const dataUrl = await fileToDataUrl(file)
+                      const url = await uploadAdminMedia(file)
                       const next: Certificate = {
                         id: `cert-${Math.random().toString(16).slice(2)}`,
-                        imageDataUrl: dataUrl,
+                        imageDataUrl: url,
                         title: title.trim() ? title.trim() : undefined,
                         externalLink: externalLink.trim() ? externalLink.trim() : undefined,
                         order: certificates.length + 1,

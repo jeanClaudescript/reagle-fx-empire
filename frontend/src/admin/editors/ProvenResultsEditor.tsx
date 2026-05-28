@@ -6,6 +6,7 @@ import { useAdminConfirm } from '@/admin/confirm'
 import { AdminCard } from '@/components/admin/AdminCard'
 import { AdminMediaThumb } from '@/components/admin/media/AdminMediaThumb'
 import { AdminSelect, AdminTextInput } from '@/components/admin/AdminInput'
+import { uploadAdminMedia } from '@/admin/uploadAdminMedia'
 
 function sortByOrder(items: CMSMedia[]) {
   return items.slice().sort((a, b) => a.order - b.order)
@@ -89,19 +90,14 @@ export function ProvenResultsEditor() {
                     if (!file) return
                     setBusy(true)
                     try {
-                      const dataUrl = await new Promise<string>((resolve, reject) => {
-                        const reader = new FileReader()
-                        reader.onload = () => resolve(String(reader.result))
-                        reader.onerror = () => reject(new Error('Upload failed'))
-                        reader.readAsDataURL(file)
-                      })
+                      const url = type === 'placeholder' ? undefined : await uploadAdminMedia(file)
 
                       const next: CMSMedia = {
                         id: `pr-${Math.random().toString(16).slice(2)}`,
                         type,
                         orientation,
                         title: title.trim() ? title.trim() : undefined,
-                        mediaDataUrl: type === 'placeholder' ? undefined : dataUrl,
+                        mediaDataUrl: url,
                         externalLink: externalLink.trim() ? externalLink.trim() : undefined,
                         order: media.length + 1,
                       }

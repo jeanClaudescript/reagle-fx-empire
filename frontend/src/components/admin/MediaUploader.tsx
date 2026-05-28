@@ -1,13 +1,13 @@
 import { useState, type ReactNode } from 'react'
 import { motion } from 'framer-motion'
 import { Upload } from 'lucide-react'
-import { fileToDataUrl } from '@/admin/fileToDataUrl'
+import { uploadAdminMedia } from '@/admin/uploadAdminMedia'
 
 interface MediaUploaderProps {
   accept?: string
   label?: string
   disabled?: boolean
-  onUpload: (dataUrl: string, file: File) => void | Promise<void>
+  onUpload: (mediaUrl: string, file: File) => void | Promise<void>
   onUrlSubmit?: (url: string) => void | Promise<void>
   urlLabel?: string
   children?: ReactNode
@@ -57,8 +57,8 @@ export function MediaUploader({
             if (!file) return
             setBusy(true)
             try {
-              const dataUrl = await fileToDataUrl(file)
-              await onUpload(dataUrl, file)
+              const mediaUrl = await uploadAdminMedia(file)
+              await onUpload(mediaUrl, file)
             } finally {
               setBusy(false)
               e.target.value = ''
