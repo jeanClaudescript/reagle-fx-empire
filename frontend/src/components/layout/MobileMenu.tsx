@@ -37,6 +37,7 @@ interface MobileMenuProps {
   open: boolean
   onClose: () => void
   activeId: string
+  onOpenDesk?: () => void
 }
 
 const panelVariants = {
@@ -53,9 +54,9 @@ const itemVariants = {
   }),
 }
 
-export function MobileMenu({ open, onClose, activeId }: MobileMenuProps) {
+export function MobileMenu({ open, onClose, activeId, onOpenDesk }: MobileMenuProps) {
   const { t } = useLanguage()
-  const { isLoggedIn, membershipStatus } = useStudentAccess()
+  const { isLoggedIn, membershipStatus, isPaid, hasVipSession } = useStudentAccess()
 
   const navLabels: Record<string, string> = {
     home: t.nav.home,
@@ -184,6 +185,16 @@ export function MobileMenu({ open, onClose, activeId }: MobileMenuProps) {
                 <ThemeToggle />
                 <LanguageSwitcher />
               </div>
+              {isPaid && hasVipSession && onOpenDesk ? (
+                <button
+                  type="button"
+                  onClick={onOpenDesk}
+                  className="mb-3 flex w-full items-center justify-center gap-2 rounded-2xl border border-amber-500/40 bg-amber-500/10 py-3.5 text-sm font-semibold text-amber-300 active:scale-[0.98]"
+                >
+                  <Radio className="h-5 w-5" />
+                  {t.vip.openDesk}
+                </button>
+              ) : null}
               <button
                 type="button"
                 onClick={() => {

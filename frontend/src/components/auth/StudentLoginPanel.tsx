@@ -121,12 +121,21 @@ export function StudentLoginPanel({
             contactLabel={t.studentLogin.signedInAs}
           >
             {referralCode ? <ReferralShare code={referralCode} /> : null}
-            <GlowButton variant="primary" external={false} className="auth-primary-btn" onClick={() => goHomeSection('live')}>
+            <GlowButton
+              variant="primary"
+              external={false}
+              className="auth-primary-btn"
+              onClick={() => {
+                window.history.pushState({}, '', '/desk')
+                window.dispatchEvent(new PopStateEvent('popstate'))
+                onDone?.()
+              }}
+            >
               <Radio className="h-4 w-4" />
-              {t.live.joinLive}
+              {t.vip.openDesk}
             </GlowButton>
-            <GlowButton variant="secondary" external={false} className="auth-secondary-btn" onClick={() => goHomeSection('tools')}>
-              {t.live.openTools}
+            <GlowButton variant="secondary" external={false} className="auth-secondary-btn" onClick={() => goHomeSection('home')}>
+              {t.vip.backToSite}
             </GlowButton>
           </ResultView>
         )}

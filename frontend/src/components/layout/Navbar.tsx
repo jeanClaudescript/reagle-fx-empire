@@ -4,6 +4,7 @@ import { useRef, useState } from 'react'
 import { BRAND, NAV_SECTIONS } from '@/constants/brand'
 import { useLanguage } from '@/context/LanguageContext'
 import { useScrollSpy, scrollToSection } from '@/hooks/useScrollSpy'
+import { useStudentAccess } from '@/context/StudentAccessContext'
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import { MobileMenu } from '@/components/layout/MobileMenu'
@@ -12,6 +13,7 @@ import { StudentLoginModal } from '@/components/student/StudentLoginModal'
 
 export function Navbar() {
   const { t } = useLanguage()
+  const { isPaid, hasVipSession } = useStudentAccess()
   const [menuOpen, setMenuOpen] = useState(false)
   const [loginOpen, setLoginOpen] = useState(false)
   const sectionIds = NAV_SECTIONS.map((s) => s.id)
@@ -32,6 +34,12 @@ export function Navbar() {
 
   const handleNav = (id: string) => {
     scrollToSection(id)
+    setMenuOpen(false)
+  }
+
+  const goDesk = () => {
+    window.history.pushState({}, '', '/desk')
+    window.dispatchEvent(new PopStateEvent('popstate'))
     setMenuOpen(false)
   }
 
@@ -92,6 +100,11 @@ export function Navbar() {
           </nav>
 
           <div className="flex items-center gap-1.5 sm:gap-2">
+            {isPaid && hasVipSession ? (
+              <button type="button" onClick={goDesk} className="vip-nav-cta hidden sm:inline-flex">
+                {t.vip.openDesk}
+              </button>
+            ) : null}
             <StudentLoginNav onOpen={() => setLoginOpen(true)} />
             <ThemeToggle compact />
             <LanguageSwitcher compact />
@@ -110,7 +123,7 @@ export function Navbar() {
         </div>
       </motion.header>
 
-      <MobileMenu open={menuOpen} onClose={() => setMenuOpen(false)} activeId={activeId} />
+      <MobileMenu open={menuOpen} onClose={() => setMenuOpen(false)} activeId={activeId} onOpenDesk={goDesk} />
       <StudentLoginModal open={loginOpen} onClose={() => setLoginOpen(false)} />
     </>
   )

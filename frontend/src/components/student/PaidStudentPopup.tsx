@@ -54,13 +54,9 @@ export function PaidStudentPopup() {
 
             <div className="student-popup__glow" aria-hidden />
 
-            <motion.div
-              animate={{ rotate: [0, 8, -8, 0] }}
-              transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-              className="student-popup__icon student-popup__icon--paid"
-            >
+            <div className="student-popup__icon student-popup__icon--paid">
               <Crown className="h-10 w-10" />
-            </motion.div>
+            </div>
             <h3 className="font-display text-2xl font-bold text-theme-primary">{t.live.paidPopupTitle}</h3>
             <p className="mt-2 text-sm text-theme-muted">{t.live.paidPopupBody}</p>
             <div className="mt-6 flex flex-col gap-2 sm:flex-row">
@@ -70,22 +66,20 @@ export function PaidStudentPopup() {
                 className="w-full"
                 onClick={() => {
                   dismiss()
-                  document.getElementById('live')?.scrollIntoView({ behavior: 'smooth' })
+                  window.history.pushState({}, '', '/desk')
+                  window.dispatchEvent(new PopStateEvent('popstate'))
                 }}
               >
                 <Radio className="h-4 w-4" />
-                {t.live.joinLive}
+                {t.vip.openDesk}
               </GlowButton>
               <GlowButton
                 variant="secondary"
                 external={false}
                 className="w-full"
-                onClick={() => {
-                  dismiss()
-                  document.getElementById('tools')?.scrollIntoView({ behavior: 'smooth' })
-                }}
+                onClick={dismiss}
               >
-                {t.live.openTools}
+                {t.vip.backToSite}
               </GlowButton>
             </div>
           </motion.div>

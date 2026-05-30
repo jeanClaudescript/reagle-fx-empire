@@ -404,6 +404,45 @@ export interface Translations {
   mobile: {
     joinWhatsapp: string
   }
+  vip: {
+    badge: string
+    title: string
+    openDesk: string
+    backToSite: string
+    loading: string
+    gateTitle: string
+    gateBody: string
+    entryTitle: string
+    entryBody: string
+    navLabel: string
+    navOverview: string
+    navLive: string
+    navLiveRoom: string
+    navSignals: string
+    navMarket: string
+    navRisk: string
+    navAnalysis: string
+    navAccount: string
+    accountTitle: string
+    signedInAs: string
+    deviceLockTitle: string
+    deviceLockBody: string
+    welcome: string
+    traderFallback: string
+    overviewSubtitle: string
+    liveStatus: string
+    liveOffline: string
+    paperHint: string
+    riskDesk: string
+    riskHint: string
+    signalsHint: string
+    checklistTitle: string
+    checklistSubtitle: string
+    checkSession: string
+    checkRisk: string
+    checkNews: string
+    checkPlan: string
+  }
   languages: {
     en: string
     rw: string

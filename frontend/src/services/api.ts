@@ -1,4 +1,5 @@
 import { getAdminAuthToken } from '@/admin/adminSession'
+import { getStudentAuthToken } from '@/student/studentSession'
 
 const API_BASE = (import.meta.env.VITE_API_URL as string | undefined)?.trim() || 'http://localhost:4000'
 
@@ -6,6 +7,16 @@ type RequestInitLite = {
   method?: string
   body?: unknown
   admin?: boolean
+  student?: boolean
+}
+
+export class StudentSessionError extends Error {
+  code: string
+  constructor(message: string, code = 'SESSION_REVOKED') {
+    super(message)
+    this.name = 'StudentSessionError'
+    this.code = code
+  }
 }
 
 export function parseApiError(text: string, status: number) {
@@ -30,6 +41,13 @@ async function apiFetch<T>(path: string, init: RequestInitLite = {}): Promise<T>
     }
     headers.Authorization = `Bearer ${token}`
   }
+  if (init.student) {
+    const token = getStudentAuthToken()
+    if (!token) {
+      throw new StudentSessionError('Sign in to the VIP desk first', 'NO_SESSION')
+    }
+    headers.Authorization = `Bearer ${token}`
+  }
 
   const res = await fetch(`${API_BASE}${path}`, {
     method: init.method ?? 'GET',
@@ -38,6 +56,19 @@ async function apiFetch<T>(path: string, init: RequestInitLite = {}): Promise<T>
   })
   if (!res.ok) {
     const text = await res.text()
+    if (init.student && res.status === 401) {
+      try {
+        const body = JSON.parse(text) as { code?: string; error?: string }
+        if (body.code === 'SESSION_REVOKED') {
+          throw new StudentSessionError(
+            body.error ?? 'Signed in on another device — sign in again',
+            'SESSION_REVOKED',
+          )
+        }
+      } catch (e) {
+        if (e instanceof StudentSessionError) throw e
+      }
+    }
     throw new Error(parseApiError(text, res.status))
   }
   return (await res.json()) as T
@@ -284,6 +315,35 @@ export const studentApi = {
         referralCode?: string
       }
     }>('/api/students/access/check', { method: 'POST', body }),
+  login: (body: { phone?: string; email?: string; deviceId: string; deviceLabel?: string }) =>
+    apiFetch<{
+      ok: true
+      data: {
+        token: string
+        expiresAt: string
+        user: {
+          id: string
+          name?: string
+          phone?: string
+          email?: string
+          membershipStatus: 'paid' | 'unpaid'
+          referralCode?: string
+        }
+      }
+    }>('/api/students/auth/login', { method: 'POST', body }),
+  logout: () =>
+    apiFetch<{ ok: true }>('/api/students/auth/logout', { method: 'POST', student: true }),
+  me: () =>
+    apiFetch<{
+      data: {
+        id: string
+        name?: string
+        phone?: string
+        email?: string
+        membershipStatus: 'paid' | 'unpaid'
+        referralCode?: string
+      }
+    }>('/api/students/auth/me', { student: true }),
   getStats: () => apiFetch<{ data: StudentStats }>('/api/students/admin/stats', { admin: true }),
   list: (params: { status?: 'paid' | 'unpaid' | 'all'; q?: string }) => {
     const search = new URLSearchParams()
@@ -336,7 +396,7 @@ export const studentApi = {
 }
 
 export const liveApi = {
-  getActive: () => apiFetch<{ data: LiveSession | null }>('/api/live/active'),
+  getActive: () => apiFetch<{ data: LiveSession | null }>('/api/live/active', { student: true }),
   adminList: () => apiFetch<{ data: LiveSession[] }>('/api/live/admin/list', { admin: true }),
   adminCreate: (body: {
     title: string

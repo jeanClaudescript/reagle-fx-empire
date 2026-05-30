@@ -1,5 +1,4 @@
-import { useEffect, useState } from 'react'
-import { motion } from 'framer-motion'
+import { useEffect, useState, type ReactNode } from 'react'
 import { Lock, Radio, Share2, Signal } from 'lucide-react'
 import { useLanguage } from '@/context/LanguageContext'
 import { useStudentAccess } from '@/context/StudentAccessContext'
@@ -24,13 +23,37 @@ function embedUrl(url?: string) {
   return url
 }
 
-export function LiveTradingRoom() {
+function Reveal({
+  deskMode,
+  children,
+  className,
+  delay,
+}: {
+  deskMode?: boolean
+  children: ReactNode
+  className?: string
+  delay?: number
+}) {
+  if (deskMode) return <div className={className}>{children}</div>
+  return (
+    <ScrollReveal className={className} delay={delay}>
+      {children}
+    </ScrollReveal>
+  )
+}
+
+export function LiveTradingRoom({ deskMode = false }: { deskMode?: boolean }) {
   const { t } = useLanguage()
-  const { isPaid, contact, loading } = useStudentAccess()
+  const { isPaid, contact, loading, hasVipSession } = useStudentAccess()
   const [session, setSession] = useState<LiveSession | null>(null)
   const [gateOpen, setGateOpen] = useState(false)
 
+  const canView = deskMode ? hasVipSession : isPaid
+
   useEffect(() => {
+    if (!deskMode && !isPaid) return
+    if (deskMode && !hasVipSession) return
+
     const load = async () => {
       try {
         const res = await liveApi.getActive()
@@ -42,7 +65,7 @@ export function LiveTradingRoom() {
     void load()
     const id = window.setInterval(load, 12_000)
     return () => window.clearInterval(id)
-  }, [])
+  }, [deskMode, hasVipSession, isPaid])
 
   const isLive = session?.status === 'live'
   const stream = embedUrl(session?.streamUrl)
@@ -61,27 +84,37 @@ export function LiveTradingRoom() {
     }
   }
 
-  return (
-    <section id="live" className="section-premium relative section-pad">
-      <div className="absolute inset-0 bg-gradient-to-b from-empire-purple/5 via-transparent to-theme-bg" />
-      <div className="section-container relative">
-        <SectionHeading label={t.live.label} title={t.live.title} subtitle={t.live.subtitle} />
+  const sectionClass = deskMode
+    ? 'vip-live-panel'
+    : 'section-premium relative section-pad'
 
-        {isLive && (
-          <motion.div
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="live-pill mb-8"
-          >
-            <span className="live-dot h-2 w-2 rounded-full bg-rose-500" />
-            {t.live.liveNow}: {session?.title}
-          </motion.div>
+  return (
+    <section id={deskMode ? undefined : 'live'} className={sectionClass}>
+      {!deskMode ? (
+        <div className="absolute inset-0 bg-gradient-to-b from-empire-purple/5 via-transparent to-theme-bg" />
+      ) : null}
+      <div className={deskMode ? 'vip-live-panel__inner' : 'section-container relative'}>
+        {deskMode ? (
+          <div className="mb-6">
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-theme-accent">{t.live.label}</p>
+            <h2 className="mt-1 font-display text-2xl font-bold text-theme-primary">{t.live.title}</h2>
+            <p className="mt-1 text-sm text-theme-muted">{t.live.subtitle}</p>
+          </div>
+        ) : (
+          <SectionHeading label={t.live.label} title={t.live.title} subtitle={t.live.subtitle} />
         )}
 
+        {isLive ? (
+          <div className="live-pill mb-8">
+            <span className="live-dot h-2 w-2 rounded-full bg-rose-500" />
+            {t.live.liveNow}: {session?.title}
+          </div>
+        ) : null}
+
         <div className="live-room-grid">
-          <ScrollReveal className="live-room-grid__main">
+          <Reveal deskMode={deskMode} className="live-room-grid__main">
             <div className="fintech-card fintech-card--glow overflow-hidden p-2 sm:p-3">
-              {isPaid && isLive && stream ? (
+              {canView && isLive && stream ? (
                 <div className="aspect-video w-full overflow-hidden rounded-xl bg-black">
                   <iframe
                     title="Live stream"
@@ -94,26 +127,33 @@ export function LiveTradingRoom() {
               ) : (
                 <div className="relative aspect-video overflow-hidden rounded-xl">
                   <LiveForexChart className="h-full w-full" compact />
-                  {!isPaid && (
+                  {!canView ? (
                     <div className="absolute inset-0 flex flex-col items-center justify-center bg-theme-bg/80 p-6 text-center backdrop-blur-sm">
                       <Lock className="h-10 w-10 text-theme-accent" />
-                      <p className="mt-3 font-display text-lg font-bold text-theme-primary">{t.live.lockedTitle}</p>
+                      <p className="mt-3 font-display text-lg font-bold text-theme-primary">
+                        {t.live.lockedTitle}
+                      </p>
                       <p className="mt-1 text-sm text-theme-muted">{t.live.lockedBody}</p>
-                      <GlowButton variant="primary" external={false} className="mt-4" onClick={() => setGateOpen(true)}>
+                      <GlowButton
+                        variant="primary"
+                        external={false}
+                        className="mt-4"
+                        onClick={() => setGateOpen(true)}
+                      >
                         {t.live.verifyAccess}
                       </GlowButton>
                     </div>
-                  )}
+                  ) : null}
                 </div>
               )}
 
-              {session?.coachNote && isPaid && (
+              {session?.coachNote && canView ? (
                 <p className="mt-3 rounded-xl border border-theme bg-theme-surface/50 px-4 py-3 text-sm text-theme-primary">
                   <strong>{t.live.coachNote}:</strong> {session.coachNote}
                 </p>
-              )}
+              ) : null}
 
-              {session?.meetingUrl && isPaid && (
+              {session?.meetingUrl && canView ? (
                 <a
                   href={session.meetingUrl}
                   target="_blank"
@@ -122,20 +162,22 @@ export function LiveTradingRoom() {
                 >
                   {t.live.openMeeting}
                 </a>
-              )}
+              ) : null}
             </div>
-          </ScrollReveal>
+          </Reveal>
 
-          <ScrollReveal delay={0.08} className="live-room-grid__side">
+          <Reveal deskMode={deskMode} delay={0.08} className="live-room-grid__side">
             <div className="flex flex-col gap-4">
               <div className="fintech-card p-5">
                 <div className="flex items-center gap-2">
                   <Signal className="h-5 w-5 text-theme-accent" />
                   <h3 className="font-display font-bold text-theme-primary">{t.live.signalTitle}</h3>
                 </div>
-                {isPaid && session?.signalSide && session.signalSide !== 'neutral' ? (
+                {canView && session?.signalSide && session.signalSide !== 'neutral' ? (
                   <div className="forex-signal-card mt-4">
-                    <p className={`text-lg font-bold uppercase ${session.signalSide === 'buy' ? 'text-emerald-400' : 'text-rose-400'}`}>
+                    <p
+                      className={`text-lg font-bold uppercase ${session.signalSide === 'buy' ? 'text-emerald-400' : 'text-rose-400'}`}
+                    >
                       {session.signalSide} {session.pair}
                     </p>
                     <dl className="mt-3 grid grid-cols-3 gap-2 text-center text-xs">
@@ -162,20 +204,20 @@ export function LiveTradingRoom() {
                 )}
               </div>
 
-              <PaperTradingDesk pair={session?.pair} />
+              {!deskMode ? <PaperTradingDesk pair={session?.pair} /> : null}
 
-              {!loading && contact && (
+              {!loading && contact && !deskMode ? (
                 <p className="text-center text-xs text-theme-muted">
                   {t.live.signedInAs} {contact.name || contact.phone || contact.email}
                   {isPaid ? ` · ${t.live.paidBadge}` : ''}
                 </p>
-              )}
+              ) : null}
             </div>
-          </ScrollReveal>
+          </Reveal>
         </div>
 
-        {!isPaid && (
-          <ScrollReveal>
+        {!canView && !deskMode ? (
+          <Reveal deskMode={deskMode}>
             <div className="mt-10 flex flex-col items-center gap-3 text-center">
               <Radio className="h-8 w-8 text-theme-accent" />
               <p className="max-w-md text-sm text-theme-muted">{t.live.upgradeHint}</p>
@@ -183,11 +225,11 @@ export function LiveTradingRoom() {
                 {t.live.unlockCta}
               </GlowButton>
             </div>
-          </ScrollReveal>
-        )}
+          </Reveal>
+        ) : null}
       </div>
 
-      <StudentGateModal open={gateOpen} onClose={() => setGateOpen(false)} />
+      {!deskMode ? <StudentGateModal open={gateOpen} onClose={() => setGateOpen(false)} /> : null}
     </section>
   )
 }
