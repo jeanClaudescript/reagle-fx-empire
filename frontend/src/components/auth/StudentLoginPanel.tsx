@@ -10,6 +10,10 @@ import { useEffect, useState, type FormEvent, type ReactNode } from 'react'
 import { useLanguage } from '@/context/LanguageContext'
 import { useStudentAccess, type StudentMembershipStatus } from '@/context/StudentAccessContext'
 import { GlowButton } from '@/components/ui/GlowButton'
+import { ReferralShareCard } from '@/components/referral/ReferralShareCard'
+import { ReferralAppliedBadge } from '@/components/referral/ReferralAppliedBadge'
+import { useReferralCode } from '@/referral/useReferralCode'
+import { getStoredReferralCode } from '@/referral/referralStorage'
 
 type View = 'form' | StudentMembershipStatus
 export type StudentAuthMode = 'login' | 'signup'
@@ -31,12 +35,10 @@ export function StudentLoginPanel({
   const { t } = useLanguage()
   const { checkAccess, loading, isLoggedIn, membershipStatus, contact, referralCode, logout } =
     useStudentAccess()
+  const { code: referrerCode, setCode: setReferrerCode, isAutoApplied, manualEntry, openManualEntry } =
+    useReferralCode()
   const [phone, setPhone] = useState('')
   const [email, setEmail] = useState('')
-  const [referrerCode, setReferrerCode] = useState(() => {
-    const ref = new URLSearchParams(window.location.search).get('ref')?.trim().toUpperCase()
-    return ref || ''
-  })
   const [error, setError] = useState<string | null>(null)
   const [view, setView] = useState<View>('form')
 
@@ -60,7 +62,7 @@ export function StudentLoginPanel({
       const params = new URLSearchParams()
       if (phone.trim()) params.set('phone', phone.trim())
       if (email.trim()) params.set('email', email.trim())
-      if (referrerCode.trim()) params.set('ref', referrerCode.trim().toUpperCase())
+      if (referrerCode.trim()) params.set('ref', referrerCode.trim())
       const qs = params.toString()
       window.history.pushState({}, '', `/pay${qs ? `?${qs}` : ''}`)
       window.dispatchEvent(new PopStateEvent('popstate'))
@@ -91,6 +93,8 @@ export function StudentLoginPanel({
     const params = new URLSearchParams()
     if (phone.trim()) params.set('phone', phone.trim())
     if (email.trim()) params.set('email', email.trim())
+    const storedRef = getStoredReferralCode()
+    if (storedRef) params.set('ref', storedRef)
     const qs = params.toString()
     window.history.pushState({}, '', `/pay${qs ? `?${qs}` : ''}`)
     window.dispatchEvent(new PopStateEvent('popstate'))
@@ -120,7 +124,7 @@ export function StudentLoginPanel({
             contact={contact}
             contactLabel={t.studentLogin.signedInAs}
           >
-            {referralCode ? <ReferralShare code={referralCode} /> : null}
+            {referralCode ? <ReferralShareCard code={referralCode} compact /> : null}
             <GlowButton
               variant="primary"
               external={false}
@@ -232,17 +236,21 @@ export function StudentLoginPanel({
         />
       </label>
 
-      {!isLogin && (
+      {!isLogin && referrerCode && isAutoApplied && !manualEntry ? (
+        <ReferralAppliedBadge code={referrerCode} onChangeCode={openManualEntry} />
+      ) : null}
+
+      {!isLogin && (!referrerCode || manualEntry || !isAutoApplied) ? (
         <label className="auth-field">
           <span className="auth-field__label">{t.pay.referralLabel}</span>
           <input
             value={referrerCode}
-            onChange={(e) => setReferrerCode(e.target.value.toUpperCase())}
+            onChange={(e) => setReferrerCode(e.target.value)}
             placeholder="REF-XXXX"
             className="auth-input"
           />
         </label>
-      )}
+      ) : null}
 
       {error && <p className="auth-error">{error}</p>}
 
@@ -270,33 +278,6 @@ export function StudentLoginPanel({
 
       <p className="auth-footnote">{t.authPage.studentFootnote}</p>
     </form>
-  )
-}
-
-function ReferralShare({ code }: { code: string }) {
-  const { t } = useLanguage()
-  const [copied, setCopied] = useState(false)
-  const link = `${window.location.origin}/pay?ref=${encodeURIComponent(code)}`
-
-  const copy = async () => {
-    try {
-      await navigator.clipboard.writeText(link)
-      setCopied(true)
-      window.setTimeout(() => setCopied(false), 2500)
-    } catch {
-      /* ignore */
-    }
-  }
-
-  return (
-    <div className="w-full rounded-xl border border-theme bg-theme-surface/50 px-4 py-3 text-left text-sm">
-      <p className="font-semibold text-theme-primary">{t.studentLogin.referralTitle}</p>
-      <p className="mt-1 font-mono text-lg font-bold text-theme-accent">{code}</p>
-      <button type="button" className="mt-2 text-xs font-semibold text-theme-accent underline" onClick={() => void copy()}>
-        {copied ? t.studentLogin.copied : t.studentLogin.copyLink}
-      </button>
-      <p className="mt-2 text-xs text-theme-muted">{t.studentLogin.referralHint}</p>
-    </div>
   )
 }
 

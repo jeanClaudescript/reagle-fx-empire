@@ -41,6 +41,7 @@ import { VipCommunityChat } from '@/components/student/vip/VipCommunityChat'
 import { VipCoachChat } from '@/components/student/vip/VipCoachChat'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher'
+import { ReferralShareCard } from '@/components/referral/ReferralShareCard'
 import { classroomApi } from '@/services/api'
 import { onClassroomUpdated } from '@/realtime/appSocket'
 
@@ -362,12 +363,8 @@ export function VipDeskShell() {
                 {contact?.name || contact?.phone || contact?.email}
               </p>
               {referralCode ? (
-                <div className="mt-4 rounded-xl border border-theme bg-theme-surface/60 p-4">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-theme-accent">
-                    {t.studentLogin.referralTitle}
-                  </p>
-                  <p className="mt-1 font-mono text-sm text-theme-primary">{referralCode}</p>
-                  <p className="mt-2 text-xs text-theme-muted">{t.studentLogin.referralHint}</p>
+                <div className="mt-4">
+                  <ReferralShareCard code={referralCode} />
                 </div>
               ) : null}
               <div className="mt-4 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-theme-muted">

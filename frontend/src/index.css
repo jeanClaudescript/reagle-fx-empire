@@ -1855,6 +1855,34 @@
     @apply flex flex-col items-center justify-center rounded-2xl border border-dashed border-theme py-12 text-center;
   }
 
+  .referral-share {
+    @apply rounded-2xl border border-theme bg-theme-surface/50 p-4 text-left;
+  }
+
+  .referral-share--compact {
+    @apply p-3;
+  }
+
+  .referral-share__link-box {
+    @apply rounded-xl border border-theme bg-theme-elevated/40 px-3 py-2;
+  }
+
+  .referral-share__btn {
+    @apply inline-flex items-center gap-1.5 rounded-lg border border-theme bg-theme-surface/60 px-3 py-1.5 text-xs font-semibold text-theme-primary transition hover:border-theme-accent/40;
+  }
+
+  .referral-share__btn--accent {
+    @apply border-emerald-500/30 bg-emerald-500/10 text-emerald-400;
+  }
+
+  .referral-applied {
+    @apply flex items-start gap-3 rounded-xl border border-emerald-500/25 bg-emerald-500/10 px-3 py-3;
+  }
+
+  .referral-applied__change {
+    @apply shrink-0 underline-offset-2 hover:underline;
+  }
+
   .section-premium {
     @apply relative overflow-hidden;
   }

@@ -460,6 +460,20 @@
     "empty": "Nta bitabo byashyizweho.",
     "hidden": "Ububiko bwihishe mu settings."
   },
+  "referral": {
+    "shareTitle": "Tumira inshuti",
+    "shareSubtitle": "Sangiza link yawe — ntibakeneye kwandika code.",
+    "shareMessage": "Jya muri Reagle FX Empire ukoresheje link yanjye:",
+    "shareHint": "Bamara kwishyura binyuze muri link yawe, urabona igihembo.",
+    "copyLink": "Koporora link",
+    "copied": "Byakoporowe!",
+    "shareWhatsApp": "WhatsApp",
+    "shareMore": "Sangiza",
+    "codeLabel": "Code yawe",
+    "appliedTitle": "Link y'ubutumire yashyizweho",
+    "appliedBody": "Wiyandikisha ukoresheje referral",
+    "changeCode": "Hindura"
+  },
   "classroom": {
     "navTitle": "Icyumba cyo guhugura",
     "loading": "Gushaka icyumba cy'uburezi…",

@@ -19,6 +19,10 @@ import { GlowButton } from '@/components/ui/GlowButton'
 import { useLanguage } from '@/context/LanguageContext'
 import { buildTelUssdHref } from '@/utils/ussdTel'
 import { useStudentAccess } from '@/context/StudentAccessContext'
+import { ReferralShareCard } from '@/components/referral/ReferralShareCard'
+import { ReferralAppliedBadge } from '@/components/referral/ReferralAppliedBadge'
+import { useReferralCode } from '@/referral/useReferralCode'
+import { captureReferralFromSearch, clearStoredReferralCode } from '@/referral/referralStorage'
 
 type Step = 'form' | 'pay' | 'done'
 
@@ -50,6 +54,7 @@ function PaySteps({ step }: { step: Step }) {
 }
 
 function readQueryParams() {
+  captureReferralFromSearch()
   const params = new URLSearchParams(window.location.search)
   return {
     ref: params.get('ref')?.trim().toUpperCase() || '',
@@ -67,11 +72,12 @@ function statusTone(status: PaymentRecord['status']) {
 export function PaymentFlow() {
   const { t } = useLanguage()
   const { checkAccess } = useStudentAccess()
+  const { code: referrerCode, setCode: setReferrerCode, isAutoApplied, manualEntry, openManualEntry } =
+    useReferralCode()
   const [step, setStep] = useState<Step>('form')
   const [phone, setPhone] = useState('')
   const [email, setEmail] = useState('')
   const [name, setName] = useState('')
-  const [referrerCode, setReferrerCode] = useState(() => readQueryParams().ref)
   const [provider, setProvider] = useState<'MTN' | 'AIRTEL'>('MTN')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -90,7 +96,7 @@ export function PaymentFlow() {
     if (q.phone) setPhone(q.phone)
     if (q.email) setEmail(q.email)
     if (q.ref) setReferrerCode(q.ref)
-  }, [])
+  }, [setReferrerCode])
 
   useEffect(() => {
     paymentApi
@@ -112,6 +118,7 @@ export function PaymentFlow() {
         if (res.data.status === 'PAID') {
           setStep('done')
           setPolling(false)
+          clearStoredReferralCode()
           const paidPhone = res.data.phone?.trim() || phone.trim()
           if (paidPhone || email.trim()) {
             void checkAccess({
@@ -220,10 +227,6 @@ export function PaymentFlow() {
     }
   }
 
-  const referralLink = myReferralCode
-    ? `${window.location.origin}/pay?ref=${encodeURIComponent(myReferralCode)}`
-    : ''
-
   if (config && !config.paymentsEnabled) {
     return (
       <div className="glass-card mx-auto max-w-lg p-8 text-center">
@@ -272,14 +275,18 @@ export function PaymentFlow() {
               <span>{t.pay.nameLabel}</span>
               <input value={name} onChange={(e) => setName(e.target.value)} />
             </label>
-            <label className="forex-field">
-              <span>{t.pay.referralLabel}</span>
-              <input
-                value={referrerCode}
-                onChange={(e) => setReferrerCode(e.target.value.toUpperCase())}
-                placeholder="REF-XXXX"
-              />
-            </label>
+            {referrerCode && isAutoApplied && !manualEntry ? (
+              <ReferralAppliedBadge code={referrerCode} onChangeCode={openManualEntry} />
+            ) : (
+              <label className="forex-field">
+                <span>{t.pay.referralLabel}</span>
+                <input
+                  value={referrerCode}
+                  onChange={(e) => setReferrerCode(e.target.value)}
+                  placeholder="REF-XXXX"
+                />
+              </label>
+            )}
             <label className="forex-field">
               <span>{t.pay.networkLabel}</span>
               <select
@@ -502,28 +509,11 @@ export function PaymentFlow() {
           <p className="mt-2 text-sm text-theme-muted">
             {t.pay.doneRef} {payment.referenceCode}
           </p>
-          {myReferralCode && (
-            <div className="mt-5 rounded-2xl border border-theme bg-theme-surface/50 px-4 py-4 text-left text-sm">
-              <p className="font-semibold text-theme-primary">{t.pay.yourReferral}</p>
-              <button
-                type="button"
-                className="mt-2 font-mono text-lg font-bold text-theme-accent"
-                onClick={() => copy(myReferralCode, 'refcode')}
-              >
-                {myReferralCode}
-              </button>
-              {referralLink ? (
-                <button
-                  type="button"
-                  className="mt-3 block w-full truncate text-left text-xs text-theme-muted underline"
-                  onClick={() => copy(referralLink, 'link')}
-                >
-                  {referralLink}
-                </button>
-              ) : null}
-              <p className="mt-2 text-xs text-theme-muted">{t.pay.referralHint}</p>
+          {myReferralCode ? (
+            <div className="mt-5 text-left">
+              <ReferralShareCard code={myReferralCode} compact />
             </div>
-          )}
+          ) : null}
           <GlowButton href="/" variant="secondary" external={false} className="mt-6">
             {t.pay.backHome}
           </GlowButton>

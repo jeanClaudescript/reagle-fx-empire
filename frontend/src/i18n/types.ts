@@ -462,6 +462,20 @@ export interface Translations {
     empty: string
     hidden: string
   }
+  referral: {
+    shareTitle: string
+    shareSubtitle: string
+    shareMessage: string
+    shareHint: string
+    copyLink: string
+    copied: string
+    shareWhatsApp: string
+    shareMore: string
+    codeLabel: string
+    appliedTitle: string
+    appliedBody: string
+    changeCode: string
+  }
   classroom: {
     navTitle: string
     loading: string

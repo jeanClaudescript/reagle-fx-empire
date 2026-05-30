@@ -13,12 +13,23 @@ import { ClassroomRoomPage } from '@/pages/ClassroomRoomPage'
 import { AdminLogin } from '@/admin/AdminLogin'
 import { AdminDashboard } from '@/admin/AdminDashboard'
 import { MediaViewerProvider } from '@/components/admin/media/MediaViewerContext'
+import { captureReferralFromSearch, resolveReferralPath } from '@/referral/referralStorage'
+
+function syncAppPath() {
+  captureReferralFromSearch(window.location.search)
+  const resolved = resolveReferralPath(window.location.pathname)
+  if (resolved.captured) {
+    window.history.replaceState({}, '', '/login?mode=signup')
+    return '/login'
+  }
+  return window.location.pathname
+}
 
 function App() {
-  const [path, setPath] = useState(() => window.location.pathname)
+  const [path, setPath] = useState(() => syncAppPath())
 
   useEffect(() => {
-    const onPop = () => setPath(window.location.pathname)
+    const onPop = () => setPath(syncAppPath())
     window.addEventListener('popstate', onPop)
     return () => window.removeEventListener('popstate', onPop)
   }, [])

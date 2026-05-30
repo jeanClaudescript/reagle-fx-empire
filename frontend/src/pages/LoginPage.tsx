@@ -6,6 +6,7 @@ import { AdminLoginPanel } from '@/components/auth/AdminLoginPanel'
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import { BRAND } from '@/constants/brand'
+import { captureReferralFromSearch, getStoredReferralCode } from '@/referral/referralStorage'
 
 export function LoginPage() {
   const { t } = useLanguage()
@@ -14,11 +15,12 @@ export function LoginPage() {
   const logoTaps = useRef({ count: 0, lastAt: 0 })
 
   useEffect(() => {
+    captureReferralFromSearch()
     const params = new URLSearchParams(window.location.search)
     if (params.get('tab') === 'admin' || params.get('role') === 'admin') {
       setAdminOpen(true)
     }
-    if (params.get('mode') === 'signup') {
+    if (params.get('mode') === 'signup' || getStoredReferralCode()) {
       setStudentMode('signup')
     }
   }, [])

@@ -460,6 +460,20 @@
     "empty": "Aucun livre publié pour l'instant.",
     "hidden": "Bibliothèque masquée dans les paramètres."
   },
+  "referral": {
+    "shareTitle": "Invitez des amis",
+    "shareSubtitle": "Partagez votre lien — pas besoin de taper un code.",
+    "shareMessage": "Rejoins Reagle FX Empire avec mon lien :",
+    "shareHint": "Quand ils paient via ton lien, tu gagnes une récompense.",
+    "copyLink": "Copier le lien",
+    "copied": "Copié !",
+    "shareWhatsApp": "WhatsApp",
+    "shareMore": "Partager",
+    "codeLabel": "Ton code",
+    "appliedTitle": "Lien d'invitation appliqué",
+    "appliedBody": "Inscription avec parrainage",
+    "changeCode": "Modifier"
+  },
   "classroom": {
     "navTitle": "Salle de trading",
     "loading": "Recherche d'une classe en direct…",

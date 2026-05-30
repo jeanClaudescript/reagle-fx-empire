@@ -460,6 +460,20 @@
     "empty": "Hakuna vitabu bado.",
     "hidden": "Maktaba imefichwa kwenye settings."
   },
+  "referral": {
+    "shareTitle": "Alika marafiki",
+    "shareSubtitle": "Shiriki kiungo chako — hawatakiwi kuandika code.",
+    "shareMessage": "Jiunge na Reagle FX Empire kwa kiungo changu:",
+    "shareHint": "Wakilipa kupitia kiungo chako, unapata zawadi.",
+    "copyLink": "Nakili kiungo",
+    "copied": "Imenakiliwa!",
+    "shareWhatsApp": "WhatsApp",
+    "shareMore": "Shiriki",
+    "codeLabel": "Code yako",
+    "appliedTitle": "Kiungo cha mwaliko kimetumika",
+    "appliedBody": "Unajisajili kwa referral",
+    "changeCode": "Badilisha"
+  },
   "classroom": {
     "navTitle": "Darasa la trading",
     "loading": "Inatafuta darasa la moja kwa moja…",
