@@ -34,12 +34,18 @@ import { FibonacciCalculator } from '@/components/forex/tools/FibonacciCalculato
 import { TradeJournal } from '@/components/forex/tools/TradeJournal'
 import { PaperTradingDesk } from '@/components/forex/tools/PaperTradingDesk'
 import { VipOverviewPanel } from '@/components/student/vip/VipOverviewPanel'
+import { VipClassroomPanel } from '@/components/student/vip/VipClassroomPanel'
+import { VipCommunityChat } from '@/components/student/vip/VipCommunityChat'
+import { VipCoachChat } from '@/components/student/vip/VipCoachChat'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher'
 
 export type VipPanelId =
   | 'overview'
   | 'live'
+  | 'classroom'
+  | 'community-chat'
+  | 'coach-chat'
   | 'signals'
   | 'watch'
   | 'chart'
@@ -88,6 +94,7 @@ export function VipDeskShell() {
     risk: false,
     analysis: false,
     account: false,
+    messages: true,
   })
   const [navOpen, setNavOpen] = useState(false)
 
@@ -98,6 +105,7 @@ export function VipDeskShell() {
       icon: Radio,
       items: [
         { id: 'live', label: t.vip.navLiveRoom },
+        { id: 'classroom', label: t.classroom.navTitle },
         { id: 'signals', label: t.vip.navSignals },
       ],
     },
@@ -124,6 +132,15 @@ export function VipDeskShell() {
         { id: 'breakeven', label: t.tools.beTitle },
         { id: 'compound', label: t.tools.compoundTitle },
         { id: 'lots', label: t.tools.lotConvTitle },
+      ],
+    },
+    {
+      id: 'messages',
+      label: t.chat.navGroup,
+      icon: BookOpen,
+      items: [
+        { id: 'community-chat', label: t.chat.communityTitle },
+        { id: 'coach-chat', label: t.chat.coachTitle },
       ],
     },
     {
@@ -163,6 +180,24 @@ export function VipDeskShell() {
         return <VipOverviewPanel onNavigate={selectPanel} />
       case 'live':
         return <LiveTradingRoom deskMode />
+      case 'classroom':
+        return (
+          <PanelWrap title={t.classroom.navTitle}>
+            <VipClassroomPanel />
+          </PanelWrap>
+        )
+      case 'community-chat':
+        return (
+          <PanelWrap title={t.chat.communityTitle}>
+            <VipCommunityChat />
+          </PanelWrap>
+        )
+      case 'coach-chat':
+        return (
+          <PanelWrap title={t.chat.coachTitle}>
+            <VipCoachChat />
+          </PanelWrap>
+        )
       case 'signals':
         return (
           <PanelWrap title={t.tools.signalBoardTitle}>

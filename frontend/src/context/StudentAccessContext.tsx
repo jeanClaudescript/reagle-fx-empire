@@ -15,6 +15,7 @@ import {
   getStudentDeviceLabel,
   setStudentAuthToken,
 } from '@/student/studentSession'
+import { refreshAppSocketAuth } from '@/realtime/appSocket'
 
 const STORAGE_KEY = 'rfx_student_contact'
 
@@ -47,6 +48,7 @@ async function establishVipSession(input: Contact) {
     deviceLabel: getStudentDeviceLabel(),
   })
   setStudentAuthToken(res.data.token)
+  refreshAppSocketAuth()
   return res.data.user
 }
 
@@ -153,6 +155,7 @@ export function StudentAccessProvider({ children }: { children: ReactNode }) {
         name: res.data.name,
       }
       applyPaidUser(next, res.data.referralCode)
+      refreshAppSocketAuth()
       return true
     } catch (err) {
       if (err instanceof StudentSessionError && err.code === 'SESSION_REVOKED') {
@@ -171,6 +174,7 @@ export function StudentAccessProvider({ children }: { children: ReactNode }) {
     }
     clearLocal()
     setSessionError(null)
+    refreshAppSocketAuth()
   }, [clearLocal])
 
   const refreshAccess = useCallback(async () => {
@@ -224,6 +228,10 @@ export function StudentAccessProvider({ children }: { children: ReactNode }) {
     document.addEventListener('visibilitychange', onVis)
     return () => document.removeEventListener('visibilitychange', onVis)
   }, [restoreSession])
+
+  useEffect(() => {
+    if (hasVipSession) refreshAppSocketAuth()
+  }, [hasVipSession])
 
   const isLoggedIn = membershipStatus !== 'none' && contact !== null
 

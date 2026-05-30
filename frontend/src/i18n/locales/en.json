@@ -441,6 +441,28 @@
     "checkNews": "I checked high-impact news on the calendar",
     "checkPlan": "I have a clear entry, stop & target plan"
   },
+  "classroom": {
+    "navTitle": "Trading classroom",
+    "loading": "Checking for live classroom…",
+    "noLiveSession": "No live classroom right now. Check back when Coach starts a session.",
+    "liveNow": "Live shared chart session",
+    "joinRoom": "Join classroom"
+  },
+  "jitsi": {
+    "joinLiveClass": "Join live class",
+    "tabChart": "Chart",
+    "tabClass": "Class",
+    "tabChat": "Chat"
+  },
+  "chat": {
+    "navGroup": "Messages",
+    "communityTitle": "VIP community chat",
+    "coachTitle": "Message Coach",
+    "publicTitle": "VIP member chat",
+    "publicSubtitle": "Talk with Coach and other paid members — messages update instantly, no refresh needed.",
+    "liveRealtime": "Live · real-time",
+    "signInForChat": "Sign in on this device to open community chat and message Coach privately."
+  },
   "languages": {
     "en": "English",
     "rw": "Kinyarwanda",

@@ -5,6 +5,7 @@ import {
   GraduationCap,
   LayoutDashboard,
   Megaphone,
+  MessageCircle,
   Newspaper,
   Play,
   Radio,
@@ -30,6 +31,8 @@ export type AdminTab =
   | 'students'
   | 'payments'
   | 'live'
+  | 'classroom'
+  | 'desk-chat'
   | 'referrals'
   | 'pay-settings'
   | 'settings'
@@ -56,6 +59,8 @@ export const ADMIN_NAV: AdminNavItem[] = [
   { id: 'students', label: 'Students', icon: Users, group: 'operations' },
   { id: 'payments', label: 'Payments', icon: CreditCard, group: 'operations' },
   { id: 'live', label: 'Live class', icon: Radio, group: 'operations' },
+  { id: 'classroom', label: 'Trading classroom', icon: GraduationCap, group: 'operations' },
+  { id: 'desk-chat', label: 'VIP messages', icon: MessageCircle, group: 'operations' },
   { id: 'referrals', label: 'Referrals', icon: Share2, group: 'operations' },
   { id: 'pay-settings', label: 'MoMo settings', icon: Wallet, group: 'operations' },
   { id: 'settings', label: 'Settings', icon: Settings, group: 'system' },

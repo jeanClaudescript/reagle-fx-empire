@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import { MessageModel } from '../models/Message.js'
 import { requireAdminAuth } from '../middleware/requireAdminAuth.js'
+import { emitToAdmins } from '../socket/io.js'
 
 export const messageRoutes = Router()
 
@@ -30,11 +31,25 @@ messageRoutes.post('/', async (req, res, next) => {
       status: 'new',
     })
 
+    const payload = {
+      id: String(created._id),
+      name: created.name,
+      email: created.email,
+      phone: created.phone,
+      channel: created.channel,
+      message: created.message,
+      source: created.source,
+      status: created.status,
+      createdAt: created.createdAt.toISOString(),
+    }
+
+    emitToAdmins('inbox:message', payload)
+
     return res.status(201).json({
       ok: true,
       data: {
-        id: String(created._id),
-        createdAt: created.createdAt.toISOString(),
+        id: payload.id,
+        createdAt: payload.createdAt,
       },
     })
   } catch (error) {

@@ -443,6 +443,28 @@ export interface Translations {
     checkNews: string
     checkPlan: string
   }
+  classroom: {
+    navTitle: string
+    loading: string
+    noLiveSession: string
+    liveNow: string
+    joinRoom: string
+  }
+  jitsi: {
+    joinLiveClass: string
+    tabChart: string
+    tabClass: string
+    tabChat: string
+  }
+  chat: {
+    navGroup: string
+    communityTitle: string
+    coachTitle: string
+    publicTitle: string
+    publicSubtitle: string
+    liveRealtime: string
+    signInForChat: string
+  }
   languages: {
     en: string
     rw: string

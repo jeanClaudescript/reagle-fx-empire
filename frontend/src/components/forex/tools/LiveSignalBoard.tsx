@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Radio, Share2 } from 'lucide-react'
 import { useLanguage } from '@/context/LanguageContext'
 import { liveApi, type LiveSession } from '@/services/api'
+import { onLiveUpdated } from '@/realtime/appSocket'
 import { ForexToolShell } from '@/components/forex/ForexToolShell'
 
 export function LiveSignalBoard() {
@@ -18,8 +19,8 @@ export function LiveSignalBoard() {
       }
     }
     void load()
-    const id = window.setInterval(load, 15_000)
-    return () => window.clearInterval(id)
+    const off = onLiveUpdated((payload) => setSession(payload.data))
+    return () => off()
   }, [])
 
   const shareText =

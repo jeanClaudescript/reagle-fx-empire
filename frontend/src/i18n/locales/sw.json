@@ -441,6 +441,28 @@
     "checkNews": "Nimeangalia habari muhimu",
     "checkPlan": "Nina mpango: entry, stop & target"
   },
+  "classroom": {
+    "navTitle": "Darasa la trading",
+    "loading": "Inatafuta darasa la moja kwa moja…",
+    "noLiveSession": "Hakuna darasa la moja kwa moja sasa. Rudi Coach anapoanza.",
+    "liveNow": "Kipindi cha chati ya pamoja live",
+    "joinRoom": "Jiunge na darasa"
+  },
+  "jitsi": {
+    "joinLiveClass": "Jiunge na darasa la live",
+    "tabChart": "Chati",
+    "tabClass": "Darasa",
+    "tabChat": "Gumzo"
+  },
+  "chat": {
+    "navGroup": "Ujumbe",
+    "communityTitle": "Gumzo la jamii VIP",
+    "coachTitle": "Ujumbe kwa Coach",
+    "publicTitle": "Gumzo la wanachama VIP",
+    "publicSubtitle": "Ongea na Coach na wanachama — ujumbe unafika papo hapo.",
+    "liveRealtime": "Live · papo hapo",
+    "signInForChat": "Ingia kwenye kifaa hiki kufungua gumzo la jamii na kutuma ujumbe kwa Coach."
+  },
   "languages": {
     "en": "English",
     "rw": "Kinyarwanda",

@@ -8,6 +8,7 @@ import {
   saveDraftCms,
 } from '../services/cmsService.js'
 import type { CMSData } from '../types/cms.js'
+import { emitToAll } from '../socket/io.js'
 
 export const cmsRoutes = Router()
 
@@ -45,6 +46,7 @@ cmsRoutes.put('/draft', requireAdminAuth, async (req, res, next) => {
 cmsRoutes.post('/publish', requireAdminAuth, async (_req, res, next) => {
   try {
     const data = await publishDraftCms()
+    emitToAll('cms:published', { data, at: new Date().toISOString() })
     res.json({ data })
   } catch (error) {
     next(error)

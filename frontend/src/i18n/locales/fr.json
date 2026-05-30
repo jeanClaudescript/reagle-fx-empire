@@ -441,6 +441,28 @@
     "checkNews": "J'ai vérifié les news importantes",
     "checkPlan": "J'ai un plan clair : entrée, stop & cible"
   },
+  "classroom": {
+    "navTitle": "Salle de trading",
+    "loading": "Recherche d'une classe en direct…",
+    "noLiveSession": "Aucune classe en direct. Revenez quand le coach démarre une session.",
+    "liveNow": "Session graphique partagée en direct",
+    "joinRoom": "Rejoindre la classe"
+  },
+  "jitsi": {
+    "joinLiveClass": "Rejoindre le cours live",
+    "tabChart": "Graphique",
+    "tabClass": "Cours",
+    "tabChat": "Chat"
+  },
+  "chat": {
+    "navGroup": "Messages",
+    "communityTitle": "Chat communauté VIP",
+    "coachTitle": "Message au Coach",
+    "publicTitle": "Chat membres VIP",
+    "publicSubtitle": "Échangez avec le Coach et les membres payants — messages instantanés.",
+    "liveRealtime": "En direct · temps réel",
+    "signInForChat": "Connectez-vous sur cet appareil pour ouvrir le chat communauté et contacter le Coach."
+  },
   "languages": {
     "en": "English",
     "rw": "Kinyarwanda",

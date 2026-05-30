@@ -1,4 +1,9 @@
 import { LiveSessionModel, type LiveSessionStatus } from '../models/LiveSession.js'
+import { emitToAll } from '../socket/io.js'
+
+function broadcastLiveSession(session: ReturnType<typeof serializeLiveSession> | null) {
+  emitToAll('live:updated', { data: session, at: new Date().toISOString() })
+}
 
 export function serializeLiveSession(doc: {
   _id: unknown
@@ -72,7 +77,9 @@ export async function createLiveSession(input: {
     createdAt: new Date(),
     updatedAt: new Date(),
   })
-  return serializeLiveSession(doc)
+  const serialized = serializeLiveSession(doc)
+  broadcastLiveSession(serialized.status === 'live' ? serialized : await getActiveLiveSession())
+  return serialized
 }
 
 export async function updateLiveSession(
@@ -106,7 +113,9 @@ export async function updateLiveSession(
   if (input.scheduledAt != null) doc.scheduledAt = new Date(input.scheduledAt)
   doc.updatedAt = new Date()
   await doc.save()
-  return serializeLiveSession(doc)
+  const serialized = serializeLiveSession(doc)
+  broadcastLiveSession(await getActiveLiveSession())
+  return serialized
 }
 
 export async function setLiveSessionStatus(id: string, status: LiveSessionStatus) {
@@ -126,5 +135,7 @@ export async function setLiveSessionStatus(id: string, status: LiveSessionStatus
   }
   doc.updatedAt = new Date()
   await doc.save()
-  return serializeLiveSession(doc)
+  const serialized = serializeLiveSession(doc)
+  broadcastLiveSession(await getActiveLiveSession())
+  return serialized
 }

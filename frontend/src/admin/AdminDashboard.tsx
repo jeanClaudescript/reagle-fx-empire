@@ -16,6 +16,8 @@ import { SettingsEditor } from '@/admin/editors/SettingsEditor'
 import { StudentsManageEditor } from '@/admin/editors/StudentsManageEditor'
 import { PaymentsEditor } from '@/admin/editors/PaymentsEditor'
 import { LiveSessionsEditor } from '@/admin/editors/LiveSessionsEditor'
+import { ClassroomEditor } from '@/admin/editors/ClassroomEditor'
+import { AdminDeskChatPanel } from '@/admin/editors/AdminDeskChatPanel'
 import { ReferralsEditor } from '@/admin/editors/ReferralsEditor'
 import { PaymentSettingsPanel } from '@/admin/editors/PaymentSettingsPanel'
 import { OpsSectionFrame } from '@/components/admin/OpsSectionFrame'
@@ -207,6 +209,8 @@ function AdminDashboardInner() {
         students: <StudentsManageEditor />,
         payments: <PaymentsEditor embedded />,
         live: <LiveSessionsEditor />,
+        classroom: <ClassroomEditor />,
+        'desk-chat': <AdminDeskChatPanel />,
         referrals: <ReferralsEditor />,
         'pay-settings': <PaymentSettingsPanel />,
       }

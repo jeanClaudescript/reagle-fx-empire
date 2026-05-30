@@ -439,6 +439,133 @@ export const liveApi = {
     }),
 }
 
+export type ClassroomRoom = {
+  id: string
+  teacherId: string
+  title: string
+  description: string
+  status: 'draft' | 'live' | 'ended'
+  symbol: string
+  timeframe: string
+  enableLiveTeaching: boolean
+  jitsiRoomName: string
+  teachingSessionTitle: string
+  teachingScheduledAt?: string
+  jitsiMode: 'webcam' | 'screenshare'
+  startedAt?: string
+  endedAt?: string
+  createdAt: string
+  updatedAt: string
+}
+
+export const classroomApi = {
+  getActive: () => apiFetch<{ data: ClassroomRoom | null }>('/api/classroom/active', { student: true }),
+  getRoom: (id: string) =>
+    apiFetch<{ data: { room: ClassroomRoom; chartState: unknown; chat: unknown[] } }>(
+      `/api/classroom/rooms/${id}`,
+      { student: true },
+    ),
+  adminList: () => apiFetch<{ data: ClassroomRoom[] }>('/api/classroom/admin/list', { admin: true }),
+  adminCreate: (body: {
+    title: string
+    description?: string
+    symbol?: string
+    timeframe?: string
+    enableLiveTeaching?: boolean
+    jitsiRoomName?: string
+    teachingSessionTitle?: string
+    teachingScheduledAt?: string
+    jitsiMode?: 'webcam' | 'screenshare'
+  }) =>
+    apiFetch<{ ok: true; data: ClassroomRoom }>('/api/classroom/admin/create', {
+      method: 'POST',
+      admin: true,
+      body,
+    }),
+  adminUpdate: (
+    id: string,
+    body: Partial<{
+      title: string
+      description: string
+      symbol: string
+      timeframe: string
+      enableLiveTeaching: boolean
+      jitsiRoomName: string
+      teachingSessionTitle: string
+      teachingScheduledAt: string
+      jitsiMode: 'webcam' | 'screenshare'
+    }>,
+  ) =>
+    apiFetch<{ ok: true; data: ClassroomRoom }>(`/api/classroom/admin/${id}`, {
+      method: 'PATCH',
+      admin: true,
+      body,
+    }),
+  adminStart: (id: string) =>
+    apiFetch<{ ok: true; data: ClassroomRoom }>(`/api/classroom/admin/${id}/start`, {
+      method: 'POST',
+      admin: true,
+    }),
+  adminEnd: (id: string) =>
+    apiFetch<{ ok: true; data: ClassroomRoom }>(`/api/classroom/admin/${id}/end`, {
+      method: 'POST',
+      admin: true,
+    }),
+  adminAttendance: (id: string) =>
+    apiFetch<{ data: unknown[] }>(`/api/classroom/admin/${id}/attendance`, { admin: true }),
+  adminRecordings: (id: string) =>
+    apiFetch<{ data: unknown[] }>(`/api/classroom/admin/${id}/recordings`, { admin: true }),
+}
+
+export type DeskChatMessage = {
+  id: string
+  channel: 'vip-community' | 'direct'
+  fromUserId: string
+  fromUserName: string
+  fromRole: 'admin' | 'student'
+  toUserId?: string
+  message: string
+  createdAt: string
+}
+
+export const deskChatApi = {
+  communityList: () => apiFetch<{ data: DeskChatMessage[] }>('/api/desk-chat/community', { student: true }),
+  communitySend: (message: string) =>
+    apiFetch<{ ok: true; data: DeskChatMessage }>('/api/desk-chat/community', {
+      method: 'POST',
+      student: true,
+      body: { message },
+    }),
+  directList: () => apiFetch<{ data: DeskChatMessage[] }>('/api/desk-chat/direct', { student: true }),
+  directSend: (message: string) =>
+    apiFetch<{ ok: true; data: DeskChatMessage }>('/api/desk-chat/direct', {
+      method: 'POST',
+      student: true,
+      body: { message },
+    }),
+  adminCommunityList: () =>
+    apiFetch<{ data: DeskChatMessage[] }>('/api/desk-chat/admin/community', { admin: true }),
+  adminCommunitySend: (message: string) =>
+    apiFetch<{ ok: true; data: DeskChatMessage }>('/api/desk-chat/admin/community', {
+      method: 'POST',
+      admin: true,
+      body: { message },
+    }),
+  adminDirectThreads: () =>
+    apiFetch<{ data: Array<{ studentId: string; studentName: string; lastMessage: string; lastAt: string; count: number }> }>(
+      '/api/desk-chat/admin/direct/threads',
+      { admin: true },
+    ),
+  adminDirectThread: (studentId: string) =>
+    apiFetch<{ data: DeskChatMessage[] }>(`/api/desk-chat/admin/direct/${studentId}`, { admin: true }),
+  adminDirectReply: (studentId: string, message: string) =>
+    apiFetch<{ ok: true; data: DeskChatMessage }>(`/api/desk-chat/admin/direct/${studentId}`, {
+      method: 'POST',
+      admin: true,
+      body: { message },
+    }),
+}
+
 export const paymentApi = {
   getConfig: () => apiFetch<{ data: PaymentConfig }>('/api/payments/config'),
   adminGetSettings: () =>

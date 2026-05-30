@@ -1,5 +1,6 @@
 import { LanguageProvider } from '@/context/LanguageContext'
 import { StudentAccessProvider } from '@/context/StudentAccessContext'
+import { AppRealtimeProvider } from '@/realtime/AppRealtimeProvider'
 import { ThemeProvider } from '@/context/ThemeContext'
 import { PaidStudentPopup } from '@/components/student/PaidStudentPopup'
 import { CmsProvider } from '@/cms/CmsProvider'
@@ -8,6 +9,7 @@ import { PublicSite } from '@/pages/PublicSite'
 import { PayPage } from '@/pages/PayPage'
 import { LoginPage } from '@/pages/LoginPage'
 import { StudentDeskPage } from '@/pages/StudentDeskPage'
+import { ClassroomRoomPage } from '@/pages/ClassroomRoomPage'
 import { AdminLogin } from '@/admin/AdminLogin'
 import { AdminDashboard } from '@/admin/AdminDashboard'
 import { MediaViewerProvider } from '@/components/admin/media/MediaViewerContext'
@@ -26,6 +28,7 @@ function App() {
       <CmsProvider adminMode={path.startsWith('/admin')}>
         <LanguageProvider>
           <StudentAccessProvider>
+            <AppRealtimeProvider>
             {path === '/login' ? (
               <LoginPage />
             ) : path === '/admin-login' ? (
@@ -38,12 +41,15 @@ function App() {
               </MediaViewerProvider>
             ) : path === '/desk' ? (
               <StudentDeskPage />
+            ) : path.startsWith('/classroom/') ? (
+              <ClassroomRoomPage />
             ) : (
               <MediaViewerProvider>
                 <PublicSite />
                 <PaidStudentPopup />
               </MediaViewerProvider>
             )}
+            </AppRealtimeProvider>
           </StudentAccessProvider>
         </LanguageProvider>
       </CmsProvider>

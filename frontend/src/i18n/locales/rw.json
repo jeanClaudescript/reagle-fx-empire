@@ -441,6 +441,28 @@
     "checkNews": "Narebye amakuru akomeye",
     "checkPlan": "Mfite plan: entry, stop & target"
   },
+  "classroom": {
+    "navTitle": "Icyumba cyo guhugura",
+    "loading": "Gushaka icyumba cy'uburezi…",
+    "noLiveSession": "Nta cyumba cy'uburezi kiri live. Garuka i Coach atangiye.",
+    "liveNow": "Isomo rya chart rusangi live",
+    "joinRoom": "Injira mu cyumba"
+  },
+  "jitsi": {
+    "joinLiveClass": "Injira mu isomo live",
+    "tabChart": "Chart",
+    "tabClass": "Isomo",
+    "tabChat": "Ikiganiro"
+  },
+  "chat": {
+    "navGroup": "Ubutumwa",
+    "communityTitle": "Ikiganiro cya VIP",
+    "coachTitle": "Ohereza Coach ubutumwa",
+    "publicTitle": "Ikiganiro cya VIP",
+    "publicSubtitle": "Vugana na Coach n'abanyamuryango — ubutumwa bugera ako kanya.",
+    "liveRealtime": "Live · ako kanya",
+    "signInForChat": "Injira kuri iki gikoresho kugira ngo ufungure chat n'ubutumwa bwihariye kuri Coach."
+  },
   "languages": {
     "en": "English",
     "rw": "Kinyarwanda",

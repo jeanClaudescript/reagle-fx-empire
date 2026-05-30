@@ -3,6 +3,7 @@ import { Lock, Radio, Share2, Signal } from 'lucide-react'
 import { useLanguage } from '@/context/LanguageContext'
 import { useStudentAccess } from '@/context/StudentAccessContext'
 import { liveApi, type LiveSession } from '@/services/api'
+import { onLiveUpdated } from '@/realtime/appSocket'
 import { SectionHeading } from '@/components/ui/SectionHeading'
 import { ScrollReveal } from '@/components/ui/ScrollReveal'
 import { GlowButton } from '@/components/ui/GlowButton'
@@ -63,8 +64,8 @@ export function LiveTradingRoom({ deskMode = false }: { deskMode?: boolean }) {
       }
     }
     void load()
-    const id = window.setInterval(load, 12_000)
-    return () => window.clearInterval(id)
+    const off = onLiveUpdated((payload) => setSession(payload.data))
+    return () => off()
   }, [deskMode, hasVipSession, isPaid])
 
   const isLive = session?.status === 'live'

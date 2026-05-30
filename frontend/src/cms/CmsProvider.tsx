@@ -24,6 +24,7 @@ import {
   type ValidationIssue,
 } from './validation'
 import { cmsApi, hasAdminSession } from '@/services/api'
+import { onCmsPublished } from '@/realtime/appSocket'
 
 export type CmsRenderSource = 'published' | 'draft'
 
@@ -217,6 +218,17 @@ export function CmsProvider({
     }
     void hydrate()
   }, [adminMode, pullDraft, pullPublished])
+
+  useEffect(() => {
+    return onCmsPublished((payload) => {
+      const remotePublished = normalizeCmsData(payload.data as CMSData)
+      setPublished(remotePublished)
+      savePublishedCMS(remotePublished)
+      if (!adminMode) {
+        setDraftState((prev) => (JSON.stringify(prev) === JSON.stringify(remotePublished) ? prev : remotePublished))
+      }
+    })
+  }, [adminMode])
 
   useEffect(() => {
     return () => {

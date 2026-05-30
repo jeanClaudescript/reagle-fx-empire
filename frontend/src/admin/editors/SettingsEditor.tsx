@@ -8,6 +8,8 @@ import { loadDraftCMS, loadPublishedCMS, saveDraftCMS, savePublishedCMS } from '
 import { DEFAULT_CMS_DATA } from '@/cms/defaultCms'
 import { normalizeCmsData } from '@/cms/storage'
 import { messageApi, type ApiMessage } from '@/services/api'
+import { onInboxMessage } from '@/realtime/appSocket'
+import { AdminDeskChatPanel } from '@/admin/editors/AdminDeskChatPanel'
 import { AdminsEditor } from '@/admin/editors/AdminsEditor'
 
 const SECTION_LABELS: Record<CMSSectionId, string> = {
@@ -41,6 +43,29 @@ export function SettingsEditor() {
     }
     void run()
   }, [])
+
+  useEffect(
+    () =>
+      onInboxMessage((msg) => {
+        setMessages((prev) => {
+          const next: ApiMessage = {
+            id: msg.id,
+            name: msg.name,
+            email: msg.email,
+            phone: msg.phone,
+            channel: msg.channel,
+            message: msg.message,
+            source: 'public-site',
+            status: msg.status,
+            createdAt: msg.createdAt,
+          }
+          if (prev.some((m) => m.id === next.id)) return prev
+          push(`New message from ${next.name}`, 'info')
+          return [next, ...prev]
+        })
+      }),
+    [push],
+  )
 
   const toggle = (id: CMSSectionId, enabled: boolean) => {
     updateDraft((prev) => ({
@@ -136,6 +161,18 @@ export function SettingsEditor() {
             >
               Check storage
             </button>
+          </div>
+        </div>
+      </AdminCard>
+
+      <AdminCard>
+        <div className="admin-card-body">
+          <h3 className="font-display text-md font-bold text-theme-primary">VIP desk chat</h3>
+          <p className="mt-2 text-sm text-theme-muted">
+            Real-time community chat and private student messages.
+          </p>
+          <div className="mt-4">
+            <AdminDeskChatPanel />
           </div>
         </div>
       </AdminCard>

@@ -1,5 +1,6 @@
 import cors from 'cors'
 import express from 'express'
+import { createServer } from 'http'
 import { env } from './config/env.js'
 import { connectDatabase, getLastConnectionError } from './db/connect.js'
 import { cmsRoutes } from './routes/cmsRoutes.js'
@@ -9,6 +10,9 @@ import { paymentRoutes } from './routes/paymentRoutes.js'
 import { studentRoutes } from './routes/studentRoutes.js'
 import { authRoutes } from './routes/authRoutes.js'
 import { liveRoutes } from './routes/liveRoutes.js'
+import { classroomRoutes } from './routes/classroomRoutes.js'
+import { deskChatRoutes } from './routes/deskChatRoutes.js'
+import { initClassroomSocket } from './socket/classroomSocket.js'
 import { configureCloudinary, isCloudinaryConfigured } from './services/cloudinaryService.js'
 
 configureCloudinary()
@@ -88,6 +92,18 @@ app.use('/api/live', (req, res, next) => {
   }
   return liveRoutes(req, res, next)
 })
+app.use('/api/classroom', (req, res, next) => {
+  if (!dbReady) {
+    return res.status(503).json({ error: 'Database not configured yet' })
+  }
+  return classroomRoutes(req, res, next)
+})
+app.use('/api/desk-chat', (req, res, next) => {
+  if (!dbReady) {
+    return res.status(503).json({ error: 'Database not configured yet' })
+  }
+  return deskChatRoutes(req, res, next)
+})
 
 app.use(
   (
@@ -109,8 +125,11 @@ app.use(
 
 async function start() {
   dbReady = await connectDatabase()
-  app.listen(env.port, () => {
+  const httpServer = createServer(app)
+  initClassroomSocket(httpServer)
+  httpServer.listen(env.port, () => {
     console.log(`Backend listening on http://localhost:${env.port}`)
+    console.log(`Socket.IO classroom on ws://localhost:${env.port}/socket.io`)
   })
 }
 

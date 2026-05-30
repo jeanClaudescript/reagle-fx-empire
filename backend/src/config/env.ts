@@ -23,4 +23,10 @@ export const env = {
     process.env.PAYMENT_AIRTEL_USSD_TEMPLATE?.trim() || '500*1*2*{phone}*{amount}#',
   referralRewardAmount: Number(process.env.REFERRAL_REWARD_AMOUNT || 1000),
   momoWebhookSecret: process.env.MOMO_WEBHOOK_SECRET?.trim() || '',
+  turnUrls: (process.env.TURN_URLS || 'turn:localhost:3478')
+    .split(',')
+    .map((u) => u.trim())
+    .filter(Boolean),
+  turnUsername: process.env.TURN_USERNAME?.trim() || '',
+  turnCredential: process.env.TURN_CREDENTIAL?.trim() || '',
 }

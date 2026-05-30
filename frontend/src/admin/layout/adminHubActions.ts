@@ -4,6 +4,7 @@ import {
   CreditCard,
   GraduationCap,
   Megaphone,
+  MessageCircle,
   Newspaper,
   Play,
   Radio,
@@ -127,6 +128,22 @@ export const ADMIN_HUB_CARDS: HubCard[] = [
     accent: 'rose',
   },
   {
+    tab: 'classroom',
+    title: 'Trading classroom',
+    description: 'Shared chart, voice & live chat',
+    icon: GraduationCap,
+    category: 'operations',
+    accent: 'emerald',
+  },
+  {
+    tab: 'desk-chat',
+    title: 'VIP messages',
+    description: 'Community chat & student DMs',
+    icon: MessageCircle,
+    category: 'operations',
+    accent: 'sky',
+  },
+  {
     tab: 'referrals',
     title: 'Referrals',
     description: 'Rewards when friends pay',
@@ -167,5 +184,5 @@ export function isContentSectionTab(tab: AdminTab): tab is ContentSectionId {
 }
 
 export function isOpsTab(tab: AdminTab): boolean {
-  return ['students', 'payments', 'live', 'referrals', 'pay-settings'].includes(tab)
+  return ['students', 'payments', 'live', 'classroom', 'desk-chat', 'referrals', 'pay-settings'].includes(tab)
 }
