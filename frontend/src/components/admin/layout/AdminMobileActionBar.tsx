@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 interface AdminMobileActionBarProps {
   isHydrated: boolean
   showPreview: boolean
+  publishLabel?: string
   onTogglePreview: () => void
   onSaveDraft: () => void
   onPublish: () => void
@@ -13,6 +14,7 @@ interface AdminMobileActionBarProps {
 export function AdminMobileActionBar({
   isHydrated,
   showPreview,
+  publishLabel = 'Publish all',
   onTogglePreview,
   onSaveDraft,
   onPublish,
@@ -44,7 +46,7 @@ export function AdminMobileActionBar({
         disabled={!isHydrated}
       >
         <Upload className="h-4 w-4" />
-        Publish
+        {publishLabel}
       </motion.button>
     </div>
   )

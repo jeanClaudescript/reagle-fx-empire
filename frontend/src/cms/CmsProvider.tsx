@@ -309,7 +309,7 @@ export function CmsProvider({
   }, [draft, history, published, pushPublishToServer])
 
   const publishValidated = useCallback((): PublishValidationResult => {
-    const result = validatePublish(draft)
+    const result = validatePublish(draft, published)
     if (!result.ok) {
       setValidationIssues(result.issues)
       return result
@@ -317,7 +317,7 @@ export function CmsProvider({
     publish()
     setValidationIssues([])
     return result
-  }, [draft, publish])
+  }, [draft, publish, published])
 
   const publishSectionValidated = useCallback(
     (section: ContentSectionId): PublishValidationResult => {

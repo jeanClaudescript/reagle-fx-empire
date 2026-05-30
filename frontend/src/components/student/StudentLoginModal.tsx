@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { X } from 'lucide-react'
 import { useRef, useState } from 'react'
@@ -22,7 +23,7 @@ export function StudentLoginModal({ open, onClose }: { open: boolean; onClose: (
     }
   }
 
-  return (
+  return createPortal(
     <AnimatePresence>
       {open && (
         <div className="auth-modal-root">
@@ -107,6 +108,7 @@ export function StudentLoginModal({ open, onClose }: { open: boolean; onClose: (
           </motion.div>
         </div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body,
   )
 }

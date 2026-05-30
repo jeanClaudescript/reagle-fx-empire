@@ -9,7 +9,11 @@ function normalizeCmsData(data: CMSData): CMSData {
     ...DEFAULT_CMS_DATA,
     ...data,
     version: 1,
-    about: { ...DEFAULT_CMS_DATA.about, ...data.about },
+    about: {
+      ...DEFAULT_CMS_DATA.about,
+      ...data.about,
+      bio: data.about?.bio?.trim() || DEFAULT_CMS_DATA.about.bio,
+    },
     provenResults: {
       media: [...(data.provenResults?.media ?? DEFAULT_CMS_DATA.provenResults.media)].sort(
         (a, b) => a.order - b.order,

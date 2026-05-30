@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Crown, Radio, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
@@ -27,7 +28,7 @@ export function PaidStudentPopup() {
 
   if (!isPaid) return null
 
-  return (
+  return createPortal(
     <AnimatePresence>
       {open && (
         <div className="student-popup-shell" role="presentation">
@@ -90,6 +91,7 @@ export function PaidStudentPopup() {
           </motion.div>
         </div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body,
   )
 }

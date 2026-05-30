@@ -58,6 +58,7 @@ function AdminDashboardInner() {
     isHydrated,
     hasDraftChanges,
     publishValidated,
+    publishSectionValidated,
     undo,
     resetDraft,
     validationIssues,
@@ -145,6 +146,38 @@ function AdminDashboardInner() {
     push('Publishing…', 'info')
     window.setTimeout(() => push('Successfully published', 'success'), 320)
   }, [confirm, publishValidated, push])
+
+  const handleStickyPublish = useCallback(async () => {
+    if (isContentSectionTab(tab)) {
+      const section = tab as ContentSectionId
+      const label = getAdminNavLabel(section)
+      const ok = await confirm({
+        title: `Publish ${label}?`,
+        message: 'Only this section will go live. Other sections stay as they are on the site.',
+        confirmLabel: 'Publish section',
+      })
+      if (!ok) return
+
+      setIsPublishing(true)
+      push(`Validating ${label}…`, 'info')
+      await new Promise((r) => window.setTimeout(r, 200))
+
+      const result = publishSectionValidated(section)
+      setIsPublishing(false)
+
+      if (!result.ok) {
+        push('Cannot publish — fix the highlighted fields.', 'error')
+        return
+      }
+
+      push(`${label} published to live site.`, 'success')
+      return
+    }
+
+    void handlePublish()
+  }, [confirm, handlePublish, publishSectionValidated, push, tab])
+
+  const stickyPublishLabel = isContentSectionTab(tab) ? 'Publish section' : 'Publish all'
 
   const handleWorkflowFixed = useCallback(
     (action: 'preview' | 'publish' | 'view-site') => {
@@ -313,9 +346,10 @@ function AdminDashboardInner() {
         <AdminMobileActionBar
           isHydrated={isHydrated && !isPublishing}
           showPreview={showPreview}
+          publishLabel={stickyPublishLabel}
           onTogglePreview={() => setShowPreview((v) => !v)}
           onSaveDraft={handleSaveDraft}
-          onPublish={handlePublish}
+          onPublish={handleStickyPublish}
         />
       </div>
     </div>

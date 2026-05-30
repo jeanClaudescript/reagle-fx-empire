@@ -75,9 +75,6 @@ export function validateSection(section: ContentSectionId, data: CMSData): Valid
     if (!isNonEmpty(data.about.title)) {
       issues.push({ section, field: 'about.title', message: 'Coach title is required' })
     }
-    if (!isNonEmpty(data.about.bio)) {
-      issues.push({ section, field: 'about.bio', message: 'Coach bio is required' })
-    }
   }
 
   if (section === 'certificates') {
@@ -147,8 +144,11 @@ export const CONTENT_SECTIONS: ContentSectionId[] = [
   'settings',
 ]
 
-export function validatePublish(data: CMSData): PublishValidationResult {
-  const issues = CONTENT_SECTIONS.flatMap((section) => validateSection(section, data))
+export function validatePublish(draft: CMSData, published: CMSData): PublishValidationResult {
+  const sectionsToValidate = CONTENT_SECTIONS.filter((section) =>
+    sectionHasDraftChanges(section, draft, published),
+  )
+  const issues = sectionsToValidate.flatMap((section) => validateSection(section, draft))
   return { ok: issues.length === 0, issues }
 }
 

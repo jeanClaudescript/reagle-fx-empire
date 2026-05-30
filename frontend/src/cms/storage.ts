@@ -75,7 +75,11 @@ export function normalizeCmsData(data: CMSData): CMSData {
   return ensureMediaOrders({
     ...DEFAULT_CMS_DATA,
     ...data,
-    about: { ...DEFAULT_CMS_DATA.about, ...data.about },
+    about: {
+      ...DEFAULT_CMS_DATA.about,
+      ...data.about,
+      bio: data.about?.bio?.trim() || DEFAULT_CMS_DATA.about.bio,
+    },
     provenResults: {
       media: data.provenResults?.media ?? DEFAULT_CMS_DATA.provenResults.media,
     },

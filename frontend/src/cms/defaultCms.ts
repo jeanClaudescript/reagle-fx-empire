@@ -8,7 +8,7 @@ export const DEFAULT_CMS_DATA: CMSData = {
     coachImageDataUrl: undefined,
     coachBackgroundDataUrl: undefined,
     title: 'CoachPeter',
-    bio: '',
+    bio: 'CoachPeter built Reagle FX Empire to turn beginners into disciplined traders — from Kigali to the world.',
   },
   certificates: [],
   provenResults: {
