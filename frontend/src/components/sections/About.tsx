@@ -21,7 +21,7 @@ export function About() {
   const coachBackground = active.about.coachBackgroundDataUrl
 
   return (
-    <section id="about" className="relative py-20 md:py-28">
+    <section id="about" className="relative section-pad">
       <div className="glow-orb right-0 top-1/4 h-72 w-72 bg-empire-purple/15" />
       <div className="section-container">
         <SectionHeading

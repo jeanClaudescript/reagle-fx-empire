@@ -6,19 +6,18 @@ import { useAdminConfirm } from '@/admin/confirm'
 import { AdminCard } from '@/components/admin/AdminCard'
 import { AdminMediaThumb } from '@/components/admin/media/AdminMediaThumb'
 import { AdminTextInput } from '@/components/admin/AdminInput'
-import { uploadAdminMedia } from '@/admin/uploadAdminMedia'
+import { uploadWithFeedback } from '@/admin/uploadWithFeedback'
+import { useAdminToast } from '@/admin/toast'
+import { isVideoMediaUrl } from '@/lib/mediaUrl'
 
 function sort(items: TeachingVideoItem[]) {
   return items.slice().sort((a, b) => a.order - b.order)
 }
 
-function isVideoUrl(url: string) {
-  return /\.(mp4|webm|ogg|mov|m4v)(\?.*)?$/i.test(url)
-}
-
 export function TeachingVideosEditor() {
   const { draft, updateDraft } = useCms()
   const { confirm } = useAdminConfirm()
+  const { push } = useAdminToast()
   const [urlById, setUrlById] = useState<Record<string, string>>({})
 
   const items = useMemo(() => sort(draft.teachingVideos), [draft.teachingVideos])
@@ -93,8 +92,9 @@ export function TeachingVideosEditor() {
                       onChange={async (e) => {
                         const file = e.target.files?.[0]
                         if (!file) return
-                        const url = await uploadAdminMedia(file)
-                        const isVideo = file.type.startsWith('video/')
+                        const url = await uploadWithFeedback(file, push)
+                        if (!url) return
+                        const isVideo = file.type.startsWith('video/') || isVideoMediaUrl(url)
                         updateDraft((prev) => ({
                           ...prev,
                           teachingVideos: prev.teachingVideos.map((v) => {
@@ -132,7 +132,7 @@ export function TeachingVideosEditor() {
                         onClick={() => {
                           const value = (urlById[item.id] ?? '').trim()
                           if (!value) return
-                          const urlIsVideo = isVideoUrl(value)
+                          const urlIsVideo = isVideoMediaUrl(value)
                           updateDraft((prev) => ({
                             ...prev,
                             teachingVideos: prev.teachingVideos.map((v) => {

@@ -6,7 +6,8 @@ import { useAdminConfirm } from '@/admin/confirm'
 import { AdminCard } from '@/components/admin/AdminCard'
 import { AdminMediaThumb } from '@/components/admin/media/AdminMediaThumb'
 import { AdminSelect, AdminTextInput } from '@/components/admin/AdminInput'
-import { uploadAdminMedia } from '@/admin/uploadAdminMedia'
+import { uploadWithFeedback } from '@/admin/uploadWithFeedback'
+import { useAdminToast } from '@/admin/toast'
 
 function sortByOrder(items: CMSMedia[]) {
   return items.slice().sort((a, b) => a.order - b.order)
@@ -15,6 +16,7 @@ function sortByOrder(items: CMSMedia[]) {
 export function ProvenResultsEditor() {
   const { draft, updateDraft } = useCms()
   const { confirm } = useAdminConfirm()
+  const { push } = useAdminToast()
   const content = draft.provenResults as ProvenResultsContent
   const media = useMemo(() => sortByOrder(content.media), [content.media])
 
@@ -65,7 +67,9 @@ export function ProvenResultsEditor() {
             </div>
 
             <div className="sm:col-span-2">
-              <label className="mb-1 block text-sm font-semibold text-theme-primary">External Post Link (optional)</label>
+              <label className="mb-1 block text-sm font-semibold text-theme-primary">
+                Social post link (Share menu)
+              </label>
               <AdminTextInput
                 type="url"
                 value={externalLink}
@@ -90,7 +94,8 @@ export function ProvenResultsEditor() {
                     if (!file) return
                     setBusy(true)
                     try {
-                      const url = type === 'placeholder' ? undefined : await uploadAdminMedia(file)
+                      const url = type === 'placeholder' ? undefined : await uploadWithFeedback(file, push)
+                      if (type !== 'placeholder' && !url) return
 
                       const next: CMSMedia = {
                         id: `pr-${Math.random().toString(16).slice(2)}`,
@@ -126,7 +131,7 @@ export function ProvenResultsEditor() {
               </label>
             </div>
             <div className="sm:col-span-2 rounded-2xl border border-theme bg-theme-surface/45 p-3">
-              <p className="mb-2 text-xs font-semibold text-theme-muted">Or paste media URL</p>
+              <p className="mb-2 text-xs font-semibold text-theme-muted">Media URL (image or video)</p>
               <div className="flex flex-col gap-2 sm:flex-row">
                 <AdminTextInput
                   type="url"

@@ -7,6 +7,7 @@ import { messageRoutes } from './routes/messageRoutes.js'
 import { mediaRoutes } from './routes/mediaRoutes.js'
 import { paymentRoutes } from './routes/paymentRoutes.js'
 import { studentRoutes } from './routes/studentRoutes.js'
+import { authRoutes } from './routes/authRoutes.js'
 import { liveRoutes } from './routes/liveRoutes.js'
 import { configureCloudinary, isCloudinaryConfigured } from './services/cloudinaryService.js'
 
@@ -44,7 +45,7 @@ app.get('/api/health', (_req, res) => {
     db: dbReady ? 'connected' : dbError ? 'connection_failed' : 'not_configured',
     dbError: dbError ?? undefined,
     media: isCloudinaryConfigured() ? 'cloudinary' : 'not_configured',
-    adminKeyConfigured: Boolean(env.adminApiKey),
+    auth: 'role-based',
     timestamp: new Date().toISOString(),
   })
 })
@@ -74,6 +75,12 @@ app.use('/api/students', (req, res, next) => {
     return res.status(503).json({ error: 'Database not configured yet' })
   }
   return studentRoutes(req, res, next)
+})
+app.use('/api/auth', (req, res, next) => {
+  if (!dbReady) {
+    return res.status(503).json({ error: 'Database not configured yet' })
+  }
+  return authRoutes(req, res, next)
 })
 app.use('/api/live', (req, res, next) => {
   if (!dbReady) {

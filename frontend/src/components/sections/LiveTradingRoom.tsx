@@ -62,7 +62,7 @@ export function LiveTradingRoom() {
   }
 
   return (
-    <section id="live" className="section-premium relative py-16 md:py-28">
+    <section id="live" className="section-premium relative section-pad">
       <div className="absolute inset-0 bg-gradient-to-b from-empire-purple/5 via-transparent to-theme-bg" />
       <div className="section-container relative">
         <SectionHeading label={t.live.label} title={t.live.title} subtitle={t.live.subtitle} />

@@ -43,7 +43,7 @@ export function DailyUpdatesStrip() {
         transition={{ delay: 0.28, duration: 0.5 }}
         className="mx-auto mt-6 w-full max-w-2xl sm:mt-8"
       >
-        <div className="mb-3 flex items-center justify-between gap-2 px-1">
+        <div className="mb-3 flex flex-col gap-0.5 px-1 sm:flex-row sm:items-center sm:justify-between sm:gap-2">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-theme-muted">
             {t.hero.dailyUpdatesTitle}
           </p>
@@ -65,7 +65,17 @@ export function DailyUpdatesStrip() {
                 <span className="story-bubble-ring">
                   <span className="story-bubble-inner">
                     {preview ? (
-                      <img src={preview} alt="" className="h-full w-full object-cover" loading="lazy" />
+                      update.type === 'video' && !update.posterDataUrl && update.mediaDataUrl ? (
+                        <video
+                          src={update.mediaDataUrl}
+                          muted
+                          playsInline
+                          preload="metadata"
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <img src={preview} alt="" className="h-full w-full object-cover" loading="lazy" />
+                      )
                     ) : (
                       <span className="story-bubble-text-icon">FX</span>
                     )}

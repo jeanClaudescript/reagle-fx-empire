@@ -48,7 +48,7 @@ export function Results() {
   }
 
   return (
-    <section id="results" className="relative overflow-hidden py-20 md:py-28">
+    <section id="results" className="relative overflow-hidden section-pad">
       <div className="absolute inset-0 bg-gradient-to-b from-theme-elevated/50 via-transparent to-theme-bg" />
       <div className="glow-orb left-1/2 top-0 h-64 w-[500px] -translate-x-1/2 bg-empire-purple/10" />
 
@@ -139,7 +139,7 @@ export function Results() {
 
         {/* Profit gallery */}
         <ScrollReveal delay={0.15} className="mt-12">
-          <div className="scrollbar-hide -mx-4 flex gap-4 overflow-x-auto px-4 pb-4 sm:grid sm:grid-cols-3 sm:overflow-visible lg:grid-cols-6">
+          <div className="carousel-breakout scrollbar-hide flex gap-4 overflow-x-auto pb-4 sm:grid sm:grid-cols-3 sm:overflow-visible lg:grid-cols-6">
             {galleryItems.map((item, i) => (
               <motion.div
                 key={item.title}

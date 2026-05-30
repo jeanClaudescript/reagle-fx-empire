@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { requireAdminKey } from '../middleware/requireAdminKey.js'
+import { requireAdminAuth } from '../middleware/requireAdminAuth.js'
 import {
   createStudentAccount,
   findUserByContact,
@@ -32,7 +32,7 @@ studentRoutes.post('/access/check', async (req, res, next) => {
   }
 })
 
-studentRoutes.get('/admin/stats', requireAdminKey, async (_req, res, next) => {
+studentRoutes.get('/admin/stats', requireAdminAuth, async (_req, res, next) => {
   try {
     const data = await getStudentStats()
     return res.json({ data })
@@ -41,7 +41,7 @@ studentRoutes.get('/admin/stats', requireAdminKey, async (_req, res, next) => {
   }
 })
 
-studentRoutes.get('/admin/list', requireAdminKey, async (req, res, next) => {
+studentRoutes.get('/admin/list', requireAdminAuth, async (req, res, next) => {
   try {
     const status = (req.query.status as 'paid' | 'unpaid' | 'all' | undefined) ?? 'all'
     const q = (req.query.q as string | undefined)?.trim()
@@ -52,7 +52,7 @@ studentRoutes.get('/admin/list', requireAdminKey, async (req, res, next) => {
   }
 })
 
-studentRoutes.post('/admin/create', requireAdminKey, async (req, res, next) => {
+studentRoutes.post('/admin/create', requireAdminAuth, async (req, res, next) => {
   try {
     const body = req.body as {
       name?: string
@@ -69,7 +69,7 @@ studentRoutes.post('/admin/create', requireAdminKey, async (req, res, next) => {
   }
 })
 
-studentRoutes.patch('/admin/:id', requireAdminKey, async (req, res, next) => {
+studentRoutes.patch('/admin/:id', requireAdminAuth, async (req, res, next) => {
   try {
     const body = req.body as {
       name?: string
@@ -88,7 +88,7 @@ studentRoutes.patch('/admin/:id', requireAdminKey, async (req, res, next) => {
   }
 })
 
-studentRoutes.post('/admin/:id/grant-access', requireAdminKey, async (req, res, next) => {
+studentRoutes.post('/admin/:id/grant-access', requireAdminAuth, async (req, res, next) => {
   try {
     await markStudentPaid(req.params.id)
     const data = await getStudentById(req.params.id)
@@ -99,7 +99,7 @@ studentRoutes.post('/admin/:id/grant-access', requireAdminKey, async (req, res, 
   }
 })
 
-studentRoutes.post('/admin/:id/revoke-access', requireAdminKey, async (req, res, next) => {
+studentRoutes.post('/admin/:id/revoke-access', requireAdminAuth, async (req, res, next) => {
   try {
     const data = await updateStudentAccount(req.params.id, { membershipStatus: 'unpaid' })
     return res.json({ ok: true, data })

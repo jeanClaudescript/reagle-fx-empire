@@ -23,8 +23,7 @@ import {
   type PublishValidationResult,
   type ValidationIssue,
 } from './validation'
-import { cmsApi } from '@/services/api'
-import { isAdminApp } from '@/lib/isAdminApp'
+import { cmsApi, hasAdminSession } from '@/services/api'
 
 export type CmsRenderSource = 'published' | 'draft'
 
@@ -50,6 +49,9 @@ interface CmsContextValue {
   publishSectionValidated: (section: ContentSectionId) => PublishValidationResult
   undo: () => void
   resetDraft: () => void
+  syncError: string | null
+  isSyncing: boolean
+  refreshFromServer: () => Promise<void>
 }
 
 const CmsContext = createContext<CmsContextValue | null>(null)
@@ -86,7 +88,13 @@ function touchChangedSections(
   return updated
 }
 
-export function CmsProvider({ children }: { children: React.ReactNode }) {
+export function CmsProvider({
+  children,
+  adminMode = false,
+}: {
+  children: React.ReactNode
+  adminMode?: boolean
+}) {
   const [isHydrated, setIsHydrated] = useState(false)
   const [renderSource, setRenderSourceState] = useState<CmsRenderSource>('published')
   const [previewLock, setPreviewLockState] = useState<CmsRenderSource | null>(null)
@@ -95,8 +103,88 @@ export function CmsProvider({ children }: { children: React.ReactNode }) {
   const [history, setHistory] = useState<CMSHistoryEntry[]>([])
   const [validationIssues, setValidationIssues] = useState<ValidationIssue[]>([])
   const [sectionMeta, setSectionMeta] = useState<Partial<Record<ContentSectionId, number>>>({})
+  const [syncError, setSyncError] = useState<string | null>(null)
+  const [isSyncing, setIsSyncing] = useState(false)
   const prevDraftRef = useRef<CMSData>(DEFAULT_CMS_DATA)
   const draftSyncTimeoutRef = useRef<number | null>(null)
+
+  const pullPublished = useCallback(async () => {
+    const publishedRes = await cmsApi.getPublished()
+    const remotePublished = normalizeCmsData(publishedRes.data as CMSData)
+    setPublished(remotePublished)
+    savePublishedCMS(remotePublished)
+    return remotePublished
+  }, [])
+
+  const pullDraft = useCallback(async () => {
+    const draftRes = await cmsApi.getDraft()
+    const remoteDraft = normalizeCmsData(draftRes.data as CMSData)
+    setDraftState(remoteDraft)
+    prevDraftRef.current = remoteDraft
+    saveDraftCMS(remoteDraft)
+    return remoteDraft
+  }, [])
+
+  const refreshFromServer = useCallback(async () => {
+    setIsSyncing(true)
+    try {
+      await pullPublished()
+      if (adminMode && hasAdminSession()) {
+        await pullDraft()
+      }
+      setSyncError(null)
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Could not sync CMS from server'
+      setSyncError(message)
+      throw err
+    } finally {
+      setIsSyncing(false)
+    }
+  }, [adminMode, pullDraft, pullPublished])
+
+  const pushDraftToServer = useCallback(async (payload: CMSData) => {
+    if (!adminMode) return true
+    if (!hasAdminSession()) {
+      setSyncError('Sign in at /admin-login — CMS saves require an admin session.')
+      return false
+    }
+    setIsSyncing(true)
+    try {
+      await cmsApi.putDraft(payload)
+      setSyncError(null)
+      return true
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to save draft to server'
+      setSyncError(message)
+      return false
+    } finally {
+      setIsSyncing(false)
+    }
+  }, [adminMode])
+
+  const pushPublishToServer = useCallback(async (payload: CMSData) => {
+    if (!adminMode) return true
+    const saved = await pushDraftToServer(payload)
+    if (!saved) return false
+    setIsSyncing(true)
+    try {
+      const res = await cmsApi.publish()
+      const serverPublished = normalizeCmsData(res.data as CMSData)
+      setPublished(serverPublished)
+      setDraftState(serverPublished)
+      savePublishedCMS(serverPublished)
+      saveDraftCMS(serverPublished)
+      prevDraftRef.current = serverPublished
+      setSyncError(null)
+      return true
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Publish failed on server'
+      setSyncError(message)
+      return false
+    } finally {
+      setIsSyncing(false)
+    }
+  }, [adminMode, pushDraftToServer])
 
   useEffect(() => {
     const hydrate = async () => {
@@ -113,24 +201,22 @@ export function CmsProvider({ children }: { children: React.ReactNode }) {
       setIsHydrated(true)
 
       try {
-        const publishedRes = await cmsApi.getPublished()
-        const remotePublished = normalizeCmsData(publishedRes.data as CMSData)
-        setPublished(remotePublished)
-        savePublishedCMS(remotePublished)
+        await pullPublished()
+      } catch (err) {
+        setSyncError(err instanceof Error ? err.message : 'Could not load published content')
+      }
 
-        if (isAdminApp()) {
-          const draftRes = await cmsApi.getDraft()
-          const remoteDraft = normalizeCmsData(draftRes.data as CMSData)
-          setDraftState(remoteDraft)
-          prevDraftRef.current = remoteDraft
-          saveDraftCMS(remoteDraft)
+      if (adminMode && hasAdminSession()) {
+        try {
+          await pullDraft()
+          setSyncError(null)
+        } catch (err) {
+          setSyncError(err instanceof Error ? err.message : 'Could not load draft from server')
         }
-      } catch {
-        // Backend not reachable: keep localStorage mode.
       }
     }
     void hydrate()
-  }, [])
+  }, [adminMode, pullDraft, pullPublished])
 
   useEffect(() => {
     return () => {
@@ -188,14 +274,12 @@ export function CmsProvider({ children }: { children: React.ReactNode }) {
     if (draftSyncTimeoutRef.current) {
       window.clearTimeout(draftSyncTimeoutRef.current)
     }
-    if (!isAdminApp()) return
+    if (!adminMode) return
 
     draftSyncTimeoutRef.current = window.setTimeout(() => {
-      void cmsApi.putDraft(prevDraftRef.current).catch(() => {
-        // Keep local mode if API fails.
-      })
+      void pushDraftToServer(prevDraftRef.current)
     }, 450)
-  }, [])
+  }, [adminMode, pushDraftToServer])
 
   const setRenderSource = useCallback((source: CmsRenderSource) => {
     setRenderSourceState(source)
@@ -221,9 +305,8 @@ export function CmsProvider({ children }: { children: React.ReactNode }) {
 
     setRenderSourceState('published')
     setValidationIssues([])
-    void cmsApi.putDraft(nextPublished).catch(() => {})
-    void cmsApi.publish().catch(() => {})
-  }, [draft, history, published])
+    void pushPublishToServer(nextPublished)
+  }, [draft, history, published, pushPublishToServer])
 
   const publishValidated = useCallback((): PublishValidationResult => {
     const result = validatePublish(draft)
@@ -258,8 +341,7 @@ export function CmsProvider({ children }: { children: React.ReactNode }) {
       setPublished(nextPublished)
       savePublishedCMS(nextPublished)
       setValidationIssues([])
-      void cmsApi.putDraft(draft).catch(() => {})
-      void cmsApi.publish().catch(() => {})
+      void pushPublishToServer(draft)
       return { ok: true, issues: [] }
     },
     [draft, history, published],
@@ -287,7 +369,18 @@ export function CmsProvider({ children }: { children: React.ReactNode }) {
     prevDraftRef.current = published
     setRenderSourceState('published')
     setValidationIssues([])
-    void cmsApi.resetDraft().catch(() => {})
+    void (async () => {
+      try {
+        const res = await cmsApi.resetDraft()
+        const remoteDraft = normalizeCmsData(res.data as CMSData)
+        setDraftState(remoteDraft)
+        saveDraftCMS(remoteDraft)
+        prevDraftRef.current = remoteDraft
+        setSyncError(null)
+      } catch (err) {
+        setSyncError(err instanceof Error ? err.message : 'Could not reset draft on server')
+      }
+    })()
   }, [published])
 
   const value = useMemo<CmsContextValue>(
@@ -313,6 +406,9 @@ export function CmsProvider({ children }: { children: React.ReactNode }) {
       publishSectionValidated,
       undo,
       resetDraft,
+      syncError,
+      isSyncing,
+      refreshFromServer,
     }),
     [
       activeContent,
@@ -321,17 +417,20 @@ export function CmsProvider({ children }: { children: React.ReactNode }) {
       hasDraftChanges,
       history,
       isHydrated,
+      isSyncing,
       previewLock,
       publish,
       publishValidated,
       publishSectionValidated,
       published,
+      refreshFromServer,
       renderSource,
       resetDraft,
       sectionStates,
       setDraft,
       setPreviewLock,
       setRenderSource,
+      syncError,
       undo,
       updateDraft,
       validationIssues,

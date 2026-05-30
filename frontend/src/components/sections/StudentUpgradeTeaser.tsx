@@ -10,7 +10,7 @@ export function StudentUpgradeTeaser() {
   const unlockLabel = priceLabel ? `${t.live.unlockCta} — ${priceLabel}` : t.live.unlockCta
 
   return (
-    <section id="tools" className="relative border-t border-theme py-16 md:py-20">
+    <section id="tools" className="relative border-t border-theme section-pad">
       <div className="absolute inset-0 bg-gradient-to-b from-empire-purple/5 to-transparent" />
       <div className="section-container relative text-center">
         <span className="inline-flex items-center gap-2 rounded-full border border-theme-accent/30 bg-theme-accent/10 px-3 py-1 text-xs font-semibold text-theme-accent">

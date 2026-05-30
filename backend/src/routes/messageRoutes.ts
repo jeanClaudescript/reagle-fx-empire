@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { MessageModel } from '../models/Message.js'
-import { requireAdminKey } from '../middleware/requireAdminKey.js'
+import { requireAdminAuth } from '../middleware/requireAdminAuth.js'
 
 export const messageRoutes = Router()
 
@@ -42,7 +42,7 @@ messageRoutes.post('/', async (req, res, next) => {
   }
 })
 
-messageRoutes.get('/', requireAdminKey, async (_req, res, next) => {
+messageRoutes.get('/', requireAdminAuth, async (_req, res, next) => {
   try {
     const docs = await MessageModel.find().sort({ createdAt: -1 }).limit(200).lean()
     const data = docs.map((doc) => ({
@@ -62,7 +62,7 @@ messageRoutes.get('/', requireAdminKey, async (_req, res, next) => {
   }
 })
 
-messageRoutes.post('/:id/read', requireAdminKey, async (req, res, next) => {
+messageRoutes.post('/:id/read', requireAdminAuth, async (req, res, next) => {
   try {
     const updated = await MessageModel.findByIdAndUpdate(
       req.params.id,

@@ -54,7 +54,7 @@ export function Community() {
   if (!isSectionEnabled(active, 'community')) return null
 
   return (
-    <section id="community" className="relative py-20 md:py-28">
+    <section id="community" className="relative section-pad">
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-empire-purple/5 to-transparent" />
 
       <div className="section-container relative">
@@ -90,7 +90,7 @@ export function Community() {
                 </span>
               </div>
               <div className="mt-8">
-                <GlowButton href={BRAND.whatsappLink} variant="whatsapp">
+                <GlowButton href={BRAND.whatsappLink} variant="whatsapp" className="w-full sm:w-auto">
                   <MessageCircle className="h-5 w-5" />
                   {t.community.joinNow}
                 </GlowButton>

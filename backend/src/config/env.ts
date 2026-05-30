@@ -10,7 +10,6 @@ export const env = {
     .map((origin) => origin.trim())
     .filter(Boolean),
   allowVercelPreviewOrigins: (process.env.ALLOW_VERCEL_PREVIEW_ORIGINS || 'true').toLowerCase() === 'true',
-  adminApiKey: process.env.ADMIN_API_KEY?.trim() || '',
   cloudinaryCloudName: process.env.CLOUDINARY_CLOUD_NAME?.trim() || '',
   cloudinaryApiKey: process.env.CLOUDINARY_API_KEY?.trim() || '',
   cloudinaryApiSecret: process.env.CLOUDINARY_API_SECRET?.trim() || '',

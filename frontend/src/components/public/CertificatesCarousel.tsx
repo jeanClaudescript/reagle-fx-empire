@@ -23,7 +23,7 @@ export function CertificatesCarousel() {
   return (
     <div className="mt-5">
       <div className="relative">
-        <div className="scrollbar-hide -mx-2 flex gap-3 overflow-x-auto px-2 pb-3 snap-x snap-mandatory">
+        <div className="carousel-breakout scrollbar-hide flex gap-3 overflow-x-auto pb-3 snap-x snap-mandatory">
           {certificates.map((c, i) => {
             const hasImg = Boolean(c.imageDataUrl)
             return (

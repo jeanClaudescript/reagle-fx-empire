@@ -37,9 +37,9 @@ export function StudentLoginModal({ open, onClose }: { open: boolean; onClose: (
           />
           <motion.div
             className="auth-modal-panel"
-            initial={{ opacity: 0, scale: 0.96, y: 16 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.98, y: 12 }}
+            initial={{ opacity: 0, scale: 0.96 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.98 }}
             transition={{ type: 'spring', stiffness: 400, damping: 32 }}
             role="dialog"
             aria-modal

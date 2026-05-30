@@ -5,7 +5,8 @@ import { useCms } from '@/cms/CmsProvider'
 import { useAdminConfirm } from '@/admin/confirm'
 import { AdminCard } from '@/components/admin/AdminCard'
 import { AdminTextInput } from '@/components/admin/AdminInput'
-import { uploadAdminMedia } from '@/admin/uploadAdminMedia'
+import { uploadWithFeedback } from '@/admin/uploadWithFeedback'
+import { useAdminToast } from '@/admin/toast'
 import { AdminMediaThumb } from '@/components/admin/media/AdminMediaThumb'
 
 function normalizeByOrder(items: UpcomingBanner[]) {
@@ -18,6 +19,7 @@ function normalizeByOrder(items: UpcomingBanner[]) {
 export function UpcomingBannersEditor() {
   const { draft, updateDraft } = useCms()
   const { confirm } = useAdminConfirm()
+  const { push } = useAdminToast()
   const banners = useMemo(() => normalizeByOrder(draft.upcomingBanners), [draft.upcomingBanners])
 
   const [title, setTitle] = useState('')
@@ -33,8 +35,8 @@ export function UpcomingBannersEditor() {
       <AdminCard>
         <div className="admin-card-body">
           <p className="admin-editor-card-intro">
-            Create and manage the banner shown above the live chart. Set a date &amp; time for a
-            live countdown (e.g. 2026-06-15 18:00) — or use text like &quot;June 15&quot; for display only.
+            Hero banner above the chart. Pick date/time for countdown. Use one button link (CTA) and
+            optional social post link for Share.
           </p>
 
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
@@ -57,41 +59,37 @@ export function UpcomingBannersEditor() {
                 onChange={(e) => setDate(e.target.value)}
                 className="w-full rounded-xl border border-theme bg-theme-elevated/60 px-3 py-2 text-sm text-theme-primary outline-none focus:border-theme-accent/50"
               />
-              <AdminTextInput
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                placeholder="Or type: 2026-06-15T18:00 or June 15, 2026"
-                className="mt-2"
-              />
               <p className="mt-1 text-xs text-theme-muted">
-                Countdown appears when the date is parseable (ISO or datetime picker).
+                Countdown uses this datetime. Title can show friendly text like &quot;June 15&quot;.
               </p>
             </div>
 
             <div>
-              <label className="mb-1 block text-sm font-semibold text-theme-primary">CTA Link</label>
-              <AdminTextInput value={ctaLink} onChange={(e) => setCtaLink(e.target.value)} placeholder="https://..." />
+              <label className="mb-1 block text-sm font-semibold text-theme-primary">
+                Button link (main CTA)
+              </label>
+              <AdminTextInput value={ctaLink} onChange={(e) => setCtaLink(e.target.value)} placeholder="https://wa.me/..." />
             </div>
 
             <div>
-              <label className="mb-1 block text-sm font-semibold text-theme-primary">CTA Label</label>
+              <label className="mb-1 block text-sm font-semibold text-theme-primary">CTA label</label>
               <AdminTextInput value={ctaLabel} onChange={(e) => setCtaLabel(e.target.value)} />
             </div>
 
             <div className="sm:col-span-2">
               <label className="mb-1 block text-sm font-semibold text-theme-primary">
-                External Post Link (optional)
+                Social post link (Share / Open post)
               </label>
               <AdminTextInput
                 value={externalLink}
                 onChange={(e) => setExternalLink(e.target.value)}
-                placeholder="https://instagram.com/... or https://facebook.com/..."
+                placeholder="https://instagram.com/p/..."
               />
             </div>
 
             <div className="sm:col-span-2">
-              <label className="mb-1 block text-sm font-semibold text-theme-primary">Banner Image (optional)</label>
-              <div className="space-y-2">
+              <label className="mb-1 block text-sm font-semibold text-theme-primary">Banner image (optional)</label>
+              <div className="flex flex-col gap-2 sm:flex-row">
                 <label className="inline-flex cursor-pointer items-center rounded-xl border border-theme bg-theme-elevated/60 px-3 py-2 text-sm font-semibold text-theme-primary">
                   Upload image
                   <input
@@ -101,8 +99,8 @@ export function UpcomingBannersEditor() {
                     onChange={async (e) => {
                       const file = e.target.files?.[0]
                       if (!file) return
-                      const url = await uploadAdminMedia(file)
-                      setImageDataUrl(url)
+                      const url = await uploadWithFeedback(file, push)
+                      if (url) setImageDataUrl(url)
                       e.target.value = ''
                     }}
                   />
@@ -110,7 +108,8 @@ export function UpcomingBannersEditor() {
                 <AdminTextInput
                   value={imageDataUrl}
                   onChange={(e) => setImageDataUrl(e.target.value)}
-                  placeholder="Or paste image URL https://..."
+                  placeholder="Or paste image URL"
+                  className="flex-1"
                 />
               </div>
             </div>
@@ -246,26 +245,12 @@ export function UpcomingBannersEditor() {
                             }}
                             className="w-full rounded-xl border border-theme bg-theme-elevated/60 px-3 py-2 text-sm text-theme-primary outline-none focus:border-theme-accent/50"
                           />
-                          <AdminTextInput
-                            value={banner.date}
-                            onChange={(e) => {
-                              const value = e.target.value
-                              updateDraft((prev) => ({
-                                ...prev,
-                                upcomingBanners: normalizeByOrder(
-                                  prev.upcomingBanners.map((b) =>
-                                    b.id === banner.id ? { ...b, date: value } : b,
-                                  ),
-                                ),
-                              }))
-                            }}
-                            placeholder="2026-06-15T18:00 or June 15, 2026"
-                            className="mt-2"
-                          />
                         </div>
 
                         <div>
-                          <label className="mb-1 block text-sm font-semibold text-theme-primary">CTA Link</label>
+                          <label className="mb-1 block text-sm font-semibold text-theme-primary">
+                            Button link (main CTA)
+                          </label>
                           <AdminTextInput
                             value={banner.ctaLink}
                             onChange={(e) => {
@@ -282,8 +267,8 @@ export function UpcomingBannersEditor() {
                           />
                         </div>
 
-                        <div className="sm:col-span-2">
-                          <label className="mb-1 block text-sm font-semibold text-theme-primary">CTA Label</label>
+                        <div>
+                          <label className="mb-1 block text-sm font-semibold text-theme-primary">CTA label</label>
                           <AdminTextInput
                             value={banner.ctaLabel}
                             onChange={(e) => {
@@ -302,7 +287,7 @@ export function UpcomingBannersEditor() {
 
                         <div className="sm:col-span-2">
                           <label className="mb-1 block text-sm font-semibold text-theme-primary">
-                            External Post Link (optional)
+                            Social post link (Share / Open post)
                           </label>
                           <AdminTextInput
                             value={banner.externalLink ?? ''}
@@ -354,7 +339,8 @@ export function UpcomingBannersEditor() {
                                 onChange={async (e) => {
                                   const file = e.target.files?.[0]
                                   if (!file) return
-                                  const url = await uploadAdminMedia(file)
+                                  const url = await uploadWithFeedback(file, push)
+                                  if (!url) return
                                   updateDraft((prev) => ({
                                     ...prev,
                                     upcomingBanners: normalizeByOrder(

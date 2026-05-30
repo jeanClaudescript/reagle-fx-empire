@@ -31,7 +31,7 @@ export function ProvenResultsMediaGallery() {
             <p className="text-xs text-theme-muted">Swipe →</p>
           </div>
 
-          <div className="scrollbar-hide -mx-3 mt-4 flex gap-4 overflow-x-auto px-3 pb-2 snap-x snap-mandatory">
+          <div className="carousel-breakout scrollbar-hide mt-4 flex gap-4 overflow-x-auto pb-2 snap-x snap-mandatory">
             {realMedia.map((m, idx) => {
               const isVertical = m.orientation === 'vertical'
               const aspect = isVertical ? 'aspect-[9/16]' : 'aspect-[16/9]'

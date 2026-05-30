@@ -25,7 +25,7 @@ export function Videos() {
   const reelKeys = teaching.map((x) => x.reelKey)
 
   return (
-    <section id="videos" className="relative py-20 md:py-28">
+    <section id="videos" className="relative section-pad">
       <div className="section-container">
         <SectionHeading
           label={t.videos.label}
@@ -34,7 +34,7 @@ export function Videos() {
         />
 
         <ScrollReveal>
-          <div className="scrollbar-hide -mx-4 flex gap-4 overflow-x-auto px-4 pb-6 snap-x snap-mandatory md:gap-6">
+          <div className="carousel-breakout scrollbar-hide flex gap-4 overflow-x-auto pb-6 snap-x snap-mandatory md:gap-6">
             {reelKeys.map((key, i) => {
               const item = teaching[i]
               const label = item?.label?.trim() ? item.label : t.videos[key]

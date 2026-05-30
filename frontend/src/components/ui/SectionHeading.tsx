@@ -13,10 +13,11 @@ export function SectionHeading({
   subtitle,
   align = 'center',
 }: SectionHeadingProps) {
-  const alignClass = align === 'center' ? 'text-center mx-auto' : 'text-left'
+  const alignClass =
+    align === 'center' ? 'text-left sm:text-center mx-auto max-w-3xl' : 'text-left max-w-3xl'
 
   return (
-    <div className={`mb-12 max-w-3xl md:mb-16 ${alignClass}`}>
+    <div className={`mb-10 max-w-3xl sm:mb-12 md:mb-16 ${alignClass}`}>
       <motion.span
         initial={{ opacity: 0, y: 12 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -39,7 +40,7 @@ export function SectionHeading({
         whileInView={{ scaleX: 1 }}
         viewport={{ once: true }}
         transition={{ delay: 0.2, duration: 0.5 }}
-        className={`mt-4 h-1 w-16 rounded-full bg-gradient-to-r from-empire-purple to-empire-blue ${align === 'center' ? 'mx-auto' : ''}`}
+        className={`mt-4 h-1 w-16 rounded-full bg-gradient-to-r from-empire-purple to-empire-blue ${align === 'center' ? 'sm:mx-auto' : ''}`}
       />
       {subtitle && (
         <motion.p

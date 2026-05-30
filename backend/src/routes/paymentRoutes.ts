@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { requireAdminKey } from '../middleware/requireAdminKey.js'
+import { requireAdminAuth } from '../middleware/requireAdminAuth.js'
 import { rateLimit } from '../middleware/rateLimit.js'
 import { PaymentModel } from '../models/Payment.js'
 import { ReferralRewardModel } from '../models/ReferralReward.js'
@@ -72,7 +72,7 @@ paymentRoutes.get('/config', async (_req, res, next) => {
   }
 })
 
-paymentRoutes.get('/admin/settings', requireAdminKey, async (_req, res, next) => {
+paymentRoutes.get('/admin/settings', requireAdminAuth, async (_req, res, next) => {
   try {
     const settings = await getPaymentSettings()
     return res.json({ data: serializePaymentSettings(settings) })
@@ -81,7 +81,7 @@ paymentRoutes.get('/admin/settings', requireAdminKey, async (_req, res, next) =>
   }
 })
 
-paymentRoutes.put('/admin/settings', requireAdminKey, async (req, res, next) => {
+paymentRoutes.put('/admin/settings', requireAdminAuth, async (req, res, next) => {
   try {
     const body = req.body as Record<string, unknown>
     const data = await updatePaymentSettings({
@@ -155,7 +155,7 @@ paymentRoutes.post('/webhook/momo', async (req, res, next) => {
   }
 })
 
-paymentRoutes.get('/admin/list', requireAdminKey, async (req, res, next) => {
+paymentRoutes.get('/admin/list', requireAdminAuth, async (req, res, next) => {
   try {
     const status = (req.query.status as string | undefined)?.toUpperCase()
     const q = (req.query.q as string | undefined)?.trim()
@@ -176,7 +176,7 @@ paymentRoutes.get('/admin/list', requireAdminKey, async (req, res, next) => {
   }
 })
 
-paymentRoutes.post('/admin/:id/approve', requireAdminKey, async (req, res, next) => {
+paymentRoutes.post('/admin/:id/approve', requireAdminAuth, async (req, res, next) => {
   try {
     const payment = await confirmPayment(req.params.id, 'admin', {
       transactionId: (req.body as { transactionId?: string }).transactionId,
@@ -188,7 +188,7 @@ paymentRoutes.post('/admin/:id/approve', requireAdminKey, async (req, res, next)
   }
 })
 
-paymentRoutes.patch('/admin/:id', requireAdminKey, async (req, res, next) => {
+paymentRoutes.patch('/admin/:id', requireAdminAuth, async (req, res, next) => {
   try {
     const body = req.body as { amount?: number; phone?: string }
     const payment = await updatePendingPayment(req.params.id, {
@@ -201,7 +201,7 @@ paymentRoutes.patch('/admin/:id', requireAdminKey, async (req, res, next) => {
   }
 })
 
-paymentRoutes.post('/admin/:id/reject', requireAdminKey, async (req, res, next) => {
+paymentRoutes.post('/admin/:id/reject', requireAdminAuth, async (req, res, next) => {
   try {
     const payment = await PaymentModel.findByIdAndUpdate(
       req.params.id,
@@ -215,7 +215,7 @@ paymentRoutes.post('/admin/:id/reject', requireAdminKey, async (req, res, next) 
   }
 })
 
-paymentRoutes.get('/admin/referrals', requireAdminKey, async (_req, res, next) => {
+paymentRoutes.get('/admin/referrals', requireAdminAuth, async (_req, res, next) => {
   try {
     const rewards = await ReferralRewardModel.find().sort({ createdAt: -1 }).limit(100).lean()
     const userIds = [

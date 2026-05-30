@@ -26,7 +26,7 @@ export function ForexTools() {
   const [category, setCategory] = useState<ToolCategory>('all')
 
   return (
-    <section id="tools" className="section-premium relative py-16 md:py-28">
+    <section id="tools" className="section-premium relative section-pad">
       <div className="absolute inset-0 bg-gradient-to-b from-theme-bg via-empire-purple/5 to-theme-bg" />
       <div className="section-container relative">
         <SectionHeading label={t.tools.label} title={t.tools.title} subtitle={t.tools.subtitle} />

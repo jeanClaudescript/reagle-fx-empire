@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { requireAdminKey } from '../middleware/requireAdminKey.js'
+import { requireAdminAuth } from '../middleware/requireAdminAuth.js'
 import {
   createLiveSession,
   getActiveLiveSession,
@@ -19,7 +19,7 @@ liveRoutes.get('/active', async (_req, res, next) => {
   }
 })
 
-liveRoutes.get('/admin/list', requireAdminKey, async (_req, res, next) => {
+liveRoutes.get('/admin/list', requireAdminAuth, async (_req, res, next) => {
   try {
     const data = await listLiveSessions()
     return res.json({ data })
@@ -28,7 +28,7 @@ liveRoutes.get('/admin/list', requireAdminKey, async (_req, res, next) => {
   }
 })
 
-liveRoutes.post('/admin/create', requireAdminKey, async (req, res, next) => {
+liveRoutes.post('/admin/create', requireAdminAuth, async (req, res, next) => {
   try {
     const body = req.body as Record<string, string | undefined>
     const data = await createLiveSession({
@@ -45,7 +45,7 @@ liveRoutes.post('/admin/create', requireAdminKey, async (req, res, next) => {
   }
 })
 
-liveRoutes.patch('/admin/:id', requireAdminKey, async (req, res, next) => {
+liveRoutes.patch('/admin/:id', requireAdminAuth, async (req, res, next) => {
   try {
     const body = req.body as Record<string, unknown>
     const data = await updateLiveSession(req.params.id, {
@@ -70,7 +70,7 @@ liveRoutes.patch('/admin/:id', requireAdminKey, async (req, res, next) => {
   }
 })
 
-liveRoutes.post('/admin/:id/status', requireAdminKey, async (req, res, next) => {
+liveRoutes.post('/admin/:id/status', requireAdminAuth, async (req, res, next) => {
   try {
     const status = (req.body as { status?: string }).status
     if (status !== 'scheduled' && status !== 'live' && status !== 'ended') {

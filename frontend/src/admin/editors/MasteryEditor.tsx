@@ -8,6 +8,8 @@ import { MediaUploader } from '@/components/admin/MediaUploader'
 import { AdminMediaThumb } from '@/components/admin/media/AdminMediaThumb'
 import { useState } from 'react'
 
+import { mediaKindFromUrl } from '@/lib/mediaUrl'
+
 const CARD_KEYS: MasteryCardKey[] = [
   'risk',
   'technical',
@@ -16,10 +18,6 @@ const CARD_KEYS: MasteryCardKey[] = [
   'beginner',
   'live',
 ]
-
-function inferMediaTypeFromUrl(url: string): MediaType {
-  return /\.(mp4|webm|ogg|mov|m4v)(\?.*)?$/i.test(url) ? 'video' : 'image'
-}
 
 export function MasteryEditor() {
   const { t } = useLanguage()
@@ -139,7 +137,7 @@ export function MasteryEditor() {
                         setMedia(key, next)
                       }}
                       onUrlSubmit={async (url) => {
-                        const type = inferMediaTypeFromUrl(url)
+                        const type = mediaKindFromUrl(url) as MediaType
                         const next: CMSMedia = {
                           id: `mastery-${key}-${Date.now()}`,
                           type,

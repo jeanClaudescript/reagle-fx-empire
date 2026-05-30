@@ -22,7 +22,7 @@ function App() {
 
   return (
     <ThemeProvider>
-      <CmsProvider>
+      <CmsProvider adminMode={path.startsWith('/admin')}>
         <LanguageProvider>
           <StudentAccessProvider>
           {path === '/login' ? (

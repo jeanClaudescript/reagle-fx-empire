@@ -30,7 +30,7 @@ export function PaidStudentPopup() {
   return (
     <AnimatePresence>
       {open && (
-        <>
+        <div className="student-popup-shell" role="presentation">
           <motion.div
             className="student-popup-backdrop"
             initial={{ opacity: 0 }}
@@ -40,9 +40,9 @@ export function PaidStudentPopup() {
           />
           <motion.div
             className="student-popup fintech-card fintech-card--glow border-0"
-            initial={{ opacity: 0, scale: 0.92, y: 40 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 24 }}
+            initial={{ opacity: 0, scale: 0.92 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
             transition={{ type: 'spring', stiffness: 380, damping: 28 }}
             role="dialog"
             aria-modal
@@ -88,7 +88,7 @@ export function PaidStudentPopup() {
               </GlowButton>
             </div>
           </motion.div>
-        </>
+        </div>
       )}
     </AnimatePresence>
   )

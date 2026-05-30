@@ -1,5 +1,6 @@
+import { getAdminAuthToken } from '@/admin/adminSession'
+
 const API_BASE = (import.meta.env.VITE_API_URL as string | undefined)?.trim() || 'http://localhost:4000'
-const ADMIN_API_KEY = (import.meta.env.VITE_ADMIN_API_KEY as string | undefined)?.trim() || ''
 
 type RequestInitLite = {
   method?: string
@@ -22,8 +23,12 @@ async function apiFetch<T>(path: string, init: RequestInitLite = {}): Promise<T>
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
   }
-  if (init.admin && ADMIN_API_KEY) {
-    headers['x-admin-api-key'] = ADMIN_API_KEY
+  if (init.admin) {
+    const token = getAdminAuthToken()
+    if (!token) {
+      throw new Error('Not signed in as admin — open /admin-login and sign in.')
+    }
+    headers.Authorization = `Bearer ${token}`
   }
 
   const res = await fetch(`${API_BASE}${path}`, {
@@ -44,7 +49,7 @@ export type HealthStatus = {
   db: 'connected' | 'connection_failed' | 'not_configured'
   dbError?: string
   media: 'cloudinary' | 'not_configured'
-  adminKeyConfigured: boolean
+  auth: string
   timestamp: string
 }
 
@@ -52,8 +57,45 @@ export const healthApi = {
   check: () => apiFetch<HealthStatus>('/api/health'),
 }
 
-export function hasAdminApiKey() {
-  return Boolean(ADMIN_API_KEY)
+export function hasAdminSession() {
+  return Boolean(getAdminAuthToken())
+}
+
+export type AdminAccountRecord = {
+  id: string
+  email: string
+  name?: string
+  isPrimary: boolean
+  createdAt: string
+}
+
+export const authApi = {
+  setupStatus: () => apiFetch<{ data: { hasAdmin: boolean } }>('/api/auth/admin/setup'),
+  bootstrap: (body: { email: string; password: string; name?: string }) =>
+    apiFetch<{
+      ok: true
+      data: { token: string; expiresAt: string; user: AdminAccountRecord }
+    }>('/api/auth/admin/bootstrap', { method: 'POST', body }),
+  login: (email: string, password: string) =>
+    apiFetch<{
+      ok: true
+      data: { token: string; expiresAt: string; user: AdminAccountRecord }
+    }>('/api/auth/admin/login', { method: 'POST', body: { email, password } }),
+  logout: () => apiFetch<{ ok: true }>('/api/auth/admin/logout', { method: 'POST', admin: true }),
+  me: () =>
+    apiFetch<{ data: { id: string; email: string; name?: string; isPrimary: boolean; role: string } }>(
+      '/api/auth/admin/me',
+      { admin: true },
+    ),
+  listAdmins: () => apiFetch<{ data: AdminAccountRecord[] }>('/api/auth/admin/users', { admin: true }),
+  createAdmin: (body: { email: string; password: string; name?: string }) =>
+    apiFetch<{ ok: true; data: AdminAccountRecord }>('/api/auth/admin/users', {
+      method: 'POST',
+      admin: true,
+      body,
+    }),
+  removeAdmin: (id: string) =>
+    apiFetch<{ ok: true }>(`/api/auth/admin/users/${id}`, { method: 'DELETE', admin: true }),
 }
 
 export type ApiMessage = {
@@ -83,7 +125,9 @@ export const mediaApi = {
     const form = new FormData()
     form.append('file', file)
     const headers: Record<string, string> = {}
-    if (ADMIN_API_KEY) headers['x-admin-api-key'] = ADMIN_API_KEY
+    const token = getAdminAuthToken()
+    if (!token) throw new Error('Not signed in as admin')
+    headers.Authorization = `Bearer ${token}`
 
     const res = await fetch(`${API_BASE}/api/media/upload`, {
       method: 'POST',

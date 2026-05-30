@@ -77,6 +77,7 @@ export async function findOrCreateUser(input: {
       phone,
       email,
       name: input.name?.trim() || undefined,
+      role: 'student',
       referralCode: await uniqueUserReferralCode(),
       referredByCode,
       referredByUserId,

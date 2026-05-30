@@ -81,6 +81,7 @@ export async function createStudentAccount(input: {
     phone,
     email,
     name: input.name?.trim() || undefined,
+    role: 'student',
     referralCode: await uniqueUserReferralCode(),
     referredByCode,
     referredByUserId,
@@ -109,7 +110,7 @@ export async function updateStudentAccount(
   },
 ) {
   const user = await AppUserModel.findById(userId)
-  if (!user) throw new Error('Student not found')
+  if (!user || user.role === 'admin') throw new Error('Student not found')
 
   const nextPhone = input.clearPhone ? undefined : input.phone != null ? normalizeRwPhone(input.phone) : user.phone
   const nextEmail = input.clearEmail
@@ -165,7 +166,7 @@ async function enrichStudent(user: {
   phone?: string
   email?: string
   name?: string
-  referralCode: string
+  referralCode?: string
   referredByCode?: string
   referredByUserId?: string
   membershipStatus: MembershipStatus
@@ -231,7 +232,7 @@ export async function listStudents(query: {
   q?: string
   limit?: number
 }) {
-  const filter: Record<string, unknown> = {}
+  const filter: Record<string, unknown> = { role: { $ne: 'admin' } }
   if (query.status && query.status !== 'all') {
     Object.assign(filter, statusFilter(query.status))
   }
@@ -259,9 +260,9 @@ export async function listStudents(query: {
 export async function getStudentStats() {
   const settings = await getPaymentSettings()
   const [totalStudents, paidStudents, unpaidStudents, pendingPayments, revenueAgg] = await Promise.all([
-    AppUserModel.countDocuments(),
-    AppUserModel.countDocuments({ membershipStatus: 'paid' }),
-    AppUserModel.countDocuments(statusFilter('unpaid')),
+    AppUserModel.countDocuments({ role: { $ne: 'admin' } }),
+    AppUserModel.countDocuments({ role: { $ne: 'admin' }, membershipStatus: 'paid' }),
+    AppUserModel.countDocuments({ role: { $ne: 'admin' }, ...statusFilter('unpaid') }),
     PaymentModel.countDocuments({ status: 'PENDING' }),
     PaymentModel.aggregate<{ total: number }>([
       { $match: { status: 'PAID' } },
@@ -293,12 +294,13 @@ export async function getStudentById(userId: string) {
 
 export async function findUserByContact(input: { phone?: string; email?: string }) {
   const { phone, email } = parseContact(input)
+  const studentOnly = { role: { $ne: 'admin' as const } }
   if (phone) {
-    const byPhone = await AppUserModel.findOne({ phone })
+    const byPhone = await AppUserModel.findOne({ phone, ...studentOnly })
     if (byPhone) return byPhone
   }
   if (email) {
-    const byEmail = await AppUserModel.findOne({ email })
+    const byEmail = await AppUserModel.findOne({ email, ...studentOnly })
     if (byEmail) return byEmail
   }
   return null

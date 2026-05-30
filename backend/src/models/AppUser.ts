@@ -1,12 +1,18 @@
 import { Schema, model } from 'mongoose'
 
 export type MembershipStatus = 'paid' | 'unpaid'
+export type UserRole = 'student' | 'admin'
 
 export interface AppUserDocument {
+  _id: unknown
   phone?: string
   email?: string
   name?: string
-  referralCode: string
+  role: UserRole
+  passwordHash?: string
+  passwordSalt?: string
+  isPrimaryAdmin?: boolean
+  referralCode?: string
   referredByCode?: string
   referredByUserId?: string
   membershipStatus: MembershipStatus
@@ -22,7 +28,11 @@ const appUserSchema = new Schema<AppUserDocument>(
     phone: { type: String, trim: true, sparse: true, unique: true, index: true },
     email: { type: String, trim: true, lowercase: true, sparse: true, unique: true, index: true },
     name: { type: String, trim: true },
-    referralCode: { type: String, required: true, unique: true, uppercase: true, trim: true, index: true },
+    role: { type: String, enum: ['student', 'admin'], required: true, default: 'student', index: true },
+    passwordHash: { type: String, select: false },
+    passwordSalt: { type: String, select: false },
+    isPrimaryAdmin: { type: Boolean, default: false },
+    referralCode: { type: String, uppercase: true, trim: true, sparse: true, unique: true, index: true },
     referredByCode: { type: String, uppercase: true, trim: true },
     referredByUserId: { type: String, trim: true },
     membershipStatus: { type: String, enum: ['paid', 'unpaid'], required: true, default: 'unpaid', index: true },

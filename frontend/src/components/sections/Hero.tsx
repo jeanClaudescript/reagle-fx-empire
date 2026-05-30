@@ -32,7 +32,7 @@ export function Hero() {
   return (
     <section
       id="home"
-      className="relative flex min-h-[100svh] flex-col overflow-hidden pt-[72px]"
+      className="relative flex min-h-[100svh] flex-col overflow-hidden pt-[calc(3.5rem+env(safe-area-inset-top,0px))] sm:pt-[calc(4.5rem+env(safe-area-inset-top,0px))]"
     >
       <div className="hero-mesh absolute inset-0" />
       <div className="glow-orb -left-40 top-20 h-72 w-72 bg-empire-purple/20 dark:bg-empire-purple/25 sm:h-96 sm:w-96" />

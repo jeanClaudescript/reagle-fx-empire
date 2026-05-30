@@ -2,7 +2,8 @@ import { useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 import type { Certificate } from '@/cms/types'
 import { useCms } from '@/cms/CmsProvider'
-import { uploadAdminMedia } from '@/admin/uploadAdminMedia'
+import { uploadWithFeedback } from '@/admin/uploadWithFeedback'
+import { useAdminToast } from '@/admin/toast'
 import { useAdminConfirm } from '@/admin/confirm'
 import { AdminCard } from '@/components/admin/AdminCard'
 import { AdminTextInput } from '@/components/admin/AdminInput'
@@ -18,6 +19,7 @@ function normalize(items: Certificate[]) {
 export function CertificatesEditor() {
   const { draft, updateDraft } = useCms()
   const { confirm } = useAdminConfirm()
+  const { push } = useAdminToast()
   const certificates = useMemo(() => normalize(draft.certificates), [draft.certificates])
 
   const [title, setTitle] = useState('')
@@ -67,7 +69,8 @@ export function CertificatesEditor() {
                     if (!file) return
                     setUploadBusy(true)
                     try {
-                      const url = await uploadAdminMedia(file)
+                      const url = await uploadWithFeedback(file, push)
+                      if (!url) return
                       const next: Certificate = {
                         id: `cert-${Math.random().toString(16).slice(2)}`,
                         imageDataUrl: url,

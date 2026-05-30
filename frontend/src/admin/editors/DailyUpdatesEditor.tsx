@@ -5,7 +5,8 @@ import { useCms } from '@/cms/CmsProvider'
 import { useAdminConfirm } from '@/admin/confirm'
 import { AdminCard } from '@/components/admin/AdminCard'
 import { AdminSelect, AdminTextInput } from '@/components/admin/AdminInput'
-import { uploadAdminMedia } from '@/admin/uploadAdminMedia'
+import { uploadWithFeedback } from '@/admin/uploadWithFeedback'
+import { useAdminToast } from '@/admin/toast'
 import { AdminMediaThumb } from '@/components/admin/media/AdminMediaThumb'
 
 function normalize(items: DailyUpdate[]) {
@@ -23,6 +24,7 @@ function normalize(items: DailyUpdate[]) {
 export function DailyUpdatesEditor() {
   const { draft, updateDraft } = useCms()
   const { confirm } = useAdminConfirm()
+  const { push } = useAdminToast()
   const updates = useMemo(() => normalize(draft.dailyUpdates ?? []), [draft.dailyUpdates])
 
   const [type, setType] = useState<DailyUpdateType>('text')
@@ -84,7 +86,8 @@ export function DailyUpdatesEditor() {
                       if (!file) return
                       setBusy(true)
                       try {
-                        setMediaDataUrl(await uploadAdminMedia(file))
+                        const url = await uploadWithFeedback(file, push)
+                        if (url) setMediaDataUrl(url)
                       } finally {
                         setBusy(false)
                         e.target.value = ''

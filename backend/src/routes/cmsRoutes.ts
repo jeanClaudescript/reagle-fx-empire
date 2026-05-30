@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { requireAdminKey } from '../middleware/requireAdminKey.js'
+import { requireAdminAuth } from '../middleware/requireAdminAuth.js'
 import {
   getDraftCms,
   getPublishedCms,
@@ -20,7 +20,7 @@ cmsRoutes.get('/published', async (_req, res, next) => {
   }
 })
 
-cmsRoutes.get('/draft', requireAdminKey, async (_req, res, next) => {
+cmsRoutes.get('/draft', requireAdminAuth, async (_req, res, next) => {
   try {
     const data = await getDraftCms()
     res.json({ data })
@@ -29,7 +29,7 @@ cmsRoutes.get('/draft', requireAdminKey, async (_req, res, next) => {
   }
 })
 
-cmsRoutes.put('/draft', requireAdminKey, async (req, res, next) => {
+cmsRoutes.put('/draft', requireAdminAuth, async (req, res, next) => {
   try {
     const body = req.body as { data?: CMSData }
     if (!body?.data || typeof body.data !== 'object') {
@@ -42,7 +42,7 @@ cmsRoutes.put('/draft', requireAdminKey, async (req, res, next) => {
   }
 })
 
-cmsRoutes.post('/publish', requireAdminKey, async (_req, res, next) => {
+cmsRoutes.post('/publish', requireAdminAuth, async (_req, res, next) => {
   try {
     const data = await publishDraftCms()
     res.json({ data })
@@ -51,7 +51,7 @@ cmsRoutes.post('/publish', requireAdminKey, async (_req, res, next) => {
   }
 })
 
-cmsRoutes.post('/draft/reset', requireAdminKey, async (_req, res, next) => {
+cmsRoutes.post('/draft/reset', requireAdminAuth, async (_req, res, next) => {
   try {
     const data = await resetDraftFromPublished()
     res.json({ data })

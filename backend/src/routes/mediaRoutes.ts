@@ -1,6 +1,6 @@
 import { Router, type Request } from 'express'
 import multer from 'multer'
-import { requireAdminKey } from '../middleware/requireAdminKey.js'
+import { requireAdminAuth } from '../middleware/requireAdminAuth.js'
 import { isCloudinaryConfigured, uploadToCloudinary } from '../services/cloudinaryService.js'
 
 const upload = multer({
@@ -10,7 +10,7 @@ const upload = multer({
 
 export const mediaRoutes = Router()
 
-mediaRoutes.post('/upload', requireAdminKey, upload.single('file'), async (req, res, next) => {
+mediaRoutes.post('/upload', requireAdminAuth, upload.single('file'), async (req, res, next) => {
   try {
     if (!isCloudinaryConfigured()) {
       return res.status(503).json({

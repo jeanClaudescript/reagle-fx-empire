@@ -23,7 +23,7 @@ export function AdminLoginPanel({
   const [isFirstSetup, setIsFirstSetup] = useState(false)
 
   useEffect(() => {
-    setIsFirstSetup(!hasAdminAccounts())
+    void hasAdminAccounts().then((has) => setIsFirstSetup(!has))
     const saved = getRememberedAdminEmail()
     if (saved) setEmail(saved)
   }, [])

@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react'
-import { AlertTriangle, CheckCircle2, Database, Server } from 'lucide-react'
-import { healthApi, hasAdminApiKey, type HealthStatus } from '@/services/api'
+import { AlertTriangle, Database, RefreshCw, Server } from 'lucide-react'
+import { healthApi, hasAdminSession, type HealthStatus } from '@/services/api'
+import { useCms } from '@/cms/CmsProvider'
 
 export function AdminApiStatusBanner() {
+  const { syncError, isSyncing, refreshFromServer } = useCms()
   const [health, setHealth] = useState<HealthStatus | null>(null)
   const [fetchError, setFetchError] = useState(false)
-  const adminKey = hasAdminApiKey()
+  const signedIn = hasAdminSession()
 
   useEffect(() => {
     let cancelled = false
@@ -34,22 +36,44 @@ export function AdminApiStatusBanner() {
   }, [])
 
   const dbBad = health?.db === 'connection_failed' || health?.db === 'not_configured'
-  const show =
-    !adminKey || fetchError || dbBad || (health && !health.adminKeyConfigured)
+  const show = !signedIn || fetchError || dbBad || Boolean(syncError)
 
-  if (!show) return null
+  if (!show && !isSyncing) return null
 
   return (
     <div
       className="mb-4 flex flex-col gap-2 rounded-2xl border border-amber-500/35 bg-amber-500/10 px-4 py-3 text-sm text-amber-100"
       role="status"
     >
-      {!adminKey && (
+      {isSyncing && (
+        <p className="flex items-center gap-2 text-emerald-200">
+          <RefreshCw className="h-4 w-4 animate-spin" />
+          Syncing CMS with server…
+        </p>
+      )}
+      {syncError && (
         <p className="flex items-start gap-2">
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
           <span>
-            <strong>VITE_ADMIN_API_KEY</strong> is not set — CMS save, students, and payments will
-            fail until you add it in your frontend env (must match backend ADMIN_API_KEY).
+            CMS sync: <strong>{syncError}</strong>
+            {signedIn && (
+              <button
+                type="button"
+                className="ml-2 underline"
+                onClick={() => void refreshFromServer()}
+              >
+                Retry
+              </button>
+            )}
+          </span>
+        </p>
+      )}
+      {!signedIn && (
+        <p className="flex items-start gap-2">
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+          <span>
+            Sign in at <strong>/admin-login</strong> — admin actions use your database role, not an API
+            key.
           </span>
         </p>
       )}
@@ -57,8 +81,8 @@ export function AdminApiStatusBanner() {
         <p className="flex items-start gap-2">
           <Server className="mt-0.5 h-4 w-4 shrink-0" />
           <span>
-            Cannot reach the API at <code className="text-xs">VITE_API_URL</code>. Check that the
-            backend is running and CORS allows this origin.
+            Cannot reach the API at <code className="text-xs">VITE_API_URL</code>. Check backend URL and
+            CORS.
           </span>
         </p>
       )}
@@ -67,14 +91,8 @@ export function AdminApiStatusBanner() {
           <Database className="mt-0.5 h-4 w-4 shrink-0" />
           <span>
             Database: <strong>{health.db}</strong>
-            {health.dbError ? ` — ${health.dbError}` : ''}. CMS and payments need MongoDB.
+            {health.dbError ? ` — ${health.dbError}` : ''}. CMS needs MongoDB.
           </span>
-        </p>
-      )}
-      {health && !health.adminKeyConfigured && adminKey && (
-        <p className="flex items-start gap-2">
-          <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" />
-          <span>API is up; backend has no ADMIN_API_KEY (open mode).</span>
         </p>
       )}
     </div>

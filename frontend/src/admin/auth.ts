@@ -7,7 +7,7 @@ export {
   loginAdmin,
   loginAdminMock,
   logoutAdmin,
-  bootstrapAdmin,
   addAdminAccount,
   removeAdminAccount,
+  type AdminAccount,
 } from './adminAccounts.js'

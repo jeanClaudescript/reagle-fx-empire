@@ -5,6 +5,7 @@ import {
   getCurrentAdminEmail,
   listAdminAccounts,
   removeAdminAccount,
+  type AdminAccount,
 } from '@/admin/auth'
 import { AdminCard } from '@/components/admin/AdminCard'
 import { useAdminToast } from '@/admin/toast'
@@ -13,18 +14,29 @@ import { useAdminConfirm } from '@/admin/confirm'
 export function AdminsEditor() {
   const { push } = useAdminToast()
   const { confirm } = useAdminConfirm()
-  const [admins, setAdmins] = useState(() => listAdminAccounts())
+  const [admins, setAdmins] = useState<AdminAccount[]>([])
   const [email, setEmail] = useState('')
   const [name, setName] = useState('')
   const [password, setPassword] = useState('')
   const [busy, setBusy] = useState(false)
+  const [loading, setLoading] = useState(true)
 
   const currentEmail = getCurrentAdminEmail()
 
-  const refresh = () => setAdmins(listAdminAccounts())
+  const refresh = async () => {
+    setLoading(true)
+    try {
+      setAdmins(await listAdminAccounts())
+    } catch {
+      setAdmins([])
+      push('Could not load admin accounts', 'error')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   useEffect(() => {
-    refresh()
+    void refresh()
   }, [])
 
   const onAdd = async () => {
@@ -34,8 +46,8 @@ export function AdminsEditor() {
       setEmail('')
       setName('')
       setPassword('')
-      refresh()
-      push('Admin account added. Share the password securely.', 'success')
+      await refresh()
+      push('Admin added — share the password securely.', 'success')
     } catch (err) {
       push(err instanceof Error ? err.message : 'Could not add admin', 'error')
     } finally {
@@ -52,8 +64,8 @@ export function AdminsEditor() {
     })
     if (!ok) return
     try {
-      removeAdminAccount(id)
-      refresh()
+      await removeAdminAccount(id)
+      await refresh()
       push('Admin removed', 'success')
     } catch (err) {
       push(err instanceof Error ? err.message : 'Could not remove', 'error')
@@ -69,42 +81,46 @@ export function AdminsEditor() {
             <h3 className="font-display text-lg font-bold text-theme-primary">Admin accounts</h3>
           </div>
           <p className="admin-editor-card-intro mt-2">
-            The first person to sign in creates the main admin. Add coaches or staff here — each gets
-            their own email and password.
+            Admins are stored in MongoDB with role <strong>admin</strong> (students use role{' '}
+            <strong>student</strong>). First sign-in creates the main admin.
           </p>
 
-          <ul className="mt-4 flex flex-col gap-2">
-            {admins.map((a) => (
-              <li
-                key={a.id}
-                className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-theme bg-theme-surface/60 px-3 py-2.5"
-              >
-                <div>
-                  <p className="text-sm font-semibold text-theme-primary">
-                    {a.name || a.email}
-                    {a.isPrimary ? (
-                      <span className="ml-2 rounded-full bg-theme-accent/15 px-2 py-0.5 text-[10px] font-bold uppercase text-theme-accent">
-                        Main
-                      </span>
-                    ) : null}
-                  </p>
-                  <p className="text-xs text-theme-muted">{a.email}</p>
-                </div>
-                {a.email !== currentEmail ? (
-                  <button
-                    type="button"
-                    className="admin-btn admin-btn--danger text-xs"
-                    onClick={() => void onRemove(a.id, a.email)}
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                    Remove
-                  </button>
-                ) : (
-                  <span className="text-xs text-theme-muted">You</span>
-                )}
-              </li>
-            ))}
-          </ul>
+          {loading ? (
+            <p className="mt-4 text-sm text-theme-muted">Loading…</p>
+          ) : (
+            <ul className="mt-4 flex flex-col gap-2">
+              {admins.map((a) => (
+                <li
+                  key={a.id}
+                  className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-theme bg-theme-surface/60 px-3 py-2.5"
+                >
+                  <div>
+                    <p className="text-sm font-semibold text-theme-primary">
+                      {a.name || a.email}
+                      {a.isPrimary ? (
+                        <span className="ml-2 rounded-full bg-theme-accent/15 px-2 py-0.5 text-[10px] font-bold uppercase text-theme-accent">
+                          Main
+                        </span>
+                      ) : null}
+                    </p>
+                    <p className="text-xs text-theme-muted">{a.email}</p>
+                  </div>
+                  {a.email !== currentEmail ? (
+                    <button
+                      type="button"
+                      className="admin-btn admin-btn--danger text-xs"
+                      onClick={() => void onRemove(a.id, a.email)}
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                      Remove
+                    </button>
+                  ) : (
+                    <span className="text-xs text-theme-muted">You</span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </AdminCard>
 

@@ -29,7 +29,7 @@ export function Lessons() {
   if (!isSectionEnabled(active, 'lessons')) return null
 
   return (
-    <section id="lessons" className="relative py-20 md:py-28">
+    <section id="lessons" className="relative section-pad">
       <div className="glow-orb -left-32 bottom-0 h-80 w-80 bg-empire-blue/15" />
       <div className="section-container relative">
         <SectionHeading

@@ -241,7 +241,7 @@ function AdminDashboardInner() {
       variant: 'danger',
     })
     if (!ok) return
-    logoutAdmin()
+    await logoutAdmin()
     window.location.pathname = '/admin-login'
   }, [confirm])
 

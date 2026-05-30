@@ -1,7 +1,8 @@
 import { useState, type ReactNode } from 'react'
 import { motion } from 'framer-motion'
 import { Upload } from 'lucide-react'
-import { uploadAdminMedia } from '@/admin/uploadAdminMedia'
+import { useAdminToast } from '@/admin/toast'
+import { uploadWithFeedback } from '@/admin/uploadWithFeedback'
 
 interface MediaUploaderProps {
   accept?: string
@@ -22,6 +23,7 @@ export function MediaUploader({
   urlLabel = 'Or paste image/video URL',
   children,
 }: MediaUploaderProps) {
+  const { push } = useAdminToast()
   const [busy, setBusy] = useState(false)
   const [urlValue, setUrlValue] = useState('')
 
@@ -57,8 +59,8 @@ export function MediaUploader({
             if (!file) return
             setBusy(true)
             try {
-              const mediaUrl = await uploadAdminMedia(file)
-              await onUpload(mediaUrl, file)
+              const mediaUrl = await uploadWithFeedback(file, push)
+              if (mediaUrl) await onUpload(mediaUrl, file)
             } finally {
               setBusy(false)
               e.target.value = ''
@@ -95,8 +97,12 @@ export function MediaUploader({
               onClick={async () => {
                 const value = urlValue.trim()
                 if (!value) return
-                await onUrlSubmit(value)
-                setUrlValue('')
+                try {
+                  await onUrlSubmit(value)
+                  setUrlValue('')
+                } catch (err) {
+                  push(err instanceof Error ? err.message : 'Could not use URL', 'error')
+                }
               }}
             >
               Use URL
