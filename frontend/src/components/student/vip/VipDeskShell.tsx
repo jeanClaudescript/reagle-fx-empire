@@ -34,7 +34,9 @@ import { FibonacciCalculator } from '@/components/forex/tools/FibonacciCalculato
 import { TradeJournal } from '@/components/forex/tools/TradeJournal'
 import { PaperTradingDesk } from '@/components/forex/tools/PaperTradingDesk'
 import { VipOverviewPanel } from '@/components/student/vip/VipOverviewPanel'
+import { VipBooksPanel } from '@/components/student/vip/VipBooksPanel'
 import { VipClassroomPanel } from '@/components/student/vip/VipClassroomPanel'
+import { ForexNews } from '@/components/forex/tools/ForexNews'
 import { VipCommunityChat } from '@/components/student/vip/VipCommunityChat'
 import { VipCoachChat } from '@/components/student/vip/VipCoachChat'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
@@ -53,6 +55,8 @@ export type VipPanelId =
   | 'chart'
   | 'session'
   | 'calendar'
+  | 'news'
+  | 'books'
   | 'position'
   | 'rr'
   | 'pip'
@@ -126,6 +130,8 @@ export function VipDeskShell() {
         { id: 'chart', label: t.tools.chartTitle },
         { id: 'session', label: t.tools.sessionTitle },
         { id: 'calendar', label: t.tools.calendarTitle },
+        { id: 'news', label: t.tools.newsTitle },
+        { id: 'books', label: t.books.navTitle },
       ],
     },
     {
@@ -240,6 +246,22 @@ export function VipDeskShell() {
           <PanelWrap title={t.tools.calendarTitle}>
             <ToolCard>
               <EconomicCalendar />
+            </ToolCard>
+          </PanelWrap>
+        )
+      case 'news':
+        return (
+          <PanelWrap title={t.tools.newsTitle}>
+            <ToolCard>
+              <ForexNews />
+            </ToolCard>
+          </PanelWrap>
+        )
+      case 'books':
+        return (
+          <PanelWrap title={t.books.title}>
+            <ToolCard>
+              <VipBooksPanel />
             </ToolCard>
           </PanelWrap>
         )

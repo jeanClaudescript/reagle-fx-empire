@@ -116,6 +116,8 @@ interface LiveForexChartProps {
   showHud?: boolean
   /** Skip mount animation — use in live room to prevent layout shift */
   staticLayout?: boolean
+  /** e.g. EURUSD or EUR/USD */
+  symbol?: string
 }
 
 export function LiveForexChart({
@@ -123,11 +125,12 @@ export function LiveForexChart({
   compact = false,
   showHud = true,
   staticLayout = false,
+  symbol = 'EURUSD',
 }: LiveForexChartProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const { isDark } = useTheme()
-  const { candles, live, formProgress, pair, lastPrice, change, isBullish } = useLiveCandles()
+  const { candles, live, formProgress, pair, lastPrice, change, isBullish } = useLiveCandles(symbol)
 
   useEffect(() => {
     const canvas = canvasRef.current

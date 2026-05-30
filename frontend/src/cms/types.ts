@@ -82,6 +82,19 @@ export interface TeachingVideoItem {
   order: number
 }
 
+/** PDF/ebook for paid VIP library — URLs from Cloudinary, not base64 */
+export interface VipBook {
+  id: string
+  title: string
+  description?: string
+  coverUrl?: string
+  fileUrl: string
+  fileName?: string
+  enabled: boolean
+  order: number
+  createdAt: string
+}
+
 export type CMSSectionId =
   | 'results'
   | 'videos'
@@ -89,6 +102,7 @@ export type CMSSectionId =
   | 'certificates'
   | 'lessons'
   | 'dailyUpdates'
+  | 'books'
 
 export interface CMSSectionVisibility {
   results: boolean
@@ -97,6 +111,7 @@ export interface CMSSectionVisibility {
   certificates: boolean
   lessons: boolean
   dailyUpdates: boolean
+  books: boolean
 }
 
 export interface CMSSettings {
@@ -112,6 +127,7 @@ export interface CMSData {
   provenResults: ProvenResultsContent
   mastery: MasteryMediaContent
   teachingVideos: TeachingVideoItem[]
+  vipBooks: VipBook[]
   textOverridesByLang: Partial<Record<Language, DeepPartial<Translations>>>
   settings: CMSSettings
 }

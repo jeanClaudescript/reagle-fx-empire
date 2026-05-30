@@ -19,6 +19,7 @@ const SECTION_LABELS: Record<CMSSectionId, string> = {
   certificates: 'Certificates (carousel in About)',
   lessons: 'What They Master (Lessons)',
   dailyUpdates: 'Daily updates (story strip in hero)',
+  books: 'VIP books (paid library)',
 }
 
 export function SettingsEditor() {

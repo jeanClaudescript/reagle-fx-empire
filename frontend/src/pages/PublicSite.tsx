@@ -6,6 +6,7 @@ import { FloatingWhatsApp } from '@/components/layout/FloatingWhatsApp'
 import { StickyMobileCTA } from '@/components/layout/StickyMobileCTA'
 import { Hero } from '@/components/sections/Hero'
 import { StudentPaidZone } from '@/components/sections/StudentPaidZone'
+import { VipBooksSection } from '@/components/sections/VipBooksSection'
 import { PaidSiteMessages } from '@/components/student/PaidSiteMessages'
 
 const About = lazy(() => import('@/components/sections/About').then((m) => ({ default: m.About })))
@@ -53,6 +54,7 @@ export function PublicSite({
           <Community />
         </Suspense>
         <StudentPaidZone />
+        <VipBooksSection />
         <PaidSiteMessages />
       </main>
       <Footer />

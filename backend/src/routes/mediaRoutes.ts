@@ -25,11 +25,13 @@ mediaRoutes.post('/upload', requireAdminAuth, upload.single('file'), async (req,
 
     const isVideo = file.mimetype.startsWith('video/')
     const isImage = file.mimetype.startsWith('image/')
-    if (!isVideo && !isImage) {
-      return res.status(400).json({ error: 'Only image and video files are supported' })
+    const isPdf = file.mimetype === 'application/pdf'
+    if (!isVideo && !isImage && !isPdf) {
+      return res.status(400).json({ error: 'Only image, video, and PDF files are supported' })
     }
 
-    const result = await uploadToCloudinary(file.buffer, file.mimetype, isVideo ? 'video' : 'image')
+    const resourceType = isPdf ? 'raw' : isVideo ? 'video' : 'image'
+    const result = await uploadToCloudinary(file.buffer, file.mimetype, resourceType)
     return res.status(201).json({
       ok: true,
       url: result.url,

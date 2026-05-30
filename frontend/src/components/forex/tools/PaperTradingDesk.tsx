@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { TrendingDown, TrendingUp } from 'lucide-react'
 import { useLanguage } from '@/context/LanguageContext'
 import { useStudentAccess } from '@/context/StudentAccessContext'
+import { useLivePrice } from '@/hooks/useLivePrice'
 
 type Position = {
   id: string
@@ -23,23 +24,22 @@ function loadAccount() {
   return { balance: 10000, positions: [] as Position[] }
 }
 
-export function PaperTradingDesk({ pair = 'EUR/USD', livePrice = 1.0842 }: { pair?: string; livePrice?: number }) {
+export function PaperTradingDesk({ pair = 'EUR/USD' }: { pair?: string; livePrice?: number }) {
   const { t } = useLanguage()
   const { isPaid } = useStudentAccess()
+  const { price: liveMid } = useLivePrice(pair)
   const [balance, setBalance] = useState(10000)
   const [positions, setPositions] = useState<Position[]>([])
   const [lots, setLots] = useState(0.1)
-  const [price, setPrice] = useState(livePrice)
+
+  const price = liveMid ?? 0
+  const priceDecimals = pair.includes('JPY') ? 3 : 5
 
   useEffect(() => {
     const acc = loadAccount()
     setBalance(acc.balance)
     setPositions(acc.positions)
   }, [])
-
-  useEffect(() => {
-    setPrice(livePrice)
-  }, [livePrice])
 
   useEffect(() => {
     localStorage.setItem(STORAGE, JSON.stringify({ balance, positions }))
@@ -53,7 +53,7 @@ export function PaperTradingDesk({ pair = 'EUR/USD', livePrice = 1.0842 }: { pai
   }, [positions, price])
 
   const open = (side: 'buy' | 'sell') => {
-    if (!isPaid) return
+    if (!isPaid || price <= 0) return
     setPositions((prev) => [
       ...prev,
       { id: crypto.randomUUID(), side, lots, entry: price, pair },
@@ -98,7 +98,7 @@ export function PaperTradingDesk({ pair = 'EUR/USD', livePrice = 1.0842 }: { pai
       </div>
 
       <p className="mt-3 text-center font-mono text-lg font-bold text-theme-primary">
-        {pair} @ {price.toFixed(5)}
+        {pair} @ {price > 0 ? price.toFixed(priceDecimals) : '…'}
       </p>
 
       <label className="forex-field mt-3">

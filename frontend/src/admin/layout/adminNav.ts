@@ -1,6 +1,7 @@
 import type { LucideIcon } from 'lucide-react'
 import {
   Award,
+  BookOpen,
   CreditCard,
   GraduationCap,
   LayoutDashboard,
@@ -27,6 +28,7 @@ export type AdminTab =
   | 'proven'
   | 'mastery'
   | 'videos'
+  | 'books'
   | 'texts'
   | 'students'
   | 'payments'
@@ -55,6 +57,7 @@ export const ADMIN_NAV: AdminNavItem[] = [
   { id: 'proven', label: 'Proven results', icon: TrendingUp, group: 'website' },
   { id: 'mastery', label: 'Lessons', icon: GraduationCap, group: 'website' },
   { id: 'videos', label: 'Videos', icon: Play, group: 'website' },
+  { id: 'books', label: 'VIP books', icon: BookOpen, group: 'website' },
   { id: 'texts', label: 'Texts', icon: Type, group: 'website' },
   { id: 'students', label: 'Students', icon: Users, group: 'operations' },
   { id: 'payments', label: 'Payments', icon: CreditCard, group: 'operations' },

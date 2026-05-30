@@ -29,6 +29,7 @@ function normalizeCmsData(data: CMSData): CMSData {
     upcomingBanners: [...(data.upcomingBanners ?? [])].sort((a, b) => a.order - b.order),
     certificates: [...(data.certificates ?? [])].sort((a, b) => a.order - b.order),
     teachingVideos: [...(data.teachingVideos ?? [])].sort((a, b) => a.order - b.order),
+    vipBooks: [...(data.vipBooks ?? [])].sort((a, b) => a.order - b.order),
   }
 }
 

@@ -12,6 +12,7 @@ import { authRoutes } from './routes/authRoutes.js'
 import { liveRoutes } from './routes/liveRoutes.js'
 import { classroomRoutes } from './routes/classroomRoutes.js'
 import { deskChatRoutes } from './routes/deskChatRoutes.js'
+import { marketRoutes } from './routes/marketRoutes.js'
 import { initClassroomSocket } from './socket/classroomSocket.js'
 import { configureCloudinary, isCloudinaryConfigured } from './services/cloudinaryService.js'
 
@@ -55,6 +56,7 @@ app.get('/api/health', (_req, res) => {
 })
 
 app.use('/api/media', mediaRoutes)
+app.use('/api/market', marketRoutes)
 
 app.use('/api/cms', (req, res, next) => {
   if (!dbReady) {

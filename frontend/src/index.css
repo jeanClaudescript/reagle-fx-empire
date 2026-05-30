@@ -1831,6 +1831,30 @@
     @apply pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-amber-400/15 blur-3xl;
   }
 
+  .vip-books-grid {
+    @apply grid gap-4 sm:grid-cols-2 lg:grid-cols-3;
+  }
+
+  .vip-book-card {
+    @apply flex flex-col overflow-hidden rounded-2xl border border-theme bg-theme-surface/50;
+  }
+
+  .vip-book-card__cover {
+    @apply h-40 w-full object-cover;
+  }
+
+  .vip-book-card__cover--placeholder {
+    @apply flex items-center justify-center bg-theme-elevated/40;
+  }
+
+  .vip-book-card__body {
+    @apply flex flex-1 flex-col p-4;
+  }
+
+  .vip-books-empty {
+    @apply flex flex-col items-center justify-center rounded-2xl border border-dashed border-theme py-12 text-center;
+  }
+
   .section-premium {
     @apply relative overflow-hidden;
   }

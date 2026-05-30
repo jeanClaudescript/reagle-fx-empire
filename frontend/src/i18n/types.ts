@@ -115,6 +115,15 @@ export interface Translations {
     calendarTitle: string
     calendarDesc: string
     calendarDemo: string
+    calendarLoading: string
+    calendarEmpty: string
+    newsTitle: string
+    newsDesc: string
+    newsLoading: string
+    newsEmpty: string
+    liveFeed: string
+    watchEmpty: string
+    updatedAt: string
     signalBoardTitle: string
     signalBoardDesc: string
     copySignal: string
@@ -442,6 +451,16 @@ export interface Translations {
     checkRisk: string
     checkNews: string
     checkPlan: string
+  }
+  books: {
+    label: string
+    title: string
+    subtitle: string
+    navTitle: string
+    read: string
+    download: string
+    empty: string
+    hidden: string
   }
   classroom: {
     navTitle: string

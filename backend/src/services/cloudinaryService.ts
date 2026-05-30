@@ -18,7 +18,7 @@ export function configureCloudinary() {
 export async function uploadToCloudinary(
   buffer: Buffer,
   mimeType: string,
-  resourceType: 'image' | 'video',
+  resourceType: 'image' | 'video' | 'raw',
 ) {
   if (!isCloudinaryConfigured()) {
     throw new Error('Cloudinary is not configured on the server')

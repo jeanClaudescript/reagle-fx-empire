@@ -1,6 +1,7 @@
 import type { LucideIcon } from 'lucide-react'
 import {
   Award,
+  BookOpen,
   CreditCard,
   GraduationCap,
   Megaphone,
@@ -96,6 +97,14 @@ export const ADMIN_HUB_CARDS: HubCard[] = [
     accent: 'rose',
   },
   {
+    tab: 'books',
+    title: 'VIP books',
+    description: 'PDF guides for paid members',
+    icon: BookOpen,
+    category: 'website',
+    accent: 'amber',
+  },
+  {
     tab: 'texts',
     title: 'Site texts',
     description: 'Copy overrides per language',
@@ -178,6 +187,7 @@ export function isContentSectionTab(tab: AdminTab): tab is ContentSectionId {
     'proven',
     'mastery',
     'videos',
+    'books',
     'texts',
     'settings',
   ].includes(tab)

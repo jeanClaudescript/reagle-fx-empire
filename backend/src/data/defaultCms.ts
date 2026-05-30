@@ -33,6 +33,7 @@ export const DEFAULT_CMS_DATA: CMSData = {
     { id: 'tv-5', reelKey: 'reel5', label: 'Reel 5', order: 5 },
     { id: 'tv-6', reelKey: 'reel6', label: 'Reel 6', order: 6 },
   ],
+  vipBooks: [],
   textOverridesByLang: {},
   settings: {
     sections: {
@@ -42,6 +43,7 @@ export const DEFAULT_CMS_DATA: CMSData = {
       certificates: true,
       lessons: true,
       dailyUpdates: true,
+      books: true,
     },
   },
 }

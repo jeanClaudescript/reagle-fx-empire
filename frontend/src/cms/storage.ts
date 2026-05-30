@@ -109,6 +109,7 @@ export function ensureMediaOrders(data: CMSData): CMSData {
       media: [...data.provenResults.media].sort((a, b) => a.order - b.order),
     },
     teachingVideos: [...data.teachingVideos].sort((a, b) => a.order - b.order),
+    vipBooks: [...(data.vipBooks ?? [])].sort((a, b) => a.order - b.order),
   }
 }
 

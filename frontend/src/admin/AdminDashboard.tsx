@@ -11,6 +11,7 @@ import { CertificatesEditor } from '@/admin/editors/CertificatesEditor'
 import { ProvenResultsEditor } from '@/admin/editors/ProvenResultsEditor'
 import { MasteryEditor } from '@/admin/editors/MasteryEditor'
 import { TeachingVideosEditor } from '@/admin/editors/TeachingVideosEditor'
+import { VipBooksEditor } from '@/admin/editors/VipBooksEditor'
 import { TextsEditor } from '@/admin/editors/TextsEditor'
 import { SettingsEditor } from '@/admin/editors/SettingsEditor'
 import { StudentsManageEditor } from '@/admin/editors/StudentsManageEditor'
@@ -232,6 +233,7 @@ function AdminDashboardInner() {
       proven: <ProvenResultsEditor />,
       mastery: <MasteryEditor />,
       videos: <TeachingVideosEditor />,
+      books: <VipBooksEditor />,
       texts: <TextsEditor />,
       settings: <SettingsEditor />,
     }

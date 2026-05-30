@@ -29,4 +29,6 @@ export const env = {
     .filter(Boolean),
   turnUsername: process.env.TURN_USERNAME?.trim() || '',
   turnCredential: process.env.TURN_CREDENTIAL?.trim() || '',
+  /** Optional — enables live candles, gold quotes, forex news (free tier at finnhub.io) */
+  finnhubApiKey: process.env.FINNHUB_API_KEY?.trim() || '',
 }

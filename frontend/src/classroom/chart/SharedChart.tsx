@@ -12,6 +12,7 @@ import {
 import { generateCandles, timeframeToMinutes } from './generateCandles'
 import { useClassroomStore } from '../store/useClassroomStore'
 import { emitChartRange, emitCursorMove } from '../socket/classroomSocket'
+import { marketApi } from '@/services/api'
 
 type Props = {
   readOnly?: boolean
@@ -81,10 +82,37 @@ export function SharedChart({ readOnly = false, onChartReady }: Props) {
     const chart = chartRef.current
     if (!series || !chart) return
 
-    const minutes = timeframeToMinutes(timeframe)
-    const data = generateCandles(symbol, 300, minutes) as CandlestickData<UTCTimestamp>[]
-    series.setData(data)
-    chart.timeScale().fitContent()
+    let cancelled = false
+
+    const load = async () => {
+      const minutes = timeframeToMinutes(timeframe)
+      const resolution = minutes >= 1440 ? 'D' : String(minutes)
+      try {
+        const res = await marketApi.candles(symbol, resolution, 300)
+        if (cancelled || res.data.length === 0) throw new Error('empty')
+        const data = res.data.map((c) => ({
+          time: c.time as UTCTimestamp,
+          open: c.open,
+          high: c.high,
+          low: c.low,
+          close: c.close,
+        }))
+        series.setData(data)
+        chart.timeScale().fitContent()
+      } catch {
+        if (cancelled) return
+        const data = generateCandles(symbol, 300, minutes) as CandlestickData<UTCTimestamp>[]
+        series.setData(data)
+        chart.timeScale().fitContent()
+      }
+    }
+
+    void load()
+    const poll = window.setInterval(() => void load(), 60_000)
+    return () => {
+      cancelled = true
+      window.clearInterval(poll)
+    }
   }, [symbol, timeframe])
 
   useEffect(() => {

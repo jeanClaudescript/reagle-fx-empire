@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { marketApi, type MarketCandle } from '@/services/api'
+import { pairToSymbol } from '@/hooks/useLivePrice'
 
 export interface OHLC {
   open: number
@@ -7,45 +9,38 @@ export interface OHLC {
   close: number
 }
 
-const BASE_PRICE = 1.0842
-const VOLATILITY = 0.00042
 const TICK_MS = 80
-const CANDLE_MS = 2800
+const CANDLE_MS = 60_000
 const MAX_CANDLES = 48
 
-function createCandle(open: number): OHLC {
-  const bias = (Math.random() - 0.46) * VOLATILITY * 2
-  const close = open + bias
-  const high = Math.max(open, close) + Math.random() * VOLATILITY * 0.6
-  const low = Math.min(open, close) - Math.random() * VOLATILITY * 0.6
-  return { open, high, low, close }
+function candleToOhlc(c: MarketCandle): OHLC {
+  return { open: c.open, high: c.high, low: c.low, close: c.close }
 }
 
-export function useLiveCandles() {
-  const [candles, setCandles] = useState<OHLC[]>(() => {
-    const initial: OHLC[] = []
-    let price = BASE_PRICE
-    for (let i = 0; i < 24; i++) {
-      const c = createCandle(price)
-      initial.push(c)
-      price = c.close
-    }
-    return initial
-  })
+function displayPair(symbol: string) {
+  const s = symbol.replace('/', '').toUpperCase()
+  if (s.length === 6) return `${s.slice(0, 3)}/${s.slice(3)}`
+  return symbol
+}
 
-  const [live, setLive] = useState<OHLC>(() => {
-    const last = candles[candles.length - 1]
-    return createCandle(last?.close ?? BASE_PRICE)
-  })
+export function useLiveCandles(symbol = 'EURUSD') {
+  const normalized = pairToSymbol(symbol)
+  const pair = displayPair(normalized)
 
+  const [candles, setCandles] = useState<OHLC[]>([])
+  const [live, setLive] = useState<OHLC>({ open: 0, high: 0, low: 0, close: 0 })
   const [formProgress, setFormProgress] = useState(0)
+  const [ready, setReady] = useState(false)
+
   const liveRef = useRef(live)
   liveRef.current = live
 
-  const tick = useCallback(() => {
+  const applyPrice = useCallback((mid: number) => {
     setLive((prev) => {
-      const delta = (Math.random() - 0.5) * VOLATILITY * 0.22
-      const close = prev.close + delta
+      if (prev.close === 0) {
+        return { open: mid, close: mid, high: mid, low: mid }
+      }
+      const close = mid
       return {
         open: prev.open,
         close,
@@ -56,13 +51,61 @@ export function useLiveCandles() {
   }, [])
 
   useEffect(() => {
-    const tickId = window.setInterval(tick, TICK_MS)
-    return () => clearInterval(tickId)
-  }, [tick])
+    let cancelled = false
+
+    const loadCandles = async () => {
+      try {
+        const res = await marketApi.candles(normalized, '1', MAX_CANDLES)
+        if (cancelled || res.data.length === 0) return
+        const historical = res.data.slice(0, -1).map(candleToOhlc)
+        const last = res.data[res.data.length - 1]
+        setCandles(historical.length ? historical : [candleToOhlc(last)])
+        setLive(candleToOhlc(last))
+        setReady(true)
+      } catch {
+        /* retry on next poll */
+      }
+    }
+
+    void loadCandles()
+    const candlePoll = window.setInterval(() => void loadCandles(), 60_000)
+    return () => {
+      cancelled = true
+      window.clearInterval(candlePoll)
+    }
+  }, [normalized])
 
   useEffect(() => {
-    let candleStart = Date.now()
+    let cancelled = false
 
+    const pollPrice = async () => {
+      try {
+        const res = await marketApi.price(normalized)
+        if (!cancelled) applyPrice(res.data.mid)
+      } catch {
+        /* ignore */
+      }
+    }
+
+    void pollPrice()
+    const pricePoll = window.setInterval(() => void pollPrice(), 5_000)
+    return () => {
+      cancelled = true
+      window.clearInterval(pricePoll)
+    }
+  }, [normalized, applyPrice])
+
+  useEffect(() => {
+    if (!ready) return
+
+    const tickId = window.setInterval(() => {
+      setLive((prev) => {
+        if (prev.close === 0) return prev
+        return { ...prev }
+      })
+    }, TICK_MS)
+
+    let candleStart = Date.now()
     const progressId = window.setInterval(() => {
       const p = Math.min(1, (Date.now() - candleStart) / (CANDLE_MS * 0.9))
       setFormProgress(p)
@@ -70,27 +113,33 @@ export function useLiveCandles() {
 
     const candleId = window.setInterval(() => {
       const finalized = { ...liveRef.current }
+      if (finalized.close === 0) return
 
       setCandles((prev) => {
         const next = [...prev, finalized]
         return next.length > MAX_CANDLES ? next.slice(-MAX_CANDLES) : next
       })
 
-      setLive(createCandle(finalized.close))
+      setLive({
+        open: finalized.close,
+        close: finalized.close,
+        high: finalized.close,
+        low: finalized.close,
+      })
       candleStart = Date.now()
       setFormProgress(0)
     }, CANDLE_MS)
 
     return () => {
-      clearInterval(progressId)
-      clearInterval(candleId)
+      window.clearInterval(tickId)
+      window.clearInterval(progressId)
+      window.clearInterval(candleId)
     }
-  }, [])
+  }, [ready])
 
-  const pair = 'EUR/USD'
-  const lastPrice = live.close
-  const change = ((live.close - live.open) / live.open) * 100
+  const lastPrice = live.close || 0
+  const change = live.open ? ((live.close - live.open) / live.open) * 100 : 0
   const isBullish = live.close >= live.open
 
-  return { candles, live, formProgress, pair, lastPrice, change, isBullish }
+  return { candles, live, formProgress, pair, lastPrice, change, isBullish, ready }
 }

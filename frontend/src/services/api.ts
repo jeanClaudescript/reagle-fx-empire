@@ -688,3 +688,52 @@ export const messageApi = {
   list: () => apiFetch<{ data: ApiMessage[] }>('/api/messages', { admin: true }),
   markRead: (id: string) => apiFetch<{ ok: true }>(`/api/messages/${id}/read`, { method: 'POST', admin: true }),
 }
+
+export type MarketQuote = {
+  pair: string
+  bid: number
+  ask: number
+  spread: number
+  mid: number
+  changePct?: number
+  updatedAt: string
+}
+
+export type MarketCandle = {
+  time: number
+  open: number
+  high: number
+  low: number
+  close: number
+}
+
+export type EconomicEvent = {
+  id: string
+  time: string
+  currency: string
+  title: string
+  impact: 'low' | 'medium' | 'high'
+  date: string
+}
+
+export type ForexNewsItem = {
+  id: string
+  headline: string
+  source: string
+  url: string
+  datetime: number
+}
+
+export const marketApi = {
+  quotes: () => apiFetch<{ data: MarketQuote[]; at: string }>('/api/market/quotes'),
+  candles: (symbol = 'EURUSD', interval = '1', limit = 60) =>
+    apiFetch<{ data: MarketCandle[]; symbol: string; at: string }>(
+      `/api/market/candles?symbol=${encodeURIComponent(symbol)}&interval=${encodeURIComponent(interval)}&limit=${limit}`,
+    ),
+  calendar: () => apiFetch<{ data: EconomicEvent[]; at: string }>('/api/market/calendar'),
+  news: () => apiFetch<{ data: ForexNewsItem[]; at: string }>('/api/market/news'),
+  price: (symbol = 'EURUSD') =>
+    apiFetch<{ data: { symbol: string; mid: number }; at: string }>(
+      `/api/market/price?symbol=${encodeURIComponent(symbol)}`,
+    ),
+}

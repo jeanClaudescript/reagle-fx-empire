@@ -32,6 +32,9 @@ export function mergeSectionIntoPublished(
     case 'videos':
       base.teachingVideos = draft.teachingVideos
       break
+    case 'books':
+      base.vipBooks = draft.vipBooks
+      break
     case 'texts':
       base.textOverridesByLang = draft.textOverridesByLang
       break

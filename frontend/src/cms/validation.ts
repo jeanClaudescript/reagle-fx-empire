@@ -129,6 +129,26 @@ export function validateSection(section: ContentSectionId, data: CMSData): Valid
     }
   }
 
+  if (section === 'books') {
+    for (const book of data.vipBooks ?? []) {
+      if (!book.enabled) continue
+      if (!isNonEmpty(book.title)) {
+        issues.push({
+          section,
+          field: `book:${book.id}.title`,
+          message: 'Enabled book needs a title',
+        })
+      }
+      if (!isNonEmpty(book.fileUrl)) {
+        issues.push({
+          section,
+          field: `book:${book.id}.file`,
+          message: `Book "${book.title || book.id}" needs a PDF file`,
+        })
+      }
+    }
+  }
+
   return issues
 }
 
@@ -140,6 +160,7 @@ export const CONTENT_SECTIONS: ContentSectionId[] = [
   'proven',
   'mastery',
   'videos',
+  'books',
   'texts',
   'settings',
 ]
@@ -168,6 +189,8 @@ export function pickSectionData(section: ContentSectionId, data: CMSData): unkno
       return data.mastery
     case 'videos':
       return data.teachingVideos
+    case 'books':
+      return data.vipBooks
     case 'texts':
       return data.textOverridesByLang
     case 'settings':

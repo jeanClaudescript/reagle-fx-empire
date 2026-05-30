@@ -112,7 +112,12 @@ export function LiveTradingRoom({ deskMode = false }: { deskMode?: boolean }) {
                   />
                 ) : (
                   <>
-                    <LiveForexChart className="live-room-stage__chart" compact staticLayout />
+                    <LiveForexChart
+                      className="live-room-stage__chart"
+                      compact
+                      staticLayout
+                      symbol={session?.pair?.replace('/', '') ?? 'EURUSD'}
+                    />
                     {!canView ? (
                       <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-theme-bg/80 p-6 text-center backdrop-blur-sm">
                         <Lock className="h-10 w-10 text-theme-accent" />
