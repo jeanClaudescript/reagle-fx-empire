@@ -5,16 +5,23 @@ import {
   logoutStudent,
   validateStudentSession,
   invalidateStudentSessions,
+  serializeStudent,
+  loadActiveStudent,
 } from '../services/studentAuthService.js'
 import {
   createStudentAccount,
-  findUserByContact,
   getStudentStats,
   listStudents,
   getStudentById,
   markStudentPaid,
   updateStudentAccount,
 } from '../services/studentService.js'
+import {
+  membershipMetaForUser,
+  resolveAccessMode,
+  getSiteFreeAccessStatus,
+  revokeMembership,
+} from '../services/membershipService.js'
 
 export const studentRoutes = Router()
 
@@ -63,17 +70,7 @@ studentRoutes.get('/auth/me', async (req, res, next) => {
       })
     }
 
-    return res.json({
-      data: {
-        id: String(result.user._id),
-        name: result.user.name,
-        phone: result.user.phone,
-        email: result.user.email,
-        membershipStatus: result.user.membershipStatus,
-        referralCode: result.user.referralCode,
-        paidAt: result.user.paidAt?.toISOString(),
-      },
-    })
+    return res.json({ data: await serializeStudent(result.user) })
   } catch (error) {
     return next(error)
   }
@@ -82,16 +79,25 @@ studentRoutes.get('/auth/me', async (req, res, next) => {
 studentRoutes.post('/access/check', async (req, res, next) => {
   try {
     const body = req.body as { phone?: string; email?: string }
-    const user = await findUserByContact({ phone: body.phone, email: body.email })
+    const user = await loadActiveStudent({ phone: body.phone, email: body.email })
     if (!user) {
       return res.json({ data: { found: false, membershipStatus: 'unpaid' as const } })
     }
+    const mode = await resolveAccessMode(user)
+    const promo = await getSiteFreeAccessStatus()
+    const meta = await membershipMetaForUser(user)
+    const hasAccess = mode === 'paid' || mode === 'promo'
     return res.json({
       data: {
         found: true,
-        membershipStatus: user.membershipStatus ?? 'unpaid',
+        accessMode: mode,
+        membershipStatus: hasAccess ? ('paid' as const) : ('unpaid' as const),
+        membershipExpired: mode === 'expired',
+        siteFreeAccessActive: promo.active,
+        siteFreeAccessUntil: promo.until,
         name: user.name,
         referralCode: user.referralCode,
+        ...meta,
       },
     })
   } catch (error) {
@@ -157,7 +163,9 @@ studentRoutes.patch('/admin/:id', requireAdminAuth, async (req, res, next) => {
 
 studentRoutes.post('/admin/:id/grant-access', requireAdminAuth, async (req, res, next) => {
   try {
-    await markStudentPaid(req.params.id)
+    const body = req.body as { days?: number }
+    const days = body.days != null ? Number(body.days) : undefined
+    await markStudentPaid(req.params.id, days)
     const data = await getStudentById(req.params.id)
     if (!data) return res.status(404).json({ error: 'Student not found' })
     return res.json({ ok: true, data })
@@ -168,8 +176,10 @@ studentRoutes.post('/admin/:id/grant-access', requireAdminAuth, async (req, res,
 
 studentRoutes.post('/admin/:id/revoke-access', requireAdminAuth, async (req, res, next) => {
   try {
-    const data = await updateStudentAccount(req.params.id, { membershipStatus: 'unpaid' })
+    await revokeMembership(req.params.id)
     await invalidateStudentSessions(req.params.id)
+    const data = await getStudentById(req.params.id)
+    if (!data) return res.status(404).json({ error: 'Student not found' })
     return res.json({ ok: true, data })
   } catch (error) {
     return next(error)

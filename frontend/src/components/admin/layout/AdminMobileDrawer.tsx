@@ -22,6 +22,7 @@ const CMS_TABS: ContentSectionId[] = [
   'proven',
   'mastery',
   'videos',
+  'books',
   'texts',
   'settings',
 ]
@@ -42,6 +43,7 @@ interface AdminMobileDrawerProps {
   activeTab: AdminTab
   syncLabel: string
   hasDraftChanges: boolean
+  deskChatUnread?: number
   onClose: () => void
   onSelectTab: (tab: AdminTab) => void
 }
@@ -52,6 +54,7 @@ export function AdminMobileDrawer({
   activeTab,
   syncLabel,
   hasDraftChanges,
+  deskChatUnread = 0,
   onClose,
   onSelectTab,
 }: AdminMobileDrawerProps) {
@@ -127,6 +130,9 @@ export function AdminMobileDrawer({
                     </span>
                     <span className="truncate">{item.label}</span>
                     <SectionNavDot sectionId={item.id} />
+                    {item.id === 'desk-chat' && deskChatUnread > 0 ? (
+                      <span className="admin-nav-unread">{deskChatUnread > 9 ? '9+' : deskChatUnread}</span>
+                    ) : null}
                   </motion.button>
                 )
               })}

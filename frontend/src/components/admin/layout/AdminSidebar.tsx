@@ -19,11 +19,12 @@ interface AdminSidebarProps {
   canCollapse: boolean
   syncLabel: string
   hasDraftChanges: boolean
+  deskChatUnread?: number
 }
 
 function SectionNavDot({ sectionId }: { sectionId: AdminTab }) {
   const { sectionStates } = useCms()
-  if (sectionId === 'dashboard' || !['updates', 'upcoming', 'about', 'certificates', 'proven', 'mastery', 'videos', 'texts', 'settings'].includes(sectionId)) {
+  if (sectionId === 'dashboard' || !['updates', 'upcoming', 'about', 'certificates', 'proven', 'mastery', 'videos', 'books', 'texts', 'settings'].includes(sectionId)) {
     return null
   }
   const state = sectionStates[sectionId as ContentSectionId]
@@ -53,6 +54,7 @@ export function AdminSidebar({
   canCollapse,
   syncLabel,
   hasDraftChanges,
+  deskChatUnread = 0,
 }: AdminSidebarProps) {
   const collapsed = mode === 'collapsed'
 
@@ -74,6 +76,9 @@ export function AdminSidebar({
           <>
             <span className="truncate">{item.label}</span>
             <SectionNavDot sectionId={item.id} />
+            {item.id === 'desk-chat' && deskChatUnread > 0 ? (
+              <span className="admin-nav-unread">{deskChatUnread > 9 ? '9+' : deskChatUnread}</span>
+            ) : null}
           </>
         )}
       </button>
@@ -147,6 +152,7 @@ export function AdminSidebar({
         activeTab={activeTab}
         syncLabel={syncLabel}
         hasDraftChanges={hasDraftChanges}
+        deskChatUnread={deskChatUnread}
         onClose={onCloseMobile}
         onSelectTab={onSelectTab}
       />

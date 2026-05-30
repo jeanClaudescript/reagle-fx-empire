@@ -16,6 +16,7 @@ export const env = {
   cloudinaryFolder: process.env.CLOUDINARY_FOLDER?.trim() || 'reagle-fx',
   paymentMerchantPhone: (process.env.PAYMENT_MERCHANT_PHONE || '250789880060').replace(/\D/g, ''),
   paymentDefaultAmount: Number(process.env.PAYMENT_DEFAULT_AMOUNT || 5000),
+  membershipDays: Number(process.env.MEMBERSHIP_DAYS || 60),
   paymentCurrency: process.env.PAYMENT_CURRENCY?.trim() || 'RWF',
   paymentUssdTemplate:
     process.env.PAYMENT_USSD_TEMPLATE?.trim() || '182*1*1*{phone}*{amount}#',

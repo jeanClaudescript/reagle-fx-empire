@@ -184,6 +184,7 @@ export type PaymentRecord = {
   userId: string
   phone: string
   displayPhone: string
+  programType?: 'forex' | 'crypto' | 'bundle'
   amount: number
   currency: string
   status: 'PENDING' | 'PAID' | 'FAILED' | 'EXPIRED'
@@ -204,6 +205,20 @@ export type PaymentSettings = {
   paymentNote: string
   paymentsEnabled: boolean
   allowCustomAmount: boolean
+  membershipDays: number
+  siteFreeAccessEnabled: boolean
+  siteFreeAccessUntil: string | null
+  autoTrialDays: number
+  accessTip: string
+  payPageTip: string
+  programsEnabled: boolean
+  programForexAmount: number
+  programCryptoAmount: number
+  programBundleAmount: number
+  physicalClassesEnabled: boolean
+  physicalClassSchedule: string
+  physicalClassLocation: string
+  physicalClassNote: string
   updatedAt?: string
 }
 
@@ -251,6 +266,18 @@ export type StudentPendingPayment = {
   createdAt: string
 }
 
+export type StudentAccessMode = 'paid' | 'promo' | 'unpaid' | 'expired'
+
+export type StudentMembershipInfo = {
+  accessMode?: StudentAccessMode
+  paidUntil?: string | null
+  daysRemaining?: number | null
+  isExpiringSoon?: boolean
+  membershipExpired?: boolean
+  siteFreeAccessActive?: boolean
+  siteFreeAccessUntil?: string | null
+}
+
 export type StudentRecord = {
   id: string
   name?: string
@@ -262,7 +289,11 @@ export type StudentRecord = {
   referredByUserId?: string
   referrerName?: string
   membershipStatus: 'paid' | 'unpaid'
+  programType?: 'forex' | 'crypto' | 'bundle'
   paidAt?: string
+  paidUntil?: string
+  daysRemaining?: number | null
+  isExpiringSoon?: boolean
   notes: string
   walletBalance: number
   totalPaid: number
@@ -310,9 +341,16 @@ export const studentApi = {
     apiFetch<{
       data: {
         found: boolean
+        accessMode?: StudentAccessMode
         membershipStatus: 'paid' | 'unpaid'
+        membershipExpired?: boolean
+        siteFreeAccessActive?: boolean
+        siteFreeAccessUntil?: string | null
         name?: string
         referralCode?: string
+        paidUntil?: string | null
+        daysRemaining?: number | null
+        isExpiringSoon?: boolean
       }
     }>('/api/students/access/check', { method: 'POST', body }),
   login: (body: { phone?: string; email?: string; deviceId: string; deviceLabel?: string }) =>
@@ -326,8 +364,14 @@ export const studentApi = {
           name?: string
           phone?: string
           email?: string
+          accessMode?: StudentAccessMode
           membershipStatus: 'paid' | 'unpaid'
+          membershipExpired?: boolean
+          siteFreeAccessActive?: boolean
           referralCode?: string
+          paidUntil?: string | null
+          daysRemaining?: number | null
+          isExpiringSoon?: boolean
         }
       }
     }>('/api/students/auth/login', { method: 'POST', body }),
@@ -340,8 +384,14 @@ export const studentApi = {
         name?: string
         phone?: string
         email?: string
+        accessMode?: StudentAccessMode
         membershipStatus: 'paid' | 'unpaid'
+        membershipExpired?: boolean
+        siteFreeAccessActive?: boolean
         referralCode?: string
+        paidUntil?: string | null
+        daysRemaining?: number | null
+        isExpiringSoon?: boolean
       }
     }>('/api/students/auth/me', { student: true }),
   getStats: () => apiFetch<{ data: StudentStats }>('/api/students/admin/stats', { admin: true }),
@@ -383,10 +433,11 @@ export const studentApi = {
       admin: true,
       body,
     }),
-  grantAccess: (id: string) =>
+  grantAccess: (id: string, body?: { days?: number }) =>
     apiFetch<{ ok: true; data: StudentRecord }>(`/api/students/admin/${id}/grant-access`, {
       method: 'POST',
       admin: true,
+      body,
     }),
   revokeAccess: (id: string) =>
     apiFetch<{ ok: true; data: StudentRecord }>(`/api/students/admin/${id}/revoke-access`, {
@@ -628,11 +679,23 @@ export const paymentApi = {
       admin: true,
       body,
     }),
+  adminEnableSiteFreeAccess: (days: number) =>
+    apiFetch<{ ok: true; data: PaymentSettings }>('/api/payments/admin/site-free-access', {
+      method: 'POST',
+      admin: true,
+      body: { days },
+    }),
+  adminDisableSiteFreeAccess: () =>
+    apiFetch<{ ok: true; data: PaymentSettings }>('/api/payments/admin/site-free-access/disable', {
+      method: 'POST',
+      admin: true,
+    }),
   create: (body: {
     phone?: string
     email?: string
     name?: string
     amount?: number
+    program?: 'forex' | 'crypto' | 'bundle'
     referrerCode?: string
     provider?: 'MTN' | 'AIRTEL'
   }) =>

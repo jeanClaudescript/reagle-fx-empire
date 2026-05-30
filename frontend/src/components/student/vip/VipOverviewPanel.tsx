@@ -1,8 +1,13 @@
-import { Radio, Shield, Target, TrendingUp } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { GraduationCap, LineChart, Radio, Target } from 'lucide-react'
 import { useLanguage } from '@/context/LanguageContext'
 import { useStudentAccess } from '@/context/StudentAccessContext'
-import { liveApi, type LiveSession } from '@/services/api'
+import { VipActivityFeed } from '@/components/student/vip/VipActivityFeed'
+import { VipLearningPath } from '@/components/student/vip/VipLearningPath'
+import { VipMembershipBanner } from '@/components/student/vip/VipMembershipBanner'
+import { VipPhysicalClassCard } from '@/components/student/vip/VipPhysicalClassCard'
+import { useVipActivity } from '@/vip/VipActivityProvider'
+import { isSignalNew } from '@/vip/vipSignalTracking'
 import type { VipPanelId } from '@/components/student/vip/VipDeskShell'
 
 const CHECKLIST_KEY = 'rfx_vip_checklist'
@@ -17,8 +22,12 @@ const DEFAULT_CHECKS = [
 export function VipOverviewPanel({ onNavigate }: { onNavigate: (id: VipPanelId) => void }) {
   const { t } = useLanguage()
   const { contact } = useStudentAccess()
-  const [session, setSession] = useState<LiveSession | null>(null)
+  const { items, activeSignal, unreadByPanel } = useVipActivity()
   const [checks, setChecks] = useState<Record<string, boolean>>({})
+
+  const liveOn = items.some((i) => i.kind === 'live' && i.isLive)
+  const classroomOn = items.some((i) => i.kind === 'classroom' && i.isLive)
+  const signalNew = Boolean(activeSignal && isSignalNew(activeSignal))
 
   useEffect(() => {
     try {
@@ -29,18 +38,6 @@ export function VipOverviewPanel({ onNavigate }: { onNavigate: (id: VipPanelId) 
     }
   }, [])
 
-  useEffect(() => {
-    const load = async () => {
-      try {
-        const res = await liveApi.getActive()
-        setSession(res.data)
-      } catch {
-        setSession(null)
-      }
-    }
-    void load()
-  }, [])
-
   const toggleCheck = (id: string) => {
     setChecks((prev) => {
       const next = { ...prev, [id]: !prev[id] }
@@ -49,8 +46,38 @@ export function VipOverviewPanel({ onNavigate }: { onNavigate: (id: VipPanelId) 
     })
   }
 
-  const isLive = session?.status === 'live'
   const doneCount = DEFAULT_CHECKS.filter((c) => checks[c.id]).length
+
+  const tiles = [
+    {
+      id: 'live' as const,
+      label: t.vip.quickLive,
+      icon: Radio,
+      live: liveOn,
+      badge: unreadByPanel.live,
+    },
+    {
+      id: 'signals' as const,
+      label: t.vip.quickSignals,
+      icon: Target,
+      live: signalNew,
+      badge: unreadByPanel.signals,
+    },
+    {
+      id: 'chart' as const,
+      label: t.vip.quickChart,
+      icon: LineChart,
+      live: false,
+      badge: 0,
+    },
+    {
+      id: 'classroom' as const,
+      label: t.vip.quickClassroom,
+      icon: GraduationCap,
+      live: classroomOn,
+      badge: unreadByPanel.classroom,
+    },
+  ]
 
   return (
     <div className="vip-overview">
@@ -62,44 +89,36 @@ export function VipOverviewPanel({ onNavigate }: { onNavigate: (id: VipPanelId) 
         <p className="mt-2 max-w-xl text-sm text-theme-muted">{t.vip.overviewSubtitle}</p>
       </div>
 
+      <VipMembershipBanner />
+
+      <VipPhysicalClassCard />
+
       <div className="vip-overview__grid">
-        <button type="button" className="vip-stat-card" onClick={() => onNavigate('live')}>
-          <Radio className={`h-5 w-5 ${isLive ? 'text-rose-400' : 'text-theme-accent'}`} />
-          <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-theme-muted">
-            {t.vip.liveStatus}
-          </p>
-          <p className="mt-1 font-display text-lg font-bold text-theme-primary">
-            {isLive ? t.live.liveNow : t.vip.liveOffline}
-          </p>
-          {isLive && session?.title ? (
-            <p className="mt-1 truncate text-xs text-theme-muted">{session.title}</p>
-          ) : null}
-        </button>
-
-        <button type="button" className="vip-stat-card" onClick={() => onNavigate('paper')}>
-          <TrendingUp className="h-5 w-5 text-theme-accent" />
-          <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-theme-muted">
-            {t.tools.paperTitle}
-          </p>
-          <p className="mt-1 text-sm text-theme-primary">{t.vip.paperHint}</p>
-        </button>
-
-        <button type="button" className="vip-stat-card" onClick={() => onNavigate('position')}>
-          <Shield className="h-5 w-5 text-theme-accent" />
-          <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-theme-muted">
-            {t.vip.riskDesk}
-          </p>
-          <p className="mt-1 text-sm text-theme-primary">{t.vip.riskHint}</p>
-        </button>
-
-        <button type="button" className="vip-stat-card" onClick={() => onNavigate('signals')}>
-          <Target className="h-5 w-5 text-theme-accent" />
-          <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-theme-muted">
-            {t.tools.signalBoardTitle}
-          </p>
-          <p className="mt-1 text-sm text-theme-primary">{t.vip.signalsHint}</p>
-        </button>
+        {tiles.map((tile) => {
+          const Icon = tile.icon
+          return (
+            <button
+              key={tile.id}
+              type="button"
+              className={`vip-stat-card ${tile.live ? 'vip-stat-card--live' : ''}`}
+              onClick={() => onNavigate(tile.id)}
+            >
+              <span className="flex items-center gap-2">
+                <Icon className="h-5 w-5 text-theme-accent" />
+                <span className="font-semibold text-theme-primary">{tile.label}</span>
+                {tile.live ? <span className="vip-activity-live-pill">{t.vip.activityLiveNow}</span> : null}
+                {tile.badge ? <span className="vip-activity-badge">{tile.badge}</span> : null}
+              </span>
+            </button>
+          )
+        })}
       </div>
+
+      <div className="mt-6">
+        <VipLearningPath onNavigate={onNavigate} />
+      </div>
+
+      <VipActivityFeed onNavigate={onNavigate} />
 
       <div className="vip-checklist">
         <div className="flex flex-wrap items-center justify-between gap-2">

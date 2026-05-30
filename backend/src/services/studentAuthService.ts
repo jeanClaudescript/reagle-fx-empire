@@ -2,18 +2,36 @@ import { randomBytes } from 'crypto'
 import { AppUserModel, type AppUserDocument } from '../models/AppUser.js'
 import { StudentSessionModel } from '../models/StudentSession.js'
 import { findUserByContact } from './studentService.js'
+import {
+  canAccessVipDesk,
+  ensurePaidUntilForLegacy,
+  expireMembershipIfNeeded,
+  getSiteFreeAccessStatus,
+  isMembershipActive,
+  membershipMetaForUser,
+  resolveAccessMode,
+} from './membershipService.js'
 
 const SESSION_MS = 1000 * 60 * 60 * 24 * 7 // 7 days
 
-function serializeStudent(user: AppUserDocument) {
+export async function serializeStudent(user: AppUserDocument) {
+  const mode = await resolveAccessMode(user)
+  const promo = await getSiteFreeAccessStatus()
+  const hasAccess = mode === 'paid' || mode === 'promo'
+  const meta = await membershipMetaForUser(user)
+
   return {
     id: String(user._id),
     name: user.name,
     phone: user.phone,
     email: user.email,
-    membershipStatus: user.membershipStatus,
+    accessMode: mode,
+    membershipStatus: hasAccess ? ('paid' as const) : ('unpaid' as const),
+    membershipExpired: mode === 'expired',
+    siteFreeAccessActive: promo.active,
     referralCode: user.referralCode,
     paidAt: user.paidAt?.toISOString(),
+    ...meta,
   }
 }
 
@@ -34,6 +52,30 @@ async function createStudentSession(userId: string, deviceId: string, deviceLabe
   return { token, expiresAt }
 }
 
+async function loadActiveStudent(input: { phone?: string; email?: string }) {
+  const found = await findUserByContact({ phone: input.phone, email: input.email })
+  if (!found) return null
+
+  const userId = String(found._id)
+  await expireMembershipIfNeeded(userId)
+  await ensurePaidUntilForLegacy(userId)
+
+  const user = await AppUserModel.findById(userId)
+  if (!user) return null
+
+  if (!isMembershipActive(user)) {
+    if (user.membershipStatus === 'paid') {
+      user.membershipStatus = 'unpaid'
+      user.updatedAt = new Date()
+      await user.save()
+      if (!(await canAccessVipDesk(user))) {
+        await invalidateStudentSessions(userId)
+      }
+    }
+  }
+  return user
+}
+
 export async function loginStudent(input: {
   phone?: string
   email?: string
@@ -42,17 +84,17 @@ export async function loginStudent(input: {
 }) {
   if (!input.deviceId?.trim()) throw new Error('Device id is required')
 
-  const user = await findUserByContact({ phone: input.phone, email: input.email })
+  const user = await loadActiveStudent({ phone: input.phone, email: input.email })
   if (!user) throw new Error('Account not found')
-  if (user.membershipStatus !== 'paid') {
-    throw new Error('Payment required — complete MoMo to unlock the VIP desk')
+  if (!(await canAccessVipDesk(user))) {
+    throw new Error('Membership expired — renew to unlock the VIP desk')
   }
 
   const session = await createStudentSession(String(user._id), input.deviceId.trim(), input.deviceLabel)
   return {
     token: session.token,
     expiresAt: session.expiresAt.toISOString(),
-    user: serializeStudent(user),
+    user: await serializeStudent(user),
   }
 }
 
@@ -60,12 +102,25 @@ export async function validateStudentSession(token: string) {
   const session = await StudentSessionModel.findOne({ token, expiresAt: { $gt: new Date() } })
   if (!session) return null
 
+  const userId = String(session.userId)
+  await expireMembershipIfNeeded(userId)
+  await ensurePaidUntilForLegacy(userId)
+
   const user = await AppUserModel.findOne({
     _id: session.userId,
     role: 'student',
-    membershipStatus: 'paid',
   })
   if (!user) {
+    await StudentSessionModel.deleteOne({ token })
+    return null
+  }
+
+  if (!(await canAccessVipDesk(user))) {
+    if (user.membershipStatus === 'paid') {
+      user.membershipStatus = 'unpaid'
+      user.updatedAt = new Date()
+      await user.save()
+    }
     await StudentSessionModel.deleteOne({ token })
     return null
   }
@@ -88,3 +143,5 @@ export async function touchStudentSession(token: string) {
   await session.save()
   return session
 }
+
+export { loadActiveStudent, isMembershipActive }

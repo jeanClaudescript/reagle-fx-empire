@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { paymentApi, type PaymentRecord } from '@/services/api'
+import { programPlanLabel } from '@/utils/paymentPriceLabel'
+import { PaymentApproveModal } from '@/components/admin/PaymentApproveModal'
 import { AdminCard } from '@/components/admin/AdminCard'
 import { useAdminToast } from '@/admin/toast'
 
@@ -23,6 +25,7 @@ export function PaymentsEditor({
   const [status, setStatus] = useState<(typeof statuses)[number]>(initialStatus)
   const [q, setQ] = useState('')
   const [loading, setLoading] = useState(true)
+  const [approveTarget, setApproveTarget] = useState<PaymentRecord | null>(null)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -41,16 +44,11 @@ export function PaymentsEditor({
     void load()
   }, [load])
 
-  const approve = async (p: PaymentRecord) => {
-    let tx = p.transactionId
-    if (!tx) {
-      const entered = window.prompt('Transaction ID (optional but recommended):', '')
-      if (entered === null) return
-      tx = entered.trim() || undefined
-    }
+  const approve = async (p: PaymentRecord, transactionId?: string) => {
     try {
-      await paymentApi.adminApprove(p.id, tx ? { transactionId: tx } : undefined)
+      await paymentApi.adminApprove(p.id, transactionId ? { transactionId } : undefined)
       push('Payment approved — student access granted, referrer credited if applicable', 'success')
+      setApproveTarget(null)
       void load()
     } catch (e) {
       push(e instanceof Error ? e.message : 'Approve failed', 'error')
@@ -127,6 +125,9 @@ export function PaymentsEditor({
                     </div>
                     <p className="mt-1 text-sm text-theme-primary">
                       {p.displayPhone} · {p.amount.toLocaleString()} {p.currency}
+                      {programPlanLabel(p.programType) ? (
+                        <span className="text-theme-muted"> · {programPlanLabel(p.programType)}</span>
+                      ) : null}
                     </p>
                     <p className="text-xs text-theme-muted">
                       {p.transactionId ? `TX: ${p.transactionId}` : 'No transaction ID yet'}
@@ -161,7 +162,7 @@ export function PaymentsEditor({
                         <button
                           type="button"
                           className="admin-btn admin-btn--primary admin-btn--sm"
-                          onClick={() => approve(p)}
+                          onClick={() => (p.transactionId ? void approve(p, p.transactionId) : setApproveTarget(p))}
                         >
                           Approve (manual)
                         </button>
@@ -189,6 +190,14 @@ export function PaymentsEditor({
           )}
         </div>
       </AdminCard>
+
+      {approveTarget ? (
+        <PaymentApproveModal
+          payment={approveTarget}
+          onClose={() => setApproveTarget(null)}
+          onConfirm={(tx) => void approve(approveTarget, tx)}
+        />
+      ) : null}
     </div>
   )
 }

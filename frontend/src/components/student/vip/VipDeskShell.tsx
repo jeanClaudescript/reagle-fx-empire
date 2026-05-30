@@ -3,12 +3,12 @@ import {
   ArrowLeft,
   BarChart3,
   BookOpen,
-  Calculator,
   ChevronDown,
   Crown,
   Globe,
   LineChart,
   LogOut,
+  Menu,
   Radio,
   Shield,
   Sparkles,
@@ -20,7 +20,7 @@ import { LiveTradingRoom } from '@/components/sections/LiveTradingRoom'
 import { MarketWatch } from '@/components/forex/tools/MarketWatch'
 import { SessionClock } from '@/components/forex/tools/SessionClock'
 import { EconomicCalendar } from '@/components/forex/tools/EconomicCalendar'
-import { LiveForexChart } from '@/components/ui/LiveForexChart'
+import { DeskChart } from '@/components/forex/tools/DeskChart'
 import { LiveSignalBoard } from '@/components/forex/tools/LiveSignalBoard'
 import { PipCalculator } from '@/components/forex/tools/PipCalculator'
 import { PositionSizeCalculator } from '@/components/forex/tools/PositionSizeCalculator'
@@ -44,6 +44,11 @@ import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher'
 import { ReferralShareCard } from '@/components/referral/ReferralShareCard'
 import { classroomApi } from '@/services/api'
 import { onClassroomUpdated } from '@/realtime/appSocket'
+import { VipActivityProvider, useVipActivity } from '@/vip/VipActivityProvider'
+import { VipAlertStack } from '@/components/student/vip/VipAlertStack'
+import { VipMembershipBanner } from '@/components/student/vip/VipMembershipBanner'
+import { VipAccessTip } from '@/components/student/vip/VipAccessTip'
+import { isSignalNew } from '@/vip/vipSignalTracking'
 
 export type VipPanelId =
   | 'overview'
@@ -91,9 +96,21 @@ function ToolCard({ children }: { children: ReactNode }) {
   return <div className="vip-tool-card">{children}</div>
 }
 
-export function VipDeskShell() {
+function NavUnreadDot({ count, pulse }: { count?: number; pulse?: boolean }) {
+  if (!count) return null
+  return (
+    <span className={`vip-nav-unread ${pulse ? 'vip-nav-unread--pulse' : ''}`} aria-label={`${count} new`}>
+      {count > 9 ? '9+' : count}
+    </span>
+  )
+}
+
+function VipDeskShellInner() {
   const { t } = useLanguage()
-  const { contact, referralCode, sessionError, logout } = useStudentAccess()
+  const { contact, referralCode, sessionError, logout, paidUntil, daysRemaining, isExpiringSoon } =
+    useStudentAccess()
+  const { unreadByPanel, totalUnread, markSeen, groupsWithUpdates, toasts, dismissToast, setActivePanel, activeSignal } =
+    useVipActivity()
   const [panel, setPanel] = useState<VipPanelId>('overview')
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({
     live: true,
@@ -105,11 +122,24 @@ export function VipDeskShell() {
   })
   const [navOpen, setNavOpen] = useState(false)
   const [classroomLive, setClassroomLive] = useState(false)
+  const [chartSymbol, setChartSymbol] = useState('EURUSD')
+  const [chartTimeframe, setChartTimeframe] = useState('15')
 
   useEffect(() => {
     void classroomApi.getActive().then((res) => setClassroomLive(res.data?.status === 'live'))
     return onClassroomUpdated((payload) => setClassroomLive(payload.data?.status === 'live'))
   }, [])
+
+  useEffect(() => {
+    if (groupsWithUpdates.size === 0) return
+    setOpenGroups((prev) => {
+      const next = { ...prev }
+      groupsWithUpdates.forEach((id) => {
+        next[id] = true
+      })
+      return next
+    })
+  }, [groupsWithUpdates])
 
   const groups: NavGroup[] = [
     {
@@ -171,8 +201,15 @@ export function VipDeskShell() {
   ]
 
   const selectPanel = (id: VipPanelId) => {
+    setActivePanel(id)
+    if (id !== 'overview') markSeen(id)
     setPanel(id)
     setNavOpen(false)
+  }
+
+  const openChart = (symbol: string) => {
+    setChartSymbol(symbol.replace(/\//g, '').toUpperCase())
+    selectPanel('chart')
   }
 
   const toggleGroup = (id: string) => {
@@ -221,7 +258,7 @@ export function VipDeskShell() {
         return (
           <PanelWrap title={t.tools.watchTitle}>
             <ToolCard>
-              <MarketWatch />
+              <MarketWatch onOpenChart={openChart} />
             </ToolCard>
           </PanelWrap>
         )
@@ -230,7 +267,13 @@ export function VipDeskShell() {
           <PanelWrap title={t.tools.chartTitle}>
             <ToolCard>
               <p className="mb-3 text-sm text-theme-muted">{t.tools.chartDesc}</p>
-              <LiveForexChart className="min-h-[320px] w-full rounded-xl" compact />
+              <DeskChart
+                symbol={chartSymbol}
+                timeframe={chartTimeframe}
+                onSymbolChange={setChartSymbol}
+                onTimeframeChange={setChartTimeframe}
+                className="min-h-[360px] w-full rounded-xl"
+              />
             </ToolCard>
           </PanelWrap>
         )
@@ -362,6 +405,25 @@ export function VipDeskShell() {
               <p className="mt-1 font-display text-lg font-bold text-theme-primary">
                 {contact?.name || contact?.phone || contact?.email}
               </p>
+              {paidUntil && daysRemaining != null ? (
+                <p className="mt-2 text-sm text-theme-muted">
+                  {t.membership.activeUntil.replace(
+                    '{date}',
+                    new Date(paidUntil).toLocaleDateString(undefined, {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric',
+                    }),
+                  )}
+                  {isExpiringSoon ? (
+                    <span className="ml-2 font-semibold text-amber-400">
+                      · {t.membership.daysLeft.replace('{n}', String(daysRemaining))}
+                    </span>
+                  ) : (
+                    <span className="ml-2">· {t.membership.daysLeft.replace('{n}', String(daysRemaining))}</span>
+                  )}
+                </p>
+              ) : null}
               {referralCode ? (
                 <div className="mt-4">
                   <ReferralShareCard code={referralCode} />
@@ -404,12 +466,16 @@ export function VipDeskShell() {
         onClick={() => selectPanel('overview')}
       >
         <Sparkles className="h-4 w-4" />
-        {t.vip.navOverview}
+        <span className="flex flex-1 items-center justify-between gap-2">
+          {t.vip.navOverview}
+          <NavUnreadDot count={totalUnread} />
+        </span>
       </button>
 
       {groups.map((group) => {
         const Icon = group.icon
         const open = openGroups[group.id]
+        const groupUnread = group.items.reduce((sum, item) => sum + (unreadByPanel[item.id] ?? 0), 0)
         return (
           <div key={group.id} className="vip-nav__group">
             <button
@@ -421,6 +487,7 @@ export function VipDeskShell() {
               <span className="flex items-center gap-2">
                 <Icon className="h-4 w-4 text-theme-accent" />
                 {group.label}
+                <NavUnreadDot count={groupUnread} />
               </span>
               <ChevronDown className={`h-4 w-4 transition-transform ${open ? 'rotate-180' : ''}`} />
             </button>
@@ -433,11 +500,17 @@ export function VipDeskShell() {
                     className={`vip-nav__sub-item ${panel === item.id ? 'vip-nav__sub-item--active' : ''}`}
                     onClick={() => selectPanel(item.id)}
                   >
-                    <span className="flex items-center gap-2">
-                      {item.label}
-                      {item.id === 'classroom' && classroomLive ? (
-                        <span className="vip-nav-live-dot" aria-label="Classroom live" />
-                      ) : null}
+                    <span className="flex w-full items-center justify-between gap-2">
+                      <span className="flex items-center gap-2">
+                        {item.label}
+                        {item.id === 'classroom' && classroomLive ? (
+                          <span className="vip-nav-live-dot" aria-label="Classroom live" />
+                        ) : null}
+                      </span>
+                      <NavUnreadDot
+                        count={unreadByPanel[item.id]}
+                        pulse={item.id === 'signals' && Boolean(activeSignal && isSignalNew(activeSignal))}
+                      />
                     </span>
                   </button>
                 ))}
@@ -480,9 +553,9 @@ export function VipDeskShell() {
             type="button"
             className="vip-desk__menu-btn lg:hidden"
             onClick={() => setNavOpen((v) => !v)}
-            aria-label={t.vip.navLabel}
+            aria-label={navOpen ? t.vip.menuClose : t.vip.menuOpen}
           >
-            <Calculator className="h-5 w-5" />
+            <Menu className="h-5 w-5" />
           </button>
           <div className="min-w-0">
             <p className="vip-badge">
@@ -491,6 +564,11 @@ export function VipDeskShell() {
             </p>
             <h1 className="truncate font-display text-lg font-bold text-theme-primary sm:text-xl">
               {t.vip.title}
+              {totalUnread > 0 ? (
+                <span className="ml-2 inline-flex align-middle">
+                  <NavUnreadDot count={totalUnread} />
+                </span>
+              ) : null}
             </h1>
           </div>
           <div className="flex items-center gap-2">
@@ -500,6 +578,11 @@ export function VipDeskShell() {
         </div>
       </header>
 
+      <div className="vip-desk__membership px-4 lg:px-8">
+        <VipAccessTip />
+        <VipMembershipBanner />
+      </div>
+
       <div className="vip-desk__body">
         <aside className={`vip-desk__sidebar ${navOpen ? 'vip-desk__sidebar--open' : ''}`}>
           {navContent}
@@ -508,12 +591,29 @@ export function VipDeskShell() {
           <button
             type="button"
             className="vip-desk__overlay lg:hidden"
-            aria-label="Close menu"
+            aria-label={t.vip.menuClose}
             onClick={() => setNavOpen(false)}
           />
         ) : null}
         <main className="vip-desk__main">{renderPanel()}</main>
       </div>
+
+      <VipAlertStack
+        toasts={toasts}
+        onDismiss={dismissToast}
+        onOpen={(id) => {
+          toasts.forEach((toast) => dismissToast(toast.id))
+          selectPanel(id)
+        }}
+      />
     </div>
+  )
+}
+
+export function VipDeskShell() {
+  return (
+    <VipActivityProvider>
+      <VipDeskShellInner />
+    </VipActivityProvider>
   )
 }

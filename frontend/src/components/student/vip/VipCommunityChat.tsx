@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Send } from 'lucide-react'
+import { useLanguage } from '@/context/LanguageContext'
 import { deskChatApi } from '@/services/api'
 import { emitDeskCommunitySend, onCommunityMessage, type DeskChatMessage } from '@/realtime/appSocket'
 
@@ -9,6 +10,7 @@ function mergeMessage(list: DeskChatMessage[], msg: DeskChatMessage) {
 }
 
 export function VipCommunityChat() {
+  const { t } = useLanguage()
   const [messages, setMessages] = useState<DeskChatMessage[]>([])
   const [text, setText] = useState('')
   const [loading, setLoading] = useState(true)
@@ -48,23 +50,25 @@ export function VipCommunityChat() {
     }
   }
 
-  if (loading) return <p className="text-sm text-theme-muted">Loading chat…</p>
+  if (loading) return <p className="text-sm text-theme-muted">{t.chat.communityLoading}</p>
 
   return (
     <div className="desk-chat">
-      <p className="desk-chat__hint text-sm text-theme-muted mb-3">
-        VIP community chat — updates instantly for all paid members and Coach.
-      </p>
+      <p className="desk-chat__hint text-sm text-theme-muted mb-3">{t.chat.communityHint}</p>
       <div className="desk-chat__messages">
-        {messages.map((m) => (
-          <div key={m.id} className={`desk-chat__row desk-chat__row--${m.fromRole}`}>
-            <div className="desk-chat__meta">
-              <strong>{m.fromUserName}</strong>
-              <span>{new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+        {messages.length === 0 ? (
+          <p className="text-sm text-theme-muted py-4 text-center">{t.chat.communityEmpty}</p>
+        ) : (
+          messages.map((m) => (
+            <div key={m.id} className={`desk-chat__row desk-chat__row--${m.fromRole}`}>
+              <div className="desk-chat__meta">
+                <strong>{m.fromUserName}</strong>
+                <span>{new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+              </div>
+              <p>{m.message}</p>
             </div>
-            <p>{m.message}</p>
-          </div>
-        ))}
+          ))
+        )}
         <div ref={bottomRef} />
       </div>
       <div className="desk-chat__input">
@@ -72,10 +76,10 @@ export function VipCommunityChat() {
           value={text}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), send())}
-          placeholder="Message the VIP community…"
+          placeholder={t.chat.communityPlaceholder}
           maxLength={2000}
         />
-        <button type="button" onClick={send} disabled={sending || !text.trim()} aria-label="Send">
+        <button type="button" onClick={send} disabled={sending || !text.trim()} aria-label={t.chat.sendAria}>
           <Send size={16} />
         </button>
       </div>

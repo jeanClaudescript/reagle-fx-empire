@@ -2,6 +2,7 @@ import { Schema, model } from 'mongoose'
 
 export type MembershipStatus = 'paid' | 'unpaid'
 export type UserRole = 'student' | 'admin'
+export type ProgramPlanId = 'forex' | 'crypto' | 'bundle'
 
 export interface AppUserDocument {
   _id: unknown
@@ -16,7 +17,9 @@ export interface AppUserDocument {
   referredByCode?: string
   referredByUserId?: string
   membershipStatus: MembershipStatus
+  programType?: ProgramPlanId
   paidAt?: Date
+  paidUntil?: Date
   notes?: string
   walletBalance: number
   createdAt: Date
@@ -36,7 +39,9 @@ const appUserSchema = new Schema<AppUserDocument>(
     referredByCode: { type: String, uppercase: true, trim: true },
     referredByUserId: { type: String, trim: true },
     membershipStatus: { type: String, enum: ['paid', 'unpaid'], required: true, default: 'unpaid', index: true },
+    programType: { type: String, enum: ['forex', 'crypto', 'bundle'], index: true },
     paidAt: { type: Date },
+    paidUntil: { type: Date, index: true },
     notes: { type: String, trim: true, default: '' },
     walletBalance: { type: Number, required: true, default: 0, min: 0 },
     createdAt: { type: Date, required: true, default: Date.now },

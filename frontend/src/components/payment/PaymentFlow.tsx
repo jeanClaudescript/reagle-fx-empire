@@ -23,6 +23,10 @@ import { ReferralShareCard } from '@/components/referral/ReferralShareCard'
 import { ReferralAppliedBadge } from '@/components/referral/ReferralAppliedBadge'
 import { useReferralCode } from '@/referral/useReferralCode'
 import { captureReferralFromSearch, clearStoredReferralCode } from '@/referral/referralStorage'
+import { ProgramValueCard } from '@/components/student/ProgramValueCard'
+import { OtherPaymentNotice } from '@/components/payment/OtherPaymentNotice'
+import { ProgramPlanPicker } from '@/components/payment/ProgramPlanPicker'
+import type { ProgramPlanId } from '@/types/program'
 
 type Step = 'form' | 'pay' | 'done'
 
@@ -89,6 +93,7 @@ export function PaymentFlow() {
   const [transactionId, setTransactionId] = useState('')
   const [config, setConfig] = useState<PaymentConfig | null>(null)
   const [amount, setAmount] = useState<number | ''>('')
+  const [program, setProgram] = useState<ProgramPlanId | null>(null)
   const [polling, setPolling] = useState(false)
 
   useEffect(() => {
@@ -104,6 +109,9 @@ export function PaymentFlow() {
       .then((res) => {
         setConfig(res.data)
         setAmount(res.data.defaultAmount)
+        if (res.data.programsEnabled) {
+          setProgram('bundle')
+        }
       })
       .catch(() => null)
   }, [])
@@ -142,16 +150,21 @@ export function PaymentFlow() {
 
   const payAmount = useMemo(() => {
     if (!config) return 0
+    if (config.programsEnabled && program) {
+      if (program === 'forex') return config.programForexAmount
+      if (program === 'crypto') return config.programCryptoAmount
+      return config.programBundleAmount
+    }
     if (config.allowCustomAmount && amount !== '') return Number(amount)
     return config.defaultAmount
-  }, [config, amount])
+  }, [config, amount, program])
 
   const amountLabel = useMemo(() => {
     if (!config) return '—'
-    const value = config.allowCustomAmount && amount !== '' ? Number(amount) : config.defaultAmount
+    const value = payAmount
     if (!Number.isFinite(value)) return '—'
     return `${value.toLocaleString()} ${config.currency}`
-  }, [config, amount])
+  }, [config, payAmount])
 
   const activeUssd = useMemo(() => {
     if (!instructions) return ''
@@ -198,7 +211,8 @@ export function PaymentFlow() {
         name: name.trim() || undefined,
         referrerCode: referrerCode.trim() || undefined,
         provider,
-        amount: config?.allowCustomAmount ? payAmount : undefined,
+        program: config?.programsEnabled ? (program ?? undefined) : undefined,
+        amount: config?.programsEnabled ? undefined : config?.allowCustomAmount ? payAmount : undefined,
       })
       setPayment(res.data.payment)
       setInstructions(res.data.instructions)
@@ -243,6 +257,22 @@ export function PaymentFlow() {
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="pay-flow-card">
           <h2 className="font-display text-2xl font-bold text-theme-primary">{t.pay.title}</h2>
           <p className="mt-2 text-sm text-theme-muted">{t.pay.subtitle}</p>
+
+          {config?.payPageTip ? (
+            <p className="mt-4 rounded-xl bg-theme-accent/10 px-3 py-2 text-sm text-theme-primary">
+              {config.payPageTip}
+            </p>
+          ) : null}
+
+          <div className="mt-6">
+            <ProgramValueCard compact showPhysical={config?.physicalClassesEnabled} />
+          </div>
+
+          {config?.programsEnabled ? (
+            <div className="mt-6">
+              <ProgramPlanPicker config={config} value={program} onChange={setProgram} />
+            </div>
+          ) : null}
 
           <div className="pay-method-preview mt-6">
             <p className="text-xs font-bold uppercase tracking-wider text-theme-muted">{t.pay.howItWorks}</p>
@@ -297,7 +327,21 @@ export function PaymentFlow() {
                 <option value="AIRTEL">{t.pay.networkAirtel}</option>
               </select>
             </label>
-            {config?.allowCustomAmount ? (
+            {config?.programsEnabled ? (
+              <p className="forex-tool-result text-sm text-theme-muted">
+                {t.pay.amountFixed}:{' '}
+                <span className="font-semibold text-theme-primary">{amountLabel}</span>
+                {config?.displayMerchantPhone ? (
+                  <>
+                    {' '}
+                    · {t.pay.payTo}{' '}
+                    <span className="font-semibold text-theme-primary">
+                      {config.displayMerchantPhone}
+                    </span>
+                  </>
+                ) : null}
+              </p>
+            ) : config?.allowCustomAmount ? (
               <label className="forex-field">
                 <span>
                   {t.pay.amountLabel} ({config.currency})
@@ -328,11 +372,13 @@ export function PaymentFlow() {
             )}
           </div>
 
+          <OtherPaymentNotice coachPhone={config?.displayMerchantPhone} />
+
           {error && <p className="mt-4 text-sm text-rose-400">{error}</p>}
 
           <button
             type="button"
-            disabled={busy || (!phone.trim() && !email.trim())}
+            disabled={busy || (!phone.trim() && !email.trim()) || (config?.programsEnabled && !program)}
             onClick={startPayment}
             className="mt-6 h-12 w-full rounded-xl bg-gradient-to-r from-empire-purple to-empire-blue font-semibold text-white disabled:opacity-50"
           >
@@ -394,8 +440,12 @@ export function PaymentFlow() {
                 {copied === 'merchant' ? <span className="text-[10px]">{t.pay.copied}</span> : null}
               </button>
             </div>
-            <p className="rounded-xl bg-amber-500/10 px-3 py-2 text-xs text-amber-200/90">{instructions.note}</p>
+            {instructions.note ? (
+              <p className="rounded-xl bg-amber-500/10 px-3 py-2 text-xs text-amber-200/90">{instructions.note}</p>
+            ) : null}
           </div>
+
+          <OtherPaymentNotice coachPhone={instructions.merchantPhone} />
 
           <div className="pay-method-card mt-6">
             <div className="pay-method-card__head">

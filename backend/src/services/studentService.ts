@@ -1,4 +1,4 @@
-import { AppUserModel, type MembershipStatus } from '../models/AppUser.js'
+import { AppUserModel, type MembershipStatus, type ProgramPlanId } from '../models/AppUser.js'
 import { PaymentModel } from '../models/Payment.js'
 import { generateReferenceCode } from '../utils/referenceCode.js'
 import { formatDisplayPhone, normalizeRwPhone } from '../utils/phone.js'
@@ -38,12 +38,15 @@ function parseContact(input: { phone?: string; email?: string }) {
   return { phone, email }
 }
 
-export async function markStudentPaid(userId: string) {
-  await AppUserModel.findByIdAndUpdate(userId, {
-    membershipStatus: 'paid',
-    paidAt: new Date(),
-    updatedAt: new Date(),
-  })
+import { grantMembership, membershipMeta } from './membershipService.js'
+
+export async function markStudentPaid(userId: string, days?: number, programType?: ProgramPlanId) {
+  const user = await grantMembership(userId, days)
+  if (programType) {
+    user.programType = programType
+    user.updatedAt = new Date()
+    await user.save()
+  }
 }
 
 export async function createStudentAccount(input: {
@@ -92,6 +95,12 @@ export async function createStudentAccount(input: {
     createdAt: new Date(),
     updatedAt: new Date(),
   })
+
+  if (status === 'paid') {
+    await grantMembership(String(user._id))
+    const refreshed = await AppUserModel.findById(user._id)
+    if (refreshed) return enrichStudent(refreshed)
+  }
 
   return enrichStudent(user)
 }
@@ -147,8 +156,14 @@ export async function updateStudentAccount(
     user.membershipStatus = input.membershipStatus
     if (input.membershipStatus === 'paid') {
       user.paidAt = user.paidAt ?? new Date()
+      if (!user.paidUntil || user.paidUntil.getTime() <= Date.now()) {
+        await grantMembership(userId)
+        const refreshed = await AppUserModel.findById(userId)
+        if (refreshed) return enrichStudent(refreshed)
+      }
     } else {
       user.paidAt = undefined
+      user.paidUntil = undefined
     }
   }
   if (input.walletBalance != null) {
@@ -170,7 +185,9 @@ async function enrichStudent(user: {
   referredByCode?: string
   referredByUserId?: string
   membershipStatus: MembershipStatus
+  programType?: ProgramPlanId
   paidAt?: Date
+  paidUntil?: Date
   notes?: string
   walletBalance: number
   createdAt: Date
@@ -201,7 +218,9 @@ async function enrichStudent(user: {
     referredByUserId: user.referredByUserId,
     referrerName,
     membershipStatus: user.membershipStatus ?? 'unpaid',
+    programType: user.programType,
     paidAt: user.paidAt?.toISOString(),
+    ...membershipMeta(user),
     notes: user.notes ?? '',
     walletBalance: user.walletBalance,
     totalPaid,

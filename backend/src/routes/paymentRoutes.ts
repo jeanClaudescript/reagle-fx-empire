@@ -18,6 +18,8 @@ import {
   getPaymentSettings,
   serializePaymentSettings,
   updatePaymentSettings,
+  enableSiteFreeAccess,
+  disableSiteFreeAccess,
 } from '../services/paymentSettingsService.js'
 
 export const paymentRoutes = Router()
@@ -29,6 +31,7 @@ paymentRoutes.post('/create', rateLimit(12, 60_000), async (req, res, next) => {
       email?: string
       name?: string
       amount?: number
+      program?: string
       referrerCode?: string
       provider?: 'MTN' | 'AIRTEL'
     }
@@ -41,6 +44,7 @@ paymentRoutes.post('/create', rateLimit(12, 60_000), async (req, res, next) => {
       email: body.email,
       name: body.name,
       amount: body.amount,
+      program: body.program as 'forex' | 'crypto' | 'bundle' | undefined,
       referrerCode: body.referrerCode,
       provider: body.provider,
     })
@@ -97,7 +101,50 @@ paymentRoutes.put('/admin/settings', requireAdminAuth, async (req, res, next) =>
         typeof body.paymentsEnabled === 'boolean' ? body.paymentsEnabled : undefined,
       allowCustomAmount:
         typeof body.allowCustomAmount === 'boolean' ? body.allowCustomAmount : undefined,
+      membershipDays: body.membershipDays != null ? Number(body.membershipDays) : undefined,
+      siteFreeAccessEnabled:
+        typeof body.siteFreeAccessEnabled === 'boolean' ? body.siteFreeAccessEnabled : undefined,
+      siteFreeAccessUntil:
+        typeof body.siteFreeAccessUntil === 'string' ? body.siteFreeAccessUntil : body.siteFreeAccessUntil === null ? null : undefined,
+      autoTrialDays: body.autoTrialDays != null ? Number(body.autoTrialDays) : undefined,
+      accessTip: typeof body.accessTip === 'string' ? body.accessTip : undefined,
+      payPageTip: typeof body.payPageTip === 'string' ? body.payPageTip : undefined,
+      programsEnabled:
+        typeof body.programsEnabled === 'boolean' ? body.programsEnabled : undefined,
+      programForexAmount:
+        body.programForexAmount != null ? Number(body.programForexAmount) : undefined,
+      programCryptoAmount:
+        body.programCryptoAmount != null ? Number(body.programCryptoAmount) : undefined,
+      programBundleAmount:
+        body.programBundleAmount != null ? Number(body.programBundleAmount) : undefined,
+      physicalClassesEnabled:
+        typeof body.physicalClassesEnabled === 'boolean' ? body.physicalClassesEnabled : undefined,
+      physicalClassSchedule:
+        typeof body.physicalClassSchedule === 'string' ? body.physicalClassSchedule : undefined,
+      physicalClassLocation:
+        typeof body.physicalClassLocation === 'string' ? body.physicalClassLocation : undefined,
+      physicalClassNote:
+        typeof body.physicalClassNote === 'string' ? body.physicalClassNote : undefined,
     })
+    return res.json({ ok: true, data })
+  } catch (error) {
+    return next(error)
+  }
+})
+
+paymentRoutes.post('/admin/site-free-access', requireAdminAuth, async (req, res, next) => {
+  try {
+    const days = Number((req.body as { days?: number }).days)
+    const data = await enableSiteFreeAccess(days)
+    return res.json({ ok: true, data })
+  } catch (error) {
+    return next(error)
+  }
+})
+
+paymentRoutes.post('/admin/site-free-access/disable', requireAdminAuth, async (_req, res, next) => {
+  try {
+    const data = await disableSiteFreeAccess()
     return res.json({ ok: true, data })
   } catch (error) {
     return next(error)

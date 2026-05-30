@@ -102,8 +102,8 @@ export function joinClassroomRoom(roomId: string): Promise<ClassroomJoinState> {
   })
 }
 
-export function leaveClassroomRoom() {
-  getAppSocket()?.emit('classroom:leave')
+export function leaveClassroomRoom(endSession = false) {
+  getAppSocket()?.emit('classroom:leave', endSession ? { endSession: true } : undefined)
 }
 
 export function emitChartSymbol(symbol: string) {

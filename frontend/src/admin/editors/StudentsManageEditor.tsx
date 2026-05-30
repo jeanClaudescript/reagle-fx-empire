@@ -17,6 +17,7 @@ import {
   type StudentRecord,
   type StudentStats,
 } from '@/services/api'
+import { programPlanLabel } from '@/utils/paymentPriceLabel'
 import { AdminCard } from '@/components/admin/AdminCard'
 import { PaymentsEditor } from '@/admin/editors/PaymentsEditor'
 import { useAdminToast } from '@/admin/toast'
@@ -263,6 +264,8 @@ export function StudentsManageEditor() {
           students={paid}
           variant="paid"
           onChanged={load}
+          membershipDays={paySettings?.membershipDays ?? 60}
+          autoTrialDays={paySettings?.autoTrialDays ?? 7}
         />
       )}
 
@@ -282,6 +285,8 @@ export function StudentsManageEditor() {
             students={unpaid}
             variant="unpaid"
             onChanged={load}
+            membershipDays={paySettings?.membershipDays ?? 60}
+            autoTrialDays={paySettings?.autoTrialDays ?? 7}
           />
         </>
       )}
@@ -487,11 +492,15 @@ function StudentList({
   variant,
   emptyLabel,
   onChanged,
+  membershipDays,
+  autoTrialDays,
 }: {
   students: StudentRecord[]
   variant: 'paid' | 'unpaid'
   emptyLabel: string
   onChanged: () => void
+  membershipDays: number
+  autoTrialDays: number
 }) {
   if (students.length === 0) {
     return (
@@ -507,10 +516,103 @@ function StudentList({
     <AdminCard>
       <div className="admin-card-body flex flex-col gap-3">
         {students.map((s) => (
-          <StudentRow key={s.id} student={s} variant={variant} onChanged={onChanged} />
+          <StudentRow
+            key={s.id}
+            student={s}
+            variant={variant}
+            onChanged={onChanged}
+            membershipDays={membershipDays}
+            autoTrialDays={autoTrialDays}
+          />
         ))}
       </div>
     </AdminCard>
+  )
+}
+
+function GrantAccessControls({
+  studentId,
+  membershipDays,
+  autoTrialDays,
+  onChanged,
+}: {
+  studentId: string
+  membershipDays: number
+  autoTrialDays: number
+  onChanged: () => void
+}) {
+  const { push } = useAdminToast()
+  const [open, setOpen] = useState(false)
+  const [customDays, setCustomDays] = useState(String(autoTrialDays || 7))
+  const [busy, setBusy] = useState(false)
+
+  const grant = async (days: number) => {
+    setBusy(true)
+    try {
+      await studentApi.grantAccess(studentId, { days })
+      push(`Access granted for ${days} days`, 'success')
+      setOpen(false)
+      onChanged()
+    } catch (e) {
+      push(e instanceof Error ? e.message : 'Failed', 'error')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  if (!open) {
+    return (
+      <button type="button" className="admin-btn admin-btn--primary admin-btn--sm" onClick={() => setOpen(true)}>
+        Grant access
+      </button>
+    )
+  }
+
+  return (
+    <div className="flex w-full flex-col gap-2 rounded-xl border border-theme bg-theme-elevated/40 p-2 lg:min-w-[14rem]">
+      <p className="text-xs font-semibold text-theme-muted">Grant VIP access</p>
+      <div className="flex flex-wrap gap-1">
+        {[autoTrialDays || 7, 14, 30, membershipDays].filter((d, i, a) => a.indexOf(d) === i).map((d) => (
+          <button
+            key={d}
+            type="button"
+            disabled={busy}
+            className="admin-btn admin-btn--secondary admin-btn--sm"
+            onClick={() => void grant(d)}
+          >
+            {d}d{d === membershipDays ? ' (paid)' : ''}
+          </button>
+        ))}
+      </div>
+      <div className="flex gap-1">
+        <input
+          type="number"
+          min={1}
+          max={365}
+          value={customDays}
+          onChange={(e) => setCustomDays(e.target.value)}
+          className="w-20 rounded-lg border border-theme bg-theme-elevated/60 px-2 py-1 text-sm"
+        />
+        <button
+          type="button"
+          disabled={busy}
+          className="admin-btn admin-btn--primary admin-btn--sm"
+          onClick={() => {
+            const d = Number(customDays)
+            if (!Number.isFinite(d) || d < 1) {
+              push('Enter valid days (1–365)', 'error')
+              return
+            }
+            void grant(d)
+          }}
+        >
+          Custom
+        </button>
+        <button type="button" className="admin-btn admin-btn--secondary admin-btn--sm" onClick={() => setOpen(false)}>
+          Cancel
+        </button>
+      </div>
+    </div>
   )
 }
 
@@ -518,10 +620,14 @@ function StudentRow({
   student,
   variant,
   onChanged,
+  membershipDays,
+  autoTrialDays,
 }: {
   student: StudentRecord
   variant: 'paid' | 'unpaid'
   onChanged: () => void
+  membershipDays: number
+  autoTrialDays: number
 }) {
   const { push } = useAdminToast()
   const [editing, setEditing] = useState(false)
@@ -617,9 +723,18 @@ function StudentRow({
             </p>
             {variant === 'paid' && (
               <p className="mt-1 text-xs text-emerald-400/90">
+                {programPlanLabel(student.programType) ? (
+                  <>
+                    Program: <span className="font-semibold">{programPlanLabel(student.programType)}</span>
+                    {' · '}
+                  </>
+                ) : null}
                 Paid {student.totalPaid.toLocaleString()} ({student.paymentCount} payment
                 {student.paymentCount === 1 ? '' : 's'})
                 {student.paidAt ? ` · since ${new Date(student.paidAt).toLocaleDateString()}` : ''}
+                {student.paidUntil
+                  ? ` · until ${new Date(student.paidUntil).toLocaleDateString()} (${student.daysRemaining ?? '?'}d left)`
+                  : ''}
               </p>
             )}
             {pending && variant === 'unpaid' && (
@@ -682,21 +797,12 @@ function StudentRow({
                     Approve payment
                   </button>
                 )}
-                <button
-                  type="button"
-                  className="admin-btn admin-btn--primary admin-btn--sm"
-                  onClick={async () => {
-                    try {
-                      await studentApi.grantAccess(student.id)
-                      push('Paid access granted (manual)', 'success')
-                      onChanged()
-                    } catch (e) {
-                      push(e instanceof Error ? e.message : 'Failed', 'error')
-                    }
-                  }}
-                >
-                  Grant access
-                </button>
+                <GrantAccessControls
+                  studentId={student.id}
+                  membershipDays={membershipDays}
+                  autoTrialDays={autoTrialDays}
+                  onChanged={onChanged}
+                />
               </>
             )}
             {variant === 'paid' && (
@@ -715,6 +821,14 @@ function StudentRow({
               >
                 Revoke access
               </button>
+            )}
+            {variant === 'paid' && (
+              <GrantAccessControls
+                studentId={student.id}
+                membershipDays={membershipDays}
+                autoTrialDays={autoTrialDays}
+                onChanged={onChanged}
+              />
             )}
           </>
         )}

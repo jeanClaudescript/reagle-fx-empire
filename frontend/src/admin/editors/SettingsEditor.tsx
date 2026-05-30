@@ -9,7 +9,6 @@ import { DEFAULT_CMS_DATA } from '@/cms/defaultCms'
 import { normalizeCmsData } from '@/cms/storage'
 import { messageApi, type ApiMessage } from '@/services/api'
 import { onInboxMessage } from '@/realtime/appSocket'
-import { AdminDeskChatPanel } from '@/admin/editors/AdminDeskChatPanel'
 import { AdminsEditor } from '@/admin/editors/AdminsEditor'
 
 const SECTION_LABELS: Record<CMSSectionId, string> = {
@@ -170,11 +169,9 @@ export function SettingsEditor() {
         <div className="admin-card-body">
           <h3 className="font-display text-md font-bold text-theme-primary">VIP desk chat</h3>
           <p className="mt-2 text-sm text-theme-muted">
-            Real-time community chat and private student messages.
+            Manage community chat and private student messages in the <strong>VIP messages</strong> tab under
+            Operations — realtime, no duplicate panel here.
           </p>
-          <div className="mt-4">
-            <AdminDeskChatPanel />
-          </div>
         </div>
       </AdminCard>
 

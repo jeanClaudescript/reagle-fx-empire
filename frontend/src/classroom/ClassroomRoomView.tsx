@@ -84,7 +84,7 @@ export function ClassroomRoomView({ roomId, mode, embedded = false, onBack, onSe
       })
 
     return () => {
-      leaveClassroomRoom()
+      leaveClassroomRoom(mode === 'teacher')
       disconnectClassroomSocket()
     }
   }, [roomId, mode])
@@ -114,7 +114,7 @@ export function ClassroomRoomView({ roomId, mode, embedded = false, onBack, onSe
   }
 
   const handleSessionEndedBack = () => {
-    leaveClassroomRoom()
+    leaveClassroomRoom(mode === 'teacher')
     disconnectClassroomSocket()
     onBack?.()
   }

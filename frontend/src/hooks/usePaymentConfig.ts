@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { paymentApi, type PaymentConfig } from '@/services/api'
+import { paymentPriceLabel } from '@/utils/paymentPriceLabel'
 
 export function usePaymentConfig() {
   const [config, setConfig] = useState<PaymentConfig | null>(null)
@@ -27,10 +28,7 @@ export function usePaymentConfig() {
     }
   }, [])
 
-  const priceLabel =
-    config && config.paymentsEnabled
-      ? `${config.defaultAmount.toLocaleString()} ${config.currency}`
-      : null
+  const priceLabel = paymentPriceLabel(config)
 
   return { config, loading, error, priceLabel, paymentsEnabled: config?.paymentsEnabled ?? true }
 }

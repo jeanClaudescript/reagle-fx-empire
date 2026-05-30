@@ -1,6 +1,7 @@
-import { Calculator, Lock, Radio, Sparkles } from 'lucide-react'
+import { Calculator, Lock, MapPin, Radio, Sparkles } from 'lucide-react'
 import { useLanguage } from '@/context/LanguageContext'
 import { GlowButton } from '@/components/ui/GlowButton'
+import { ProgramValueCard } from '@/components/student/ProgramValueCard'
 import { usePaymentConfig } from '@/hooks/usePaymentConfig'
 
 /** Public teaser — full tools/live stay in paid zone only. */
@@ -23,12 +24,14 @@ export function StudentUpgradeTeaser() {
         <p className="mx-auto mt-2 max-w-lg text-sm text-theme-muted sm:text-base">{t.studentZone.subtitle}</p>
 
         <ul className="mx-auto mt-8 flex max-w-md flex-col gap-3 text-left text-sm text-theme-primary">
-          {[t.live.perkLive, t.live.perkPaper, t.live.perkTools].map((item) => (
+          {[t.live.perkLive, t.live.perkPhysical, t.live.perkPaper, t.live.perkTools].map((item) => (
             <li key={item} className="flex items-center gap-3 rounded-xl border border-theme bg-theme-surface/60 px-4 py-3">
               {item === t.live.perkTools ? (
                 <Calculator className="h-5 w-5 shrink-0 text-theme-accent" />
               ) : item === t.live.perkLive ? (
                 <Radio className="h-5 w-5 shrink-0 text-theme-accent" />
+              ) : item === t.live.perkPhysical ? (
+                <MapPin className="h-5 w-5 shrink-0 text-theme-accent" />
               ) : (
                 <Sparkles className="h-5 w-5 shrink-0 text-theme-accent" />
               )}
@@ -36,6 +39,10 @@ export function StudentUpgradeTeaser() {
             </li>
           ))}
         </ul>
+
+        <div className="mx-auto mt-8 max-w-lg text-left">
+          <ProgramValueCard />
+        </div>
 
         <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
           <GlowButton href="/pay" variant="primary" external={false}>

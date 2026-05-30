@@ -11,6 +11,49 @@ import {
 } from '../models/ClassroomRoom.js'
 import { emitToAll } from '../socket/io.js'
 
+const TEACHER_LEAVE_GRACE_MS = 12_000
+const teacherLeaveTimers = new Map<string, ReturnType<typeof setTimeout>>()
+
+function clearTeacherLeaveTimer(roomId: string) {
+  const timer = teacherLeaveTimers.get(roomId)
+  if (timer) clearTimeout(timer)
+  teacherLeaveTimers.delete(roomId)
+}
+
+/** When coach closes the teacher tab without clicking End, stop showing live to students. */
+export function scheduleClassroomEndIfNoTeacher(
+  roomId: string,
+  hasTeacherConnected: () => Promise<boolean>,
+  delayMs = TEACHER_LEAVE_GRACE_MS,
+) {
+  clearTeacherLeaveTimer(roomId)
+  teacherLeaveTimers.set(
+    roomId,
+    setTimeout(() => {
+      teacherLeaveTimers.delete(roomId)
+      void endClassroomIfNoTeacher(roomId, hasTeacherConnected)
+    }, delayMs),
+  )
+}
+
+export async function endClassroomIfNoTeacher(
+  roomId: string,
+  hasTeacherConnected: () => Promise<boolean>,
+) {
+  try {
+    if (await hasTeacherConnected()) return
+    const doc = await ClassroomRoomModel.findById(roomId)
+    if (!doc || doc.status !== 'live') return
+    await setClassroomRoomStatus(roomId, 'ended')
+  } catch {
+    /* ignore */
+  }
+}
+
+export function cancelClassroomEndIfNoTeacher(roomId: string) {
+  clearTeacherLeaveTimer(roomId)
+}
+
 function broadcastClassroomUpdate() {
   void getActiveClassroomRoom().then((data) => {
     emitToAll('classroom:updated', { data, at: new Date().toISOString() })

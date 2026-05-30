@@ -110,6 +110,19 @@ function roomChannel(roomId: string) {
   return `classroom:${roomId}`
 }
 
+async function hasTeacherSocketInRoom(io: Server, roomId: string) {
+  const sockets = await io.in(roomChannel(roomId)).fetchSockets()
+  return sockets.some((s) => {
+    const user = (s.data as SocketData).user
+    return user.role === 'teacher'
+  })
+}
+
+async function onTeacherLeftRoom(io: Server, roomId: string) {
+  const { scheduleClassroomEndIfNoTeacher } = await import('../services/classroomService.js')
+  scheduleClassroomEndIfNoTeacher(roomId, () => hasTeacherSocketInRoom(io, roomId))
+}
+
 async function persistAndBroadcast(
   io: Server,
   roomId: string,
@@ -186,6 +199,11 @@ export function initClassroomSocket(httpServer: HttpServer) {
           socketId: socket.id,
         })
 
+        if (classroomRole === 'teacher') {
+          const { cancelClassroomEndIfNoTeacher } = await import('../services/classroomService.js')
+          cancelClassroomEndIfNoTeacher(roomId)
+        }
+
         const [participants, chartState, chat] = await Promise.all([
           listActiveParticipants(roomId),
           getRoomChartState(roomId),
@@ -215,14 +233,23 @@ export function initClassroomSocket(httpServer: HttpServer) {
       }
     })
 
-    socket.on('classroom:leave', async () => {
+    socket.on('classroom:leave', async (payload?: { endSession?: boolean }) => {
       const roomId = data.roomId
       if (!roomId) return
+      const wasTeacher = data.user.role === 'teacher'
       await leaveClassroomParticipant(roomId, data.user.id)
       await socket.leave(roomChannel(roomId))
       data.roomId = undefined
       const participants = await listActiveParticipants(roomId)
       io.to(roomChannel(roomId)).emit('classroom:participants', participants)
+      if (wasTeacher) {
+        if (payload?.endSession) {
+          const { endClassroomIfNoTeacher } = await import('../services/classroomService.js')
+          await endClassroomIfNoTeacher(roomId, () => hasTeacherSocketInRoom(io, roomId))
+        } else {
+          await onTeacherLeftRoom(io, roomId)
+        }
+      }
     })
 
     socket.on('chart:symbol', async (payload: { symbol: string }) => {
@@ -435,9 +462,11 @@ export function initClassroomSocket(httpServer: HttpServer) {
     socket.on('disconnect', async () => {
       const roomId = data.roomId
       if (!roomId) return
+      const wasTeacher = data.user.role === 'teacher'
       await leaveClassroomParticipant(roomId, data.user.id)
       const participants = await listActiveParticipants(roomId)
       io.to(roomChannel(roomId)).emit('classroom:participants', participants)
+      if (wasTeacher) await onTeacherLeftRoom(io, roomId)
     })
   })
 

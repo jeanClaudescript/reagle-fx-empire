@@ -5,8 +5,10 @@ import { buildTelUssdHref } from '../utils/ussdTel.js'
 import { formatDisplayPhone, normalizeRwPhone } from '../utils/phone.js'
 import { creditReferrerOnFirstPayment, ensureUserReferralCode } from './referralService.js'
 import { env } from '../config/env.js'
-import { getPaymentSettings, type PaymentSettings } from './paymentSettingsService.js'
+import { isProgramPlanId, type ProgramPlanId } from '../types/program.js'
+import { getPaymentSettings, resolveProgramAmount, type PaymentSettings } from './paymentSettingsService.js'
 import { findUserByContact, markStudentPaid } from './studentService.js'
+import { grantMembership } from './membershipService.js'
 import { isValidEmail, normalizeEmail } from '../utils/email.js'
 
 function buildUssdFromTemplate(template: string, merchantPhone: string, amount: number) {
@@ -86,6 +88,12 @@ export async function findOrCreateUser(input: {
       createdAt: new Date(),
       updatedAt: new Date(),
     })
+
+    const settings = await getPaymentSettings()
+    if (settings.autoTrialDays > 0) {
+      await grantMembership(String(user._id), settings.autoTrialDays)
+      user = (await AppUserModel.findById(user._id))!
+    }
   } else {
     let changed = false
     if (input.name?.trim() && user.name !== input.name.trim()) {
@@ -115,6 +123,7 @@ export async function createPaymentRequest(input: {
   email?: string
   name?: string
   amount?: number
+  program?: ProgramPlanId
   referrerCode?: string
   provider?: 'MTN' | 'AIRTEL'
 }) {
@@ -124,10 +133,22 @@ export async function createPaymentRequest(input: {
   }
 
   const user = await findOrCreateUser(input)
-  const amount = input.amount ?? settings.defaultAmount
-  if (amount < 100) throw new Error('Amount must be at least 100')
-  if (!settings.allowCustomAmount && input.amount != null && input.amount !== settings.defaultAmount) {
-    throw new Error('Custom amounts are not allowed')
+
+  let amount: number
+  let programType: ProgramPlanId | undefined
+
+  if (settings.programsEnabled) {
+    if (!input.program || !isProgramPlanId(input.program)) {
+      throw new Error('Please select a program plan')
+    }
+    programType = input.program
+    amount = resolveProgramAmount(settings, programType)
+  } else {
+    amount = input.amount ?? settings.defaultAmount
+    if (amount < 100) throw new Error('Amount must be at least 100')
+    if (!settings.allowCustomAmount && input.amount != null && input.amount !== settings.defaultAmount) {
+      throw new Error('Custom amounts are not allowed')
+    }
   }
 
   const referenceCode = await uniqueReferenceCode()
@@ -144,6 +165,7 @@ export async function createPaymentRequest(input: {
   const payment = await PaymentModel.create({
     userId: String(user._id),
     phone: paymentPhone,
+    programType,
     amount,
     currency: settings.currency,
     status: 'PENDING',
@@ -262,7 +284,7 @@ export async function confirmPayment(
   await payment.save()
 
   await creditReferrerOnFirstPayment(String(payment._id), payment.userId)
-  await markStudentPaid(payment.userId)
+  await markStudentPaid(payment.userId, undefined, payment.programType)
   return payment
 }
 
@@ -300,6 +322,7 @@ export function serializePayment(doc: {
   _id: unknown
   userId: string
   phone: string
+  programType?: ProgramPlanId
   amount: number
   currency: string
   status: PaymentStatus
@@ -317,6 +340,7 @@ export function serializePayment(doc: {
     userId: doc.userId,
     phone: doc.phone,
     displayPhone: formatDisplayPhone(doc.phone),
+    programType: doc.programType,
     amount: doc.amount,
     currency: doc.currency,
     status: doc.status,

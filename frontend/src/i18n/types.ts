@@ -57,6 +57,9 @@ export interface Translations {
     rrReview: string
     chartTitle: string
     chartDesc: string
+    chartTfDaily: string
+    chartTfMinutes: string
+    watchOpenChart: string
     ctaPay: string
     ctaLessons: string
     dragHint: string
@@ -80,6 +83,8 @@ export interface Translations {
     months: string
     projectedBalance: string
     paperTitle: string
+    paperBuy: string
+    paperSell: string
     paperDesc: string
     paperLocked: string
     paperLive: string
@@ -148,6 +153,17 @@ export interface Translations {
     networkLabel: string
     networkMtn: string
     networkAirtel: string
+    otherNetworkTitle: string
+    otherNetworkBody: string
+    otherNetworkCoach: string
+    otherNetworkContact: string
+    planLabel: string
+    planForexTitle: string
+    planForexDesc: string
+    planCryptoTitle: string
+    planCryptoDesc: string
+    planBundleTitle: string
+    planBundleDesc: string
     amountLabel: string
     amountFixed: string
     payTo: string
@@ -206,6 +222,7 @@ export interface Translations {
     unlockPopupTitle: string
     unlockPopupBody: string
     perkLive: string
+    perkPhysical: string
     perkPaper: string
     perkTools: string
     unlockCta: string
@@ -451,6 +468,93 @@ export interface Translations {
     checkRisk: string
     checkNews: string
     checkPlan: string
+    activityTitle: string
+    activitySubtitle: string
+    activityAllCaughtUp: string
+    activityAllCaughtUpHint: string
+    activityLive: string
+    activityClassroom: string
+    activityCommunity: string
+    activityCoach: string
+    activityBook: string
+    activitySignal: string
+    activityUpdate: string
+    activityLiveNow: string
+    activityNew: string
+    signalJustIn: string
+    signalCopied: string
+    signalEmptyHint: string
+    viewSignal: string
+    openSignalBoard: string
+    alertTapOpen: string
+    timeJustNow: string
+    timeMinutesAgo: string
+    timeHoursAgo: string
+    alertBookPreview: string
+    alertClassroomPreview: string
+    dismissAlert: string
+    quickLive: string
+    quickSignals: string
+    quickChart: string
+    quickClassroom: string
+    menuOpen: string
+    menuClose: string
+    physicalTitle: string
+    physicalSubtitle: string
+    physicalSchedule: string
+    physicalLocation: string
+    physicalNote: string
+    physicalContactCta: string
+  }
+  membership: {
+    joinCta: string
+    renewCta: string
+    renewEarly: string
+    expiredTitle: string
+    expiredBody: string
+    expiredDeskBody: string
+    expiringTitle: string
+    expiringBody: string
+    activeUntil: string
+    daysLeft: string
+    promoTitle: string
+    promoBody: string
+    promoBodyOpen: string
+  }
+  program: {
+    title: string
+    subtitle: string
+    progress: string
+    continueWeek: string
+    complete: string
+    weekLabel: string
+    openTool: string
+    offerTitle: string
+    offerSubtitle: string
+    offerRenew: string
+    perkLive: string
+    perkSignals: string
+    perkClassroom: string
+    perkChart: string
+    perkBooks: string
+    perkCoach: string
+    perkPhysical: string
+    week1Title: string
+    week1Desc: string
+    week2Title: string
+    week2Desc: string
+    week3Title: string
+    week3Desc: string
+    week4Title: string
+    week4Desc: string
+    week5Title: string
+    week5Desc: string
+    week6Title: string
+    week6Desc: string
+    week7Title: string
+    week7Desc: string
+    week8Title: string
+    week8Desc: string
   }
   books: {
     label: string
@@ -501,6 +605,15 @@ export interface Translations {
     publicSubtitle: string
     liveRealtime: string
     signInForChat: string
+    coachHint: string
+    coachLoading: string
+    coachEmpty: string
+    coachPlaceholder: string
+    communityHint: string
+    communityLoading: string
+    communityEmpty: string
+    communityPlaceholder: string
+    sendAria: string
   }
   languages: {
     en: string

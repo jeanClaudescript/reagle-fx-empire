@@ -109,11 +109,11 @@ export function PaperTradingDesk({ pair = 'EUR/USD' }: { pair?: string; livePric
       <div className="mt-3 grid grid-cols-2 gap-2">
         <button type="button" className="paper-trade-btn paper-trade-btn--buy" onClick={() => open('buy')}>
           <TrendingUp className="h-4 w-4" />
-          Buy
+          {t.tools.paperBuy}
         </button>
         <button type="button" className="paper-trade-btn paper-trade-btn--sell" onClick={() => open('sell')}>
           <TrendingDown className="h-4 w-4" />
-          Sell
+          {t.tools.paperSell}
         </button>
       </div>
 

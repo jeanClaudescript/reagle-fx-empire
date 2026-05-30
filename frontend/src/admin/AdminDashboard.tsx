@@ -31,6 +31,7 @@ import { AdminPreviewPanel } from '@/components/admin/AdminPreviewPanel'
 import { MediaViewerProvider } from '@/components/admin/media/MediaViewerContext'
 import { AdminSectionFrame } from '@/components/admin/AdminSectionFrame'
 import { AdminApiStatusBanner } from '@/components/admin/AdminApiStatusBanner'
+import { useAdminDeskChatUnread } from '@/admin/useAdminDeskChatUnread'
 import type { AdminTab } from '@/admin/layout/adminNav'
 import { getAdminNavLabel } from '@/admin/layout/adminNav'
 import type { ContentSectionId } from '@/cms/validation'
@@ -74,6 +75,7 @@ function AdminDashboardInner() {
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [isPublishing, setIsPublishing] = useState(false)
+  const { unread: deskChatUnread } = useAdminDeskChatUnread(tab)
 
   useEffect(() => {
     if (!isAdminAuthenticated()) {
@@ -307,6 +309,7 @@ function AdminDashboardInner() {
         canCollapse
         syncLabel={syncLabel}
         hasDraftChanges={hasDraftChanges}
+        deskChatUnread={deskChatUnread}
       />
 
       <div className="admin-main">

@@ -2,10 +2,12 @@ import { Schema, model } from 'mongoose'
 
 export type PaymentStatus = 'PENDING' | 'PAID' | 'FAILED' | 'EXPIRED'
 export type PaymentProvider = 'MTN' | 'AIRTEL' | 'MANUAL' | 'WEBHOOK'
+export type ProgramPlanId = 'forex' | 'crypto' | 'bundle'
 
 export interface PaymentDocument {
   userId: string
   phone: string
+  programType?: ProgramPlanId
   amount: number
   currency: string
   status: PaymentStatus
@@ -23,6 +25,7 @@ const paymentSchema = new Schema<PaymentDocument>(
   {
     userId: { type: String, required: true, index: true },
     phone: { type: String, required: true, index: true },
+    programType: { type: String, enum: ['forex', 'crypto', 'bundle'], index: true },
     amount: { type: Number, required: true, min: 1 },
     currency: { type: String, required: true, default: 'RWF' },
     status: {

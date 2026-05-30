@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Send } from 'lucide-react'
+import { useLanguage } from '@/context/LanguageContext'
 import { deskChatApi } from '@/services/api'
 import { emitDeskDirectSend, onDirectMessage, type DeskChatMessage } from '@/realtime/appSocket'
 
@@ -9,6 +10,7 @@ function mergeMessage(list: DeskChatMessage[], msg: DeskChatMessage) {
 }
 
 export function VipCoachChat() {
+  const { t } = useLanguage()
   const [messages, setMessages] = useState<DeskChatMessage[]>([])
   const [text, setText] = useState('')
   const [loading, setLoading] = useState(true)
@@ -48,16 +50,14 @@ export function VipCoachChat() {
     }
   }
 
-  if (loading) return <p className="text-sm text-theme-muted">Loading messages…</p>
+  if (loading) return <p className="text-sm text-theme-muted">{t.chat.coachLoading}</p>
 
   return (
     <div className="desk-chat desk-chat--direct">
-      <p className="desk-chat__hint text-sm text-theme-muted mb-3">
-        Private chat with Coach — replies appear here in real time.
-      </p>
+      <p className="desk-chat__hint text-sm text-theme-muted mb-3">{t.chat.coachHint}</p>
       <div className="desk-chat__messages">
         {messages.length === 0 ? (
-          <p className="text-sm text-theme-muted py-4 text-center">No messages yet. Say hello to Coach.</p>
+          <p className="text-sm text-theme-muted py-4 text-center">{t.chat.coachEmpty}</p>
         ) : (
           messages.map((m) => (
             <div
@@ -79,10 +79,10 @@ export function VipCoachChat() {
           value={text}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), send())}
-          placeholder="Message Coach…"
+          placeholder={t.chat.coachPlaceholder}
           maxLength={2000}
         />
-        <button type="button" onClick={send} disabled={sending || !text.trim()} aria-label="Send">
+        <button type="button" onClick={send} disabled={sending || !text.trim()} aria-label={t.chat.sendAria}>
           <Send size={16} />
         </button>
       </div>
