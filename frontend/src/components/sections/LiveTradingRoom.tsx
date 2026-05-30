@@ -1,11 +1,10 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useState } from 'react'
 import { Lock, Radio, Share2, Signal } from 'lucide-react'
 import { useLanguage } from '@/context/LanguageContext'
 import { useStudentAccess } from '@/context/StudentAccessContext'
 import { liveApi, type LiveSession } from '@/services/api'
 import { onLiveUpdated } from '@/realtime/appSocket'
 import { SectionHeading } from '@/components/ui/SectionHeading'
-import { ScrollReveal } from '@/components/ui/ScrollReveal'
 import { GlowButton } from '@/components/ui/GlowButton'
 import { LiveForexChart } from '@/components/ui/LiveForexChart'
 import { PaperTradingDesk } from '@/components/forex/tools/PaperTradingDesk'
@@ -22,25 +21,6 @@ function embedUrl(url?: string) {
     return id ? `https://www.youtube.com/embed/${id}` : null
   }
   return url
-}
-
-function Reveal({
-  deskMode,
-  children,
-  className,
-  delay,
-}: {
-  deskMode?: boolean
-  children: ReactNode
-  className?: string
-  delay?: number
-}) {
-  if (deskMode) return <div className={className}>{children}</div>
-  return (
-    <ScrollReveal className={className} delay={delay}>
-      {children}
-    </ScrollReveal>
-  )
 }
 
 export function LiveTradingRoom({ deskMode = false }: { deskMode?: boolean }) {
@@ -70,6 +50,8 @@ export function LiveTradingRoom({ deskMode = false }: { deskMode?: boolean }) {
 
   const isLive = session?.status === 'live'
   const stream = embedUrl(session?.streamUrl)
+  const showStream = canView && isLive && Boolean(stream)
+  const hasSignal = canView && session?.signalSide && session.signalSide !== 'neutral'
 
   const shareText =
     session?.signalSide && session.signalSide !== 'neutral'
@@ -105,104 +87,114 @@ export function LiveTradingRoom({ deskMode = false }: { deskMode?: boolean }) {
           <SectionHeading label={t.live.label} title={t.live.title} subtitle={t.live.subtitle} />
         )}
 
-        {isLive ? (
-          <div className="live-pill mb-8">
-            <span className="live-dot h-2 w-2 rounded-full bg-rose-500" />
-            {t.live.liveNow}: {session?.title}
-          </div>
-        ) : null}
+        {/* Fixed slot — pill appears without pushing layout when session loads */}
+        <div className="live-room-pill-slot" aria-live="polite">
+          {isLive ? (
+            <div className="live-pill">
+              <span className="live-dot h-2 w-2 rounded-full bg-rose-500" />
+              {t.live.liveNow}: {session?.title}
+            </div>
+          ) : null}
+        </div>
 
         <div className="live-room-grid">
-          <Reveal deskMode={deskMode} className="live-room-grid__main">
-            <div className="fintech-card fintech-card--glow overflow-hidden p-2 sm:p-3">
-              {canView && isLive && stream ? (
-                <div className="aspect-video w-full overflow-hidden rounded-xl bg-black">
+          <div className="live-room-grid__main">
+            <div className="fintech-card fintech-card--glow fintech-card--live overflow-hidden p-2 sm:p-3">
+              {/* Fixed 16:9 stage — chart and iframe share identical dimensions */}
+              <div className="live-room-stage">
+                {showStream ? (
                   <iframe
+                    className="live-room-stage__embed"
                     title="Live stream"
-                    src={stream}
-                    className="h-full w-full"
+                    src={stream!}
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
                   />
-                </div>
-              ) : (
-                <div className="relative aspect-video overflow-hidden rounded-xl">
-                  <LiveForexChart className="h-full w-full" compact />
-                  {!canView ? (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-theme-bg/80 p-6 text-center backdrop-blur-sm">
-                      <Lock className="h-10 w-10 text-theme-accent" />
-                      <p className="mt-3 font-display text-lg font-bold text-theme-primary">
-                        {t.live.lockedTitle}
-                      </p>
-                      <p className="mt-1 text-sm text-theme-muted">{t.live.lockedBody}</p>
-                      <GlowButton
-                        variant="primary"
-                        external={false}
-                        className="mt-4"
-                        onClick={() => setGateOpen(true)}
-                      >
-                        {t.live.verifyAccess}
-                      </GlowButton>
-                    </div>
+                ) : (
+                  <>
+                    <LiveForexChart className="live-room-stage__chart" compact staticLayout />
+                    {!canView ? (
+                      <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-theme-bg/80 p-6 text-center backdrop-blur-sm">
+                        <Lock className="h-10 w-10 text-theme-accent" />
+                        <p className="mt-3 font-display text-lg font-bold text-theme-primary">
+                          {t.live.lockedTitle}
+                        </p>
+                        <p className="mt-1 text-sm text-theme-muted">{t.live.lockedBody}</p>
+                        <GlowButton
+                          variant="primary"
+                          external={false}
+                          className="mt-4"
+                          onClick={() => setGateOpen(true)}
+                        >
+                          {t.live.verifyAccess}
+                        </GlowButton>
+                      </div>
+                    ) : null}
+                  </>
+                )}
+              </div>
+
+              {/* Fixed meta slot — coach note / meeting link load without expanding card */}
+              {canView ? (
+                <div className="live-room-meta">
+                  {session?.coachNote ? (
+                    <p className="rounded-xl border border-theme bg-theme-surface/50 px-4 py-3 text-sm text-theme-primary">
+                      <strong>{t.live.coachNote}:</strong> {session.coachNote}
+                    </p>
+                  ) : null}
+                  {session?.meetingUrl ? (
+                    <a
+                      href={session.meetingUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="live-room-meeting-link"
+                    >
+                      {t.live.openMeeting}
+                    </a>
                   ) : null}
                 </div>
-              )}
-
-              {session?.coachNote && canView ? (
-                <p className="mt-3 rounded-xl border border-theme bg-theme-surface/50 px-4 py-3 text-sm text-theme-primary">
-                  <strong>{t.live.coachNote}:</strong> {session.coachNote}
-                </p>
-              ) : null}
-
-              {session?.meetingUrl && canView ? (
-                <a
-                  href={session.meetingUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-3 inline-flex h-11 items-center justify-center rounded-xl border border-theme-accent/40 bg-theme-accent/10 px-4 text-sm font-semibold text-theme-accent"
-                >
-                  {t.live.openMeeting}
-                </a>
               ) : null}
             </div>
-          </Reveal>
+          </div>
 
-          <Reveal deskMode={deskMode} delay={0.08} className="live-room-grid__side">
+          <div className="live-room-grid__side">
             <div className="flex flex-col gap-4">
-              <div className="fintech-card p-5">
+              <div className="fintech-card fintech-card--live p-5">
                 <div className="flex items-center gap-2">
                   <Signal className="h-5 w-5 text-theme-accent" />
                   <h3 className="font-display font-bold text-theme-primary">{t.live.signalTitle}</h3>
                 </div>
-                {canView && session?.signalSide && session.signalSide !== 'neutral' ? (
-                  <div className="forex-signal-card mt-4">
-                    <p
-                      className={`text-lg font-bold uppercase ${session.signalSide === 'buy' ? 'text-emerald-400' : 'text-rose-400'}`}
-                    >
-                      {session.signalSide} {session.pair}
-                    </p>
-                    <dl className="mt-3 grid grid-cols-3 gap-2 text-center text-xs">
-                      <div className="rounded-xl bg-theme-elevated/50 p-2">
-                        <dt className="text-theme-muted">{t.tools.entry}</dt>
-                        <dd className="font-mono font-bold">{session.signalEntry ?? '—'}</dd>
-                      </div>
-                      <div className="rounded-xl bg-theme-elevated/50 p-2">
-                        <dt className="text-theme-muted">{t.tools.stop}</dt>
-                        <dd className="font-mono font-bold text-rose-400">{session.signalStop ?? '—'}</dd>
-                      </div>
-                      <div className="rounded-xl bg-theme-elevated/50 p-2">
-                        <dt className="text-theme-muted">{t.tools.target}</dt>
-                        <dd className="font-mono font-bold text-emerald-400">{session.signalTarget ?? '—'}</dd>
-                      </div>
-                    </dl>
-                    <button type="button" className="forex-tool-action mt-3" onClick={copySignal}>
-                      <Share2 className="h-4 w-4" />
-                      {t.tools.copySignal}
-                    </button>
-                  </div>
-                ) : (
-                  <p className="mt-3 text-sm text-theme-muted">{t.live.signalEmpty}</p>
-                )}
+                <div className="live-room-signal-slot">
+                  {hasSignal ? (
+                    <div className="forex-signal-card mt-4">
+                      <p
+                        className={`text-lg font-bold uppercase ${session!.signalSide === 'buy' ? 'text-emerald-400' : 'text-rose-400'}`}
+                      >
+                        {session!.signalSide} {session!.pair}
+                      </p>
+                      <dl className="mt-3 grid grid-cols-3 gap-2 text-center text-xs">
+                        <div className="rounded-xl bg-theme-elevated/50 p-2">
+                          <dt className="text-theme-muted">{t.tools.entry}</dt>
+                          <dd className="font-mono font-bold">{session!.signalEntry ?? '—'}</dd>
+                        </div>
+                        <div className="rounded-xl bg-theme-elevated/50 p-2">
+                          <dt className="text-theme-muted">{t.tools.stop}</dt>
+                          <dd className="font-mono font-bold text-rose-400">{session!.signalStop ?? '—'}</dd>
+                        </div>
+                        <div className="rounded-xl bg-theme-elevated/50 p-2">
+                          <dt className="text-theme-muted">{t.tools.target}</dt>
+                          <dd className="font-mono font-bold text-emerald-400">{session!.signalTarget ?? '—'}</dd>
+                        </div>
+                      </dl>
+                      <button type="button" className="forex-tool-action mt-3" onClick={copySignal}>
+                        <Share2 className="h-4 w-4" />
+                        {t.tools.copySignal}
+                      </button>
+                    </div>
+                  ) : (
+                    <p className="mt-3 text-sm text-theme-muted">{t.live.signalEmpty}</p>
+                  )}
+                </div>
               </div>
 
               {!deskMode ? <PaperTradingDesk pair={session?.pair} /> : null}
@@ -214,19 +206,17 @@ export function LiveTradingRoom({ deskMode = false }: { deskMode?: boolean }) {
                 </p>
               ) : null}
             </div>
-          </Reveal>
+          </div>
         </div>
 
         {!canView && !deskMode ? (
-          <Reveal deskMode={deskMode}>
-            <div className="mt-10 flex flex-col items-center gap-3 text-center">
-              <Radio className="h-8 w-8 text-theme-accent" />
-              <p className="max-w-md text-sm text-theme-muted">{t.live.upgradeHint}</p>
-              <GlowButton href="/pay" variant="primary" external={false}>
-                {t.live.unlockCta}
-              </GlowButton>
-            </div>
-          </Reveal>
+          <div className="mt-10 flex flex-col items-center gap-3 text-center">
+            <Radio className="h-8 w-8 text-theme-accent" />
+            <p className="max-w-md text-sm text-theme-muted">{t.live.upgradeHint}</p>
+            <GlowButton href="/pay" variant="primary" external={false}>
+              {t.live.unlockCta}
+            </GlowButton>
+          </div>
         ) : null}
       </div>
 

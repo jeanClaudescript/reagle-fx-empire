@@ -114,12 +114,15 @@ interface LiveForexChartProps {
   className?: string
   compact?: boolean
   showHud?: boolean
+  /** Skip mount animation — use in live room to prevent layout shift */
+  staticLayout?: boolean
 }
 
 export function LiveForexChart({
   className = '',
   compact = false,
   showHud = true,
+  staticLayout = false,
 }: LiveForexChartProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -284,13 +287,8 @@ export function LiveForexChart({
     return () => cancelAnimationFrame(raf)
   }, [candles, live, formProgress, isDark, compact, showHud, isBullish, lastPrice])
 
-  return (
-    <motion.div
-      ref={containerRef}
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      className={`chart-terminal-forex relative overflow-hidden ${className}`}
-    >
+  const chartBody = (
+    <>
       {showHud && (
         <div className="absolute left-0 right-0 top-0 z-10 flex items-center justify-between px-3 py-2 sm:px-4">
           <div className="flex items-center gap-2">
@@ -322,6 +320,28 @@ export function LiveForexChart({
         </div>
       )}
       <canvas ref={canvasRef} className="block h-full w-full" aria-label={`${pair} live chart`} />
+    </>
+  )
+
+  if (staticLayout) {
+    return (
+      <div
+        ref={containerRef}
+        className={`chart-terminal-forex relative overflow-hidden ${className}`}
+      >
+        {chartBody}
+      </div>
+    )
+  }
+
+  return (
+    <motion.div
+      ref={containerRef}
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      className={`chart-terminal-forex relative overflow-hidden ${className}`}
+    >
+      {chartBody}
     </motion.div>
   )
 }

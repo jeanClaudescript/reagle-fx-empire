@@ -1311,6 +1311,65 @@
     @apply grid gap-6 lg:grid-cols-[1.4fr_1fr];
   }
 
+  .live-room-grid__main,
+  .live-room-grid__side {
+    min-width: 0;
+  }
+
+  /* Reserved pill row — session title appears without pushing layout */
+  .live-room-pill-slot {
+    display: flex;
+    align-items: center;
+    min-height: 2.75rem;
+    margin-bottom: 1rem;
+  }
+
+  /* Fixed 16:9 stage — chart and stream share identical box */
+  .live-room-stage {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    min-height: 200px;
+    overflow: hidden;
+    border-radius: 0.75rem;
+    background: rgb(var(--color-bg));
+  }
+
+  .live-room-stage__embed,
+  .live-room-stage__chart {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+
+  /* Meta row under chart — coach note / meeting link load in fixed slot */
+  .live-room-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-height: 3.25rem;
+    margin-top: 0.75rem;
+  }
+
+  .live-room-meeting-link {
+    @apply inline-flex items-center gap-2 rounded-xl border border-theme-accent/35 bg-theme-accent/10 px-4 py-2.5 text-sm font-semibold text-theme-accent transition hover:bg-theme-accent/15;
+  }
+
+  /* Signal panel — fixed height whether signal is live or empty */
+  .live-room-signal-slot {
+    min-height: 11rem;
+  }
+
+  .fintech-card--live {
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .fintech-card--live:hover {
+    transform: none;
+  }
+
   .live-pill {
     @apply inline-flex items-center gap-2 rounded-full border border-rose-500/40 bg-rose-500/10 px-4 py-2 text-sm font-semibold text-rose-400;
   }
