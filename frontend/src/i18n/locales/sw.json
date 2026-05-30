@@ -446,7 +446,11 @@
     "loading": "Inatafuta darasa la moja kwa moja…",
     "noLiveSession": "Hakuna darasa la moja kwa moja sasa. Rudi Coach anapoanza.",
     "liveNow": "Kipindi cha chati ya pamoja live",
-    "joinRoom": "Jiunge na darasa"
+    "joinRoom": "Jiunge na darasa",
+    "lobbyHint": "Vipindi vinaonekana papo hapo Coach anapoanza — hakuna refresh.",
+    "waitRealtime": "Kaa kwenye ukurasa huu — kitufe cha kujiunga kitaonekana mara moja.",
+    "newSession": "Kipindi kipya live",
+    "videoClass": "Darasa la video"
   },
   "jitsi": {
     "joinLiveClass": "Jiunge na darasa la live",

@@ -449,6 +449,10 @@ export interface Translations {
     noLiveSession: string
     liveNow: string
     joinRoom: string
+    lobbyHint: string
+    waitRealtime: string
+    newSession: string
+    videoClass: string
   }
   jitsi: {
     joinLiveClass: string

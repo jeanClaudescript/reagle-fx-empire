@@ -4,6 +4,7 @@ import type {
   ClassroomJoinState,
   ClassroomParticipant,
   ClassroomRole,
+  ClassroomRoom,
   CursorState,
   DrawingObject,
   DrawingTool,
@@ -46,6 +47,12 @@ type ClassroomStore = {
   setCanSpeak: (v: boolean) => void
   setReplyTo: (msg: ClassroomChatMessage | null) => void
   setJitsiMode: (mode: JitsiTeachingMode) => void
+  applyRoomSettings: (
+    room: Pick<
+      ClassroomRoom,
+      'enableLiveTeaching' | 'jitsiRoomName' | 'teachingSessionTitle' | 'jitsiMode' | 'status' | 'title'
+    >,
+  ) => void
   reset: () => void
 }
 
@@ -125,5 +132,12 @@ export const useClassroomStore = create<ClassroomStore>((set) => ({
   setCanSpeak: (canSpeak) => set({ canSpeak }),
   setReplyTo: (replyTo) => set({ replyTo }),
   setJitsiMode: (jitsiMode) => set({ jitsiMode }),
+  applyRoomSettings: (room) =>
+    set({
+      enableLiveTeaching: Boolean(room.enableLiveTeaching),
+      jitsiRoomName: room.jitsiRoomName ?? '',
+      teachingSessionTitle: room.teachingSessionTitle || room.title,
+      jitsiMode: room.jitsiMode === 'screenshare' ? 'screenshare' : 'webcam',
+    }),
   reset: () => set({ ...initial }),
 }))

@@ -458,6 +458,42 @@ export type ClassroomRoom = {
   updatedAt: string
 }
 
+export type ClassroomAttendance = {
+  id: string
+  userId: string
+  userName: string
+  role: string
+  joinedAt: string
+  leftAt?: string
+  durationSeconds: number
+}
+
+export type ClassroomRecording = {
+  id: string
+  roomId: string
+  title: string
+  filePath: string
+  eventCount: number
+  startedAt?: string
+  endedAt?: string
+  createdAt: string
+}
+
+export type ClassroomReplayEvent = {
+  eventType: string
+  payload: Record<string, unknown>
+  userId?: string
+  createdAt: string
+}
+
+export type ClassroomReplayData = {
+  roomId: string
+  title: string
+  startedAt?: string
+  endedAt?: string
+  events: ClassroomReplayEvent[]
+}
+
 export const classroomApi = {
   getActive: () => apiFetch<{ data: ClassroomRoom | null }>('/api/classroom/active', { student: true }),
   getRoom: (id: string) =>
@@ -511,10 +547,26 @@ export const classroomApi = {
       method: 'POST',
       admin: true,
     }),
+  adminGetRoom: (id: string) =>
+    apiFetch<{
+      data: {
+        room: ClassroomRoom
+        chartState: {
+          symbol: string
+          timeframe: string
+          drawings: unknown[]
+        }
+        chat: unknown[]
+      }
+    }>(`/api/classroom/admin/${id}`, { admin: true }),
   adminAttendance: (id: string) =>
-    apiFetch<{ data: unknown[] }>(`/api/classroom/admin/${id}/attendance`, { admin: true }),
+    apiFetch<{ data: ClassroomAttendance[] }>(`/api/classroom/admin/${id}/attendance`, { admin: true }),
   adminRecordings: (id: string) =>
-    apiFetch<{ data: unknown[] }>(`/api/classroom/admin/${id}/recordings`, { admin: true }),
+    apiFetch<{ data: ClassroomRecording[] }>(`/api/classroom/admin/${id}/recordings`, { admin: true }),
+  adminRecordingReplay: (recordingId: string) =>
+    apiFetch<{ data: ClassroomReplayData }>(`/api/classroom/admin/recordings/${recordingId}/replay`, {
+      admin: true,
+    }),
 }
 
 export type DeskChatMessage = {

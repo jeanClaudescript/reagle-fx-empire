@@ -446,7 +446,11 @@
     "loading": "Recherche d'une classe en direct…",
     "noLiveSession": "Aucune classe en direct. Revenez quand le coach démarre une session.",
     "liveNow": "Session graphique partagée en direct",
-    "joinRoom": "Rejoindre la classe"
+    "joinRoom": "Rejoindre la classe",
+    "lobbyHint": "Les sessions apparaissent ici dès que le coach est en direct — sans actualiser.",
+    "waitRealtime": "Restez sur cette page — le bouton rejoindre s'affichera dès le début.",
+    "newSession": "Nouvelle session live",
+    "videoClass": "Cours vidéo"
   },
   "jitsi": {
     "joinLiveClass": "Rejoindre le cours live",

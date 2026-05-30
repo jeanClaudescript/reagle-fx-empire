@@ -39,6 +39,8 @@ import { VipCommunityChat } from '@/components/student/vip/VipCommunityChat'
 import { VipCoachChat } from '@/components/student/vip/VipCoachChat'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher'
+import { classroomApi } from '@/services/api'
+import { onClassroomUpdated } from '@/realtime/appSocket'
 
 export type VipPanelId =
   | 'overview'
@@ -97,6 +99,12 @@ export function VipDeskShell() {
     messages: true,
   })
   const [navOpen, setNavOpen] = useState(false)
+  const [classroomLive, setClassroomLive] = useState(false)
+
+  useEffect(() => {
+    void classroomApi.getActive().then((res) => setClassroomLive(res.data?.status === 'live'))
+    return onClassroomUpdated((payload) => setClassroomLive(payload.data?.status === 'live'))
+  }, [])
 
   const groups: NavGroup[] = [
     {
@@ -181,11 +189,7 @@ export function VipDeskShell() {
       case 'live':
         return <LiveTradingRoom deskMode />
       case 'classroom':
-        return (
-          <PanelWrap title={t.classroom.navTitle}>
-            <VipClassroomPanel />
-          </PanelWrap>
-        )
+        return <VipClassroomPanel />
       case 'community-chat':
         return (
           <PanelWrap title={t.chat.communityTitle}>
@@ -410,7 +414,12 @@ export function VipDeskShell() {
                     className={`vip-nav__sub-item ${panel === item.id ? 'vip-nav__sub-item--active' : ''}`}
                     onClick={() => selectPanel(item.id)}
                   >
-                    {item.label}
+                    <span className="flex items-center gap-2">
+                      {item.label}
+                      {item.id === 'classroom' && classroomLive ? (
+                        <span className="vip-nav-live-dot" aria-label="Classroom live" />
+                      ) : null}
+                    </span>
                   </button>
                 ))}
               </div>

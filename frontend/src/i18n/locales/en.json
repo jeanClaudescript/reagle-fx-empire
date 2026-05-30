@@ -446,7 +446,11 @@
     "loading": "Checking for live classroom…",
     "noLiveSession": "No live classroom right now. Check back when Coach starts a session.",
     "liveNow": "Live shared chart session",
-    "joinRoom": "Join classroom"
+    "joinRoom": "Join classroom",
+    "lobbyHint": "Sessions appear here instantly when Coach goes live — no refresh needed.",
+    "waitRealtime": "Stay on this page — you'll see the join button as soon as a session starts.",
+    "newSession": "New session live",
+    "videoClass": "Video class"
   },
   "jitsi": {
     "joinLiveClass": "Join live class",

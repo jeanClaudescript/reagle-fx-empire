@@ -446,7 +446,11 @@
     "loading": "Gushaka icyumba cy'uburezi…",
     "noLiveSession": "Nta cyumba cy'uburezi kiri live. Garuka i Coach atangiye.",
     "liveNow": "Isomo rya chart rusangi live",
-    "joinRoom": "Injira mu cyumba"
+    "joinRoom": "Injira mu cyumba",
+    "lobbyHint": "Amasomo agaragara ako kanya i Coach amaze gutangira — nta refresh.",
+    "waitRealtime": "Guma kuri iyi page — buto yo kwinjira izagaragara vuba.",
+    "newSession": "Isomo rishya live",
+    "videoClass": "Isomo rya video"
   },
   "jitsi": {
     "joinLiveClass": "Injira mu isomo live",
