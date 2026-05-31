@@ -308,7 +308,9 @@ function AdminDashboardInner() {
   }, [push])
 
   return (
-    <div className={`admin-app ${sidebarCollapsed ? 'admin-app--sidebar-collapsed' : ''}`}>
+    <div
+      className={`admin-app ${sidebarCollapsed ? 'admin-app--sidebar-collapsed' : ''} ${tab === 'desk-chat' ? 'admin-app--desk-chat' : ''}`}
+    >
       <div className="admin-app-bg pointer-events-none" aria-hidden>
         <div className="glow-orb -left-40 top-20 h-96 w-96 bg-empire-purple/20" />
         <div className="glow-orb -right-20 bottom-20 h-80 w-80 bg-empire-blue/15" />

@@ -1242,6 +1242,30 @@
     @apply bg-theme-accent/15 text-theme-accent shadow-sm;
   }
 
+  .admin-payments-view-toggle {
+    @apply inline-flex rounded-xl border border-theme bg-theme-elevated/40 p-1;
+  }
+
+  .admin-payments-view-toggle button {
+    @apply inline-flex min-h-9 items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold text-theme-muted transition;
+  }
+
+  .admin-payments-view-toggle button.active {
+    @apply bg-theme-accent/15 text-theme-accent shadow-sm;
+  }
+
+  .admin-payments-table thead th {
+    @apply pb-2 pr-3 text-xs font-semibold text-theme-muted;
+  }
+
+  .admin-payments-table tbody tr {
+    @apply border-t border-theme;
+  }
+
+  .admin-payments-table tbody td {
+    @apply py-2.5 pr-3 align-top;
+  }
+
   .manage-stat-card {
     @apply rounded-2xl border p-4;
   }
@@ -3235,11 +3259,31 @@
   color: rgb(var(--color-accent));
 }
 
+.admin-desk-chat {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+}
+
+.admin-desk-chat__panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+}
+
+.admin-desk-chat__panel--full {
+  flex: 1;
+}
+
 .admin-desk-chat__split {
   display: grid;
-  grid-template-columns: 200px 1fr;
+  grid-template-columns: minmax(160px, 200px) minmax(0, 1fr);
   gap: 0.75rem;
-  min-height: 360px;
+  flex: 1;
+  min-height: 0;
 }
 
 .admin-desk-chat__threads {
@@ -3249,7 +3293,8 @@
   border: 1px solid rgb(var(--color-border) / 0.45);
   border-radius: 0.75rem;
   overflow-y: auto;
-  max-height: 420px;
+  overscroll-behavior: contain;
+  min-height: 0;
 }
 
 .admin-desk-chat__threads button {
@@ -5192,28 +5237,78 @@
   white-space: nowrap;
 }
 
+.admin-desk-chat__panel .messenger-chat,
 .admin-desk-chat__split .messenger-chat {
-  min-height: 360px;
-  height: min(560px, 65dvh);
-  max-height: min(560px, 65dvh);
+  flex: 1;
+  min-height: 0;
+  height: auto;
+  max-height: none;
+}
+
+.admin-app--desk-chat {
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
+}
+
+.admin-app--desk-chat .admin-main {
+  flex: 1;
+  min-height: 0;
+  max-height: 100dvh;
+  overflow: hidden;
+  padding-bottom: 0;
+}
+
+.admin-app--desk-chat .admin-content-area {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.admin-app--desk-chat .admin-content-inner {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  padding-top: 0.75rem;
+  padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+}
+
+.admin-app--desk-chat .admin-content-inner > :not(.admin-desk-chat) {
+  flex-shrink: 0;
+}
+
+.admin-app--desk-chat .admin-desk-chat .admin-editor__header {
+  margin-bottom: 0.5rem;
+  flex-shrink: 0;
+}
+
+.admin-app--desk-chat .admin-desk-chat__tabs {
+  flex-shrink: 0;
 }
 
 @media (max-width: 767px) {
+  .admin-app--desk-chat .admin-desk-chat .admin-editor__header p {
+    display: none;
+  }
+
+  .admin-app--desk-chat .admin-mobile-action-bar {
+    display: none;
+  }
+
   .admin-desk-chat__split {
     grid-template-columns: 1fr;
-    min-height: 0;
+    grid-template-rows: auto minmax(0, 1fr);
   }
 
   .admin-desk-chat__threads,
   .messenger-thread-list {
-    max-height: 160px;
-    overflow-y: auto;
-    overscroll-behavior: contain;
+    max-height: 132px;
   }
 
-  .admin-desk-chat__split .messenger-chat {
-    min-height: calc(100dvh - 16rem);
-    height: calc(100dvh - 16rem);
-    max-height: calc(100dvh - 16rem);
+  .admin-app--desk-chat .messenger-composer {
+    padding-bottom: max(0.65rem, env(safe-area-inset-bottom, 0px));
   }
 }

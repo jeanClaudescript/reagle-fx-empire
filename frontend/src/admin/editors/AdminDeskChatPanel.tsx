@@ -154,33 +154,37 @@ export function AdminDeskChatPanel() {
               ))
             )}
           </ul>
-          <MessengerChat
-            title={threads.find((t) => t.studentId === activeStudentId)?.studentName ?? 'Student'}
-            subtitle="Private thread"
-            emptyLabel={activeStudentId ? 'No messages yet.' : 'Select a student'}
-            placeholder={activeStudentId ? 'Reply to student…' : 'Select a student'}
-            messages={directMessages}
-            mineRole="admin"
-            typingNames={typingNames}
-            disabled={!activeStudentId}
-            onSend={sendDirect}
-            onUpload={upload}
-            onTyping={(typing) => activeStudentId && emitDeskDirectTyping(typing, activeStudentId)}
-          />
+          <div className="admin-desk-chat__panel">
+            <MessengerChat
+              title={threads.find((t) => t.studentId === activeStudentId)?.studentName ?? 'Student'}
+              subtitle="Private thread"
+              emptyLabel={activeStudentId ? 'No messages yet.' : 'Select a student'}
+              placeholder={activeStudentId ? 'Reply to student…' : 'Select a student'}
+              messages={directMessages}
+              mineRole="admin"
+              typingNames={typingNames}
+              disabled={!activeStudentId}
+              onSend={sendDirect}
+              onUpload={upload}
+              onTyping={(typing) => activeStudentId && emitDeskDirectTyping(typing, activeStudentId)}
+            />
+          </div>
         </div>
       ) : (
-        <MessengerChat
-          title="VIP community"
-          subtitle="Group chat with all paid members"
-          emptyLabel="No community messages yet."
-          placeholder="Post to VIP community…"
-          messages={community}
-          mineRole="admin"
-          groupChat
-          onSend={sendCommunity}
-          onUpload={upload}
-          onTyping={emitDeskCommunityTyping}
-        />
+        <div className="admin-desk-chat__panel admin-desk-chat__panel--full">
+          <MessengerChat
+            title="VIP community"
+            subtitle="Group chat with all paid members"
+            emptyLabel="No community messages yet."
+            placeholder="Post to VIP community…"
+            messages={community}
+            mineRole="admin"
+            groupChat
+            onSend={sendCommunity}
+            onUpload={upload}
+            onTyping={emitDeskCommunityTyping}
+          />
+        </div>
       )}
     </div>
   )
