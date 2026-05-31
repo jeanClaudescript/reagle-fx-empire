@@ -159,7 +159,7 @@ export function StudentsManageEditor() {
   ]
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="admin-form-stack">
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StatChip
           icon={BadgeCheck}
@@ -294,7 +294,7 @@ export function StudentsManageEditor() {
       {panel === 'pending' && <PaymentsEditor embedded initialStatus="PENDING" />}
 
       {panel === 'referrals' && (
-        <div className="flex flex-col gap-4">
+        <div className="admin-form-stack">
           <AdminCard>
             <div className="admin-card-body">
               <div className="flex items-start gap-3">

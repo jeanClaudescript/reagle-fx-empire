@@ -28,7 +28,7 @@ export function TextsEditor() {
   const footer = overridesForLang.footer ?? {}
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="admin-form-stack">
       <AdminCard>
         <div className="admin-card-body">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
@@ -37,7 +37,7 @@ export function TextsEditor() {
             </div>
 
             <div className="w-full sm:w-56">
-              <label className="mb-1 block text-sm font-semibold text-theme-primary">Language</label>
+              <label className="admin-field-label">Language</label>
               <AdminSelect value={targetLang} onChange={(e) => setTargetLang(e.target.value as Language)} className="w-full">
                 {LANGUAGE_OPTIONS.map((opt) => (
                   <option key={opt.code} value={opt.code}>
@@ -56,7 +56,7 @@ export function TextsEditor() {
             <h3 className="font-display text-md font-bold text-theme-primary">Hero</h3>
             <div className="mt-4 flex flex-col gap-3">
               <div>
-                <label className="mb-1 block text-sm font-semibold text-theme-primary">Headline</label>
+                <label className="admin-field-label">Headline</label>
                 <AdminTextArea
                   value={(hero as any).headline ?? t.hero.headline}
                   onChange={(e) => {
@@ -79,7 +79,7 @@ export function TextsEditor() {
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-semibold text-theme-primary">Subheadline</label>
+                <label className="admin-field-label">Subheadline</label>
                 <AdminTextArea
                   value={(hero as any).subheadline ?? t.hero.subheadline}
                   onChange={(e) => {
@@ -103,7 +103,7 @@ export function TextsEditor() {
 
               <div className="grid gap-3 sm:grid-cols-2">
                 <div>
-                  <label className="mb-1 block text-sm font-semibold text-theme-primary">WhatsApp CTA</label>
+                  <label className="admin-field-label">WhatsApp CTA</label>
                   <AdminTextInput
                     value={(hero as any).ctaWhatsapp ?? t.hero.ctaWhatsapp}
                     onChange={(e) => {
@@ -126,7 +126,7 @@ export function TextsEditor() {
                 </div>
 
                 <div>
-                  <label className="mb-1 block text-sm font-semibold text-theme-primary">Results CTA</label>
+                  <label className="admin-field-label">Results CTA</label>
                   <AdminTextInput
                     value={(hero as any).ctaResults ?? t.hero.ctaResults}
                     onChange={(e) => {
@@ -157,7 +157,7 @@ export function TextsEditor() {
             <h3 className="font-display text-md font-bold text-theme-primary">About + Footer</h3>
             <div className="mt-4 flex flex-col gap-3">
               <div>
-                <label className="mb-1 block text-sm font-semibold text-theme-primary">Story</label>
+                <label className="admin-field-label">Story</label>
                 <AdminTextArea
                   value={(about as any).story ?? t.about.story}
                   onChange={(e) => {
@@ -180,7 +180,7 @@ export function TextsEditor() {
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-semibold text-theme-primary">Mission</label>
+                <label className="admin-field-label">Mission</label>
                 <AdminTextArea
                   value={(about as any).mission ?? t.about.mission}
                   onChange={(e) => {
@@ -204,7 +204,7 @@ export function TextsEditor() {
 
               <div className="grid gap-3 sm:grid-cols-2">
                 <div>
-                  <label className="mb-1 block text-sm font-semibold text-theme-primary">Community Title</label>
+                  <label className="admin-field-label">Community Title</label>
                   <AdminTextInput
                     value={(community as any).title ?? t.community.title}
                     onChange={(e) => {
@@ -226,7 +226,7 @@ export function TextsEditor() {
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-sm font-semibold text-theme-primary">Footer Tagline</label>
+                  <label className="admin-field-label">Footer Tagline</label>
                   <AdminTextInput
                     value={(footer as any).tagline ?? t.footer.tagline}
                     onChange={(e) => {

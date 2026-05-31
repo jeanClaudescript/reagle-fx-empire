@@ -73,7 +73,7 @@ export function AdminsEditor() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="admin-form-stack">
       <AdminCard>
         <div className="admin-card-body">
           <div className="flex items-center gap-2">

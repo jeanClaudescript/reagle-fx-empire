@@ -56,7 +56,7 @@ export function VipBooksEditor() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="admin-form-stack">
       <AdminCard>
         <div className="admin-card-body">
           <p className="admin-editor-card-intro">
@@ -65,12 +65,12 @@ export function VipBooksEditor() {
 
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
             <div className="sm:col-span-2">
-              <label className="mb-1 block text-sm font-semibold text-theme-primary">Title</label>
+              <label className="admin-field-label">Title</label>
               <AdminTextInput value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Risk Management Playbook" />
             </div>
 
             <div className="sm:col-span-2">
-              <label className="mb-1 block text-sm font-semibold text-theme-primary">Description (optional)</label>
+              <label className="admin-field-label">Description (optional)</label>
               <AdminTextInput
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}

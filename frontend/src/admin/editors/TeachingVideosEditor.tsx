@@ -23,7 +23,7 @@ export function TeachingVideosEditor() {
   const items = useMemo(() => sort(draft.teachingVideos), [draft.teachingVideos])
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="admin-form-stack">
       <AdminCard>
         <div className="admin-card-body">
           <p className="admin-editor-card-intro">

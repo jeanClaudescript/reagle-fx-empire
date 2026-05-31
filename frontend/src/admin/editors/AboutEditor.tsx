@@ -47,7 +47,7 @@ export function AboutEditor() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="admin-form-stack">
       <AdminCard>
         <div className="admin-card-body">
           <p className="admin-editor-card-intro">
@@ -56,7 +56,7 @@ export function AboutEditor() {
 
           <div className="mt-5 grid min-w-0 gap-4 md:grid-cols-2">
             <div>
-              <p className="mb-2 text-sm font-semibold text-theme-primary">Coach Image</p>
+              <p className="admin-field-label">Coach Image</p>
               <div className="flex flex-col items-start gap-3 rounded-3xl border border-theme bg-theme-surface/50 p-4">
                 <div className="relative h-28 w-28">
                   {coach.coachImageDataUrl ? (
@@ -216,7 +216,7 @@ export function AboutEditor() {
 
             <div className="flex flex-col gap-3">
               <div>
-                <label className="mb-1 block text-sm font-semibold text-theme-primary">Title</label>
+                <label className="admin-field-label">Title</label>
                 <AdminTextInput
                   value={coach.title}
                   hasError={hasFieldError('about.title')}
@@ -227,7 +227,7 @@ export function AboutEditor() {
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-semibold text-theme-primary">Short Bio</label>
+                <label className="admin-field-label">Short Bio</label>
                 <AdminTextArea
                   value={coach.bio}
                   hasError={hasFieldError('about.bio')}

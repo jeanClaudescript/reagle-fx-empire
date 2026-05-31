@@ -28,7 +28,7 @@ export function ProvenResultsEditor() {
   const [busy, setBusy] = useState(false)
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="admin-form-stack">
       <AdminCard>
         <div className="admin-card-body">
           <p className="admin-editor-card-intro">
@@ -37,7 +37,7 @@ export function ProvenResultsEditor() {
 
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
             <div>
-              <label className="mb-1 block text-sm font-semibold text-theme-primary">Type</label>
+              <label className="admin-field-label">Type</label>
               <AdminSelect
                 value={type}
                 onChange={(e) => setType(e.target.value as MediaType)}
@@ -50,7 +50,7 @@ export function ProvenResultsEditor() {
             </div>
 
             <div>
-              <label className="mb-1 block text-sm font-semibold text-theme-primary">Orientation</label>
+              <label className="admin-field-label">Orientation</label>
               <AdminSelect
                 value={orientation}
                 onChange={(e) => setOrientation(e.target.value as MediaOrientation)}
@@ -62,12 +62,12 @@ export function ProvenResultsEditor() {
             </div>
 
             <div className="sm:col-span-2">
-              <label className="mb-1 block text-sm font-semibold text-theme-primary">Title (optional)</label>
+              <label className="admin-field-label">Title (optional)</label>
               <AdminTextInput value={title} onChange={(e) => setTitle(e.target.value)} />
             </div>
 
             <div className="sm:col-span-2">
-              <label className="mb-1 block text-sm font-semibold text-theme-primary">
+              <label className="admin-field-label">
                 Social post link (Share menu)
               </label>
               <AdminTextInput

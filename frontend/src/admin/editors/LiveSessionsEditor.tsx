@@ -47,7 +47,7 @@ export function LiveSessionsEditor() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="admin-form-stack">
       <AdminCard>
         <div className="admin-card-body">
           <h3 className="font-display text-base font-bold text-theme-primary">Teach live</h3>
@@ -100,7 +100,7 @@ export function LiveSessionsEditor() {
           ) : items.length === 0 ? (
             <p className="text-sm text-theme-muted">No sessions yet.</p>
           ) : (
-            <div className="flex flex-col gap-4">
+            <div className="admin-form-stack">
               {items.map((s) => (
                 <LiveSessionRow key={s.id} session={s} onChanged={load} />
               ))}

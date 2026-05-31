@@ -31,7 +31,7 @@ export function UpcomingBannersEditor() {
   const [imageDataUrl, setImageDataUrl] = useState('')
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="admin-form-stack">
       <AdminCard>
         <div className="admin-card-body">
           <p className="admin-editor-card-intro">
@@ -41,7 +41,7 @@ export function UpcomingBannersEditor() {
 
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
             <div className="sm:col-span-2">
-              <label className="mb-1 block text-sm font-semibold text-theme-primary">Title</label>
+              <label className="admin-field-label">Title</label>
               <AdminTextInput
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
@@ -50,7 +50,7 @@ export function UpcomingBannersEditor() {
             </div>
 
             <div className="sm:col-span-2">
-              <label className="mb-1 block text-sm font-semibold text-theme-primary">
+              <label className="admin-field-label">
                 Event date &amp; time (countdown)
               </label>
               <input
@@ -65,19 +65,19 @@ export function UpcomingBannersEditor() {
             </div>
 
             <div>
-              <label className="mb-1 block text-sm font-semibold text-theme-primary">
+              <label className="admin-field-label">
                 Button link (main CTA)
               </label>
               <AdminTextInput value={ctaLink} onChange={(e) => setCtaLink(e.target.value)} placeholder="https://wa.me/..." />
             </div>
 
             <div>
-              <label className="mb-1 block text-sm font-semibold text-theme-primary">CTA label</label>
+              <label className="admin-field-label">CTA label</label>
               <AdminTextInput value={ctaLabel} onChange={(e) => setCtaLabel(e.target.value)} />
             </div>
 
             <div className="sm:col-span-2">
-              <label className="mb-1 block text-sm font-semibold text-theme-primary">
+              <label className="admin-field-label">
                 Social post link (Share / Open post)
               </label>
               <AdminTextInput
@@ -88,7 +88,7 @@ export function UpcomingBannersEditor() {
             </div>
 
             <div className="sm:col-span-2">
-              <label className="mb-1 block text-sm font-semibold text-theme-primary">Banner image (optional)</label>
+              <label className="admin-field-label">Banner image (optional)</label>
               <div className="flex flex-col gap-2 sm:flex-row">
                 <label className="inline-flex cursor-pointer items-center rounded-xl border border-theme bg-theme-elevated/60 px-3 py-2 text-sm font-semibold text-theme-primary">
                   Upload image
@@ -210,7 +210,7 @@ export function UpcomingBannersEditor() {
 
                       <div className="mt-3 grid gap-3 sm:grid-cols-2">
                         <div className="sm:col-span-2">
-                          <label className="mb-1 block text-sm font-semibold text-theme-primary">Title</label>
+                          <label className="admin-field-label">Title</label>
                           <AdminTextInput
                             value={banner.title}
                             onChange={(e) => {
@@ -226,7 +226,7 @@ export function UpcomingBannersEditor() {
                         </div>
 
                         <div className="sm:col-span-2">
-                          <label className="mb-1 block text-sm font-semibold text-theme-primary">
+                          <label className="admin-field-label">
                             Event date &amp; time (countdown)
                           </label>
                           <input
@@ -248,7 +248,7 @@ export function UpcomingBannersEditor() {
                         </div>
 
                         <div>
-                          <label className="mb-1 block text-sm font-semibold text-theme-primary">
+                          <label className="admin-field-label">
                             Button link (main CTA)
                           </label>
                           <AdminTextInput
@@ -268,7 +268,7 @@ export function UpcomingBannersEditor() {
                         </div>
 
                         <div>
-                          <label className="mb-1 block text-sm font-semibold text-theme-primary">CTA label</label>
+                          <label className="admin-field-label">CTA label</label>
                           <AdminTextInput
                             value={banner.ctaLabel}
                             onChange={(e) => {
@@ -286,7 +286,7 @@ export function UpcomingBannersEditor() {
                         </div>
 
                         <div className="sm:col-span-2">
-                          <label className="mb-1 block text-sm font-semibold text-theme-primary">
+                          <label className="admin-field-label">
                             Social post link (Share / Open post)
                           </label>
                           <AdminTextInput
@@ -309,7 +309,7 @@ export function UpcomingBannersEditor() {
                         </div>
 
                         <div className="sm:col-span-2">
-                          <label className="mb-1 block text-sm font-semibold text-theme-primary">
+                          <label className="admin-field-label">
                             Banner Image (optional)
                           </label>
                           <div className="space-y-2">

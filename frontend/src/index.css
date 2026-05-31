@@ -275,7 +275,20 @@
     --admin-sidebar-w: 260px;
     --admin-sidebar-collapsed-w: 72px;
     --admin-header-h: 64px;
+    --admin-space-field: 0.625rem;
+    --admin-space-card: 0.875rem;
+    --admin-space-section: 0.75rem;
+    font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    -webkit-font-smoothing: antialiased;
     @apply relative min-h-[100svh] min-w-0 bg-theme-bg;
+  }
+
+  .admin-app .font-display,
+  .admin-app h1,
+  .admin-app h2,
+  .admin-app h3 {
+    font-family: 'Outfit', ui-sans-serif, system-ui, sans-serif;
   }
 
   .admin-app-bg {
@@ -386,17 +399,18 @@
   }
 
   .admin-btn {
-    @apply inline-flex min-h-10 items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold transition duration-200 disabled:pointer-events-none disabled:opacity-50;
+    @apply inline-flex min-h-10 items-center justify-center gap-2 rounded-lg px-4 text-sm font-semibold transition duration-200 disabled:pointer-events-none disabled:opacity-50;
+    letter-spacing: 0.01em;
   }
 
   .admin-btn--primary,
   .admin-btn-primary {
-    @apply admin-btn bg-gradient-to-r from-empire-purple to-empire-blue text-white shadow-glow hover:shadow-glow-blue;
+    @apply admin-btn border border-transparent bg-gradient-to-r from-empire-purple to-empire-blue text-white shadow-md shadow-empire-purple/20 hover:shadow-lg hover:shadow-empire-purple/30;
   }
 
   .admin-btn--secondary,
   .admin-btn-secondary {
-    @apply admin-btn border border-theme bg-theme-surface/70 text-theme-primary hover:border-theme-accent/35 hover:bg-theme-accent/10;
+    @apply admin-btn border-2 border-theme bg-theme-surface text-theme-primary shadow-sm hover:border-theme-accent/40 hover:bg-theme-accent/10;
   }
 
   .admin-btn--ghost,
@@ -434,11 +448,11 @@
   }
 
   .admin-content-inner {
-    @apply w-full min-w-0 max-w-none px-4 py-5 sm:px-6 sm:py-6 lg:px-8 lg:py-8;
+    @apply w-full min-w-0 max-w-none px-4 py-4 sm:px-5 sm:py-5 lg:px-6 lg:py-6;
   }
 
   .admin-section-frame {
-    @apply flex w-full min-w-0 flex-col gap-4;
+    @apply flex w-full min-w-0 flex-col gap-3;
   }
 
   .admin-section-toolbar {
@@ -492,7 +506,7 @@
   }
 
   .admin-section-body {
-    @apply flex min-w-0 flex-col gap-4;
+    @apply flex min-w-0 flex-col gap-3;
   }
 
   .admin-section-actions {
@@ -500,7 +514,159 @@
   }
 
   .admin-editor-card-intro {
-    @apply text-sm text-theme-muted;
+    @apply border-b border-theme pb-2.5 text-xs leading-relaxed text-theme-muted sm:text-sm;
+    border-bottom-color: color-mix(in srgb, var(--color-theme-border, currentColor) 55%, transparent);
+  }
+
+  /* ─── Admin form design system (labels, inputs, cards, buttons) ─── */
+  .admin-app .admin-card.glass-card-glow {
+    @apply overflow-hidden border border-theme bg-theme-surface/95 shadow-sm;
+    box-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.04),
+      0 0 0 1px rgba(128, 128, 128, 0.06);
+  }
+
+  .admin-app .admin-card.glass-card-glow:hover {
+    transform: none;
+    box-shadow:
+      0 2px 6px rgba(0, 0, 0, 0.06),
+      0 0 0 1px rgba(128, 128, 128, 0.08);
+  }
+
+  .admin-card-header {
+    @apply flex items-start justify-between gap-3 border-b border-theme bg-theme-elevated/30 px-3.5 py-2.5 sm:px-4 sm:py-3;
+  }
+
+  .admin-card-header__title {
+    @apply font-display text-sm font-bold tracking-tight text-theme-primary sm:text-[0.9375rem];
+  }
+
+  .admin-card-header__desc {
+    @apply mt-0.5 text-[11px] leading-snug text-theme-muted sm:text-xs;
+  }
+
+  .admin-card-header__action {
+    @apply shrink-0;
+  }
+
+  .admin-field {
+    @apply flex min-w-0 flex-col;
+  }
+
+  .admin-field__label,
+  .admin-field-label {
+    @apply mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.07em] text-theme-muted;
+  }
+
+  .admin-field__required {
+    @apply text-rose-400;
+  }
+
+  .admin-field__hint {
+    @apply mt-1 text-[11px] leading-snug text-theme-muted/90;
+  }
+
+  .admin-field__error {
+    @apply mt-1 text-[11px] font-medium text-rose-400;
+  }
+
+  .admin-control {
+    @apply block w-full min-h-[2.625rem] rounded-lg border border-theme bg-theme-elevated/80 px-3 text-sm text-theme-primary shadow-inner shadow-black/[0.03] outline-none transition;
+  }
+
+  .admin-control::placeholder {
+    @apply text-theme-muted/70;
+  }
+
+  .admin-control:focus {
+    @apply border-theme-accent/60 ring-2 ring-theme-accent/20;
+  }
+
+  .admin-control:disabled {
+    @apply cursor-not-allowed opacity-55;
+  }
+
+  .admin-control--error {
+    @apply border-rose-500/50 ring-2 ring-rose-500/15;
+  }
+
+  .admin-control--textarea {
+    @apply min-h-[5rem] resize-y py-2.5 leading-relaxed;
+  }
+
+  .admin-control--select {
+    @apply cursor-pointer appearance-none bg-no-repeat pr-9;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m4 6 4 4 4-4'/%3E%3C/svg%3E");
+    background-position: right 0.65rem center;
+    background-size: 1rem;
+  }
+
+  .admin-app .admin-card-body textarea:not(.admin-control),
+  .admin-app .admin-card-body input[type='text']:not(.admin-control),
+  .admin-app .admin-card-body input[type='url']:not(.admin-control),
+  .admin-app .admin-card-body input[type='email']:not(.admin-control),
+  .admin-app .admin-card-body input[type='number']:not(.admin-control),
+  .admin-app .admin-card-body input[type='date']:not(.admin-control),
+  .admin-app .admin-card-body input[type='time']:not(.admin-control),
+  .admin-app .admin-card-body input[type='search']:not(.admin-control),
+  .admin-app .admin-card-body select:not(.admin-control) {
+    @apply block w-full min-h-[2.625rem] rounded-lg border border-theme bg-theme-elevated/80 px-3 text-sm text-theme-primary shadow-inner shadow-black/[0.03] outline-none transition;
+  }
+
+  .admin-app .admin-card-body textarea:not(.admin-control):focus,
+  .admin-app .admin-card-body input[type='text']:not(.admin-control):focus,
+  .admin-app .admin-card-body input[type='url']:not(.admin-control):focus,
+  .admin-app .admin-card-body input[type='email']:not(.admin-control):focus,
+  .admin-app .admin-card-body input[type='number']:not(.admin-control):focus,
+  .admin-app .admin-card-body input[type='date']:not(.admin-control):focus,
+  .admin-app .admin-card-body input[type='time']:not(.admin-control):focus,
+  .admin-app .admin-card-body input[type='search']:not(.admin-control):focus,
+  .admin-app .admin-card-body select:not(.admin-control):focus {
+    @apply border-theme-accent/60 ring-2 ring-theme-accent/20;
+  }
+
+  .admin-app .admin-card-body label:has(> input[type='file']) {
+    @apply inline-flex min-h-9 cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-theme bg-theme-surface px-3 py-2 text-xs font-semibold normal-case tracking-normal text-theme-primary shadow-sm transition hover:border-theme-accent/40 hover:bg-theme-accent/10;
+  }
+
+  .admin-app .admin-card-body label:has(> input[type='checkbox']) {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    @apply min-h-[2.625rem] rounded-lg border border-theme bg-theme-surface/60 px-3 py-2 text-sm font-medium normal-case tracking-normal text-theme-primary shadow-none;
+  }
+
+  .admin-app .admin-card-body .mt-5 {
+    margin-top: var(--admin-space-card);
+  }
+
+  .admin-form-grid {
+    @apply grid gap-2.5 sm:grid-cols-2 sm:gap-3;
+  }
+
+  .admin-form-stack {
+    @apply flex flex-col gap-3;
+  }
+
+  .admin-section-toolbar h2 {
+    @apply text-base font-bold tracking-tight sm:text-lg;
+    font-family: 'Outfit', ui-sans-serif, system-ui, sans-serif;
+  }
+
+  .admin-app .admin-card-body > h3.font-display {
+    @apply mb-3 border-b border-theme pb-2 text-sm font-bold tracking-tight text-theme-primary sm:text-[0.9375rem];
+    font-family: 'Outfit', ui-sans-serif, system-ui, sans-serif;
+  }
+
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .admin-content-inner {
+      @apply px-5 py-5;
+    }
+
+    .admin-card-body {
+      @apply p-3.5;
+    }
   }
 
   .admin-mobile-action-bar {
@@ -1429,7 +1595,7 @@
   }
 
   .admin-card-body {
-    @apply p-4 sm:p-5;
+    @apply p-3.5 sm:p-4;
   }
 
   .admin-toolbar-actions {
@@ -1560,6 +1726,10 @@
       @apply gap-2.5;
     }
 
+    .admin-form-stack {
+      @apply gap-2.5;
+    }
+
     .admin-card,
     .admin-app .glass-card-glow {
       border-radius: 0.875rem;
@@ -1574,7 +1744,28 @@
     }
 
     .admin-editor-card-intro {
-      @apply text-xs leading-snug;
+      @apply pb-2 text-xs leading-snug;
+    }
+
+    .admin-card-header {
+      @apply px-3 py-2;
+    }
+
+    .admin-card-header__title {
+      @apply text-[13px];
+    }
+
+    .admin-card-header__desc {
+      @apply text-[10px];
+    }
+
+    .admin-control {
+      @apply min-h-[2.5rem] px-2.5 text-[13px];
+    }
+
+    .admin-field__label,
+    .admin-field-label {
+      @apply mb-1 text-[10px];
     }
 
     .admin-editor__header {
@@ -1786,14 +1977,6 @@
 
     .admin-stat-tile .text-xs.text-theme-muted {
       @apply line-clamp-1;
-    }
-
-    .admin-app .rounded-2xl.border.border-theme.bg-theme-surface\/60.px-4.py-3 {
-      @apply rounded-xl px-3 py-2.5;
-    }
-
-    .admin-app .rounded-2xl.border.border-theme.bg-theme-surface\/50.p-4 {
-      @apply rounded-xl p-3;
     }
   }
 

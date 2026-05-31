@@ -36,7 +36,7 @@ export function ReferralsEditor() {
   }, [load])
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="admin-form-stack">
       <AdminCard>
         <div className="admin-card-body">
           <h3 className="font-display text-base font-bold text-theme-primary">Who invited whom</h3>

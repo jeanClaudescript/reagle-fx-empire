@@ -100,7 +100,7 @@ export function ClassroomEditor() {
   const liveCount = rooms.filter((r) => r.status === 'live').length
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="admin-form-stack">
       <AdminCard>
         <div className="admin-card-body">
           <div className="admin-classroom-header">

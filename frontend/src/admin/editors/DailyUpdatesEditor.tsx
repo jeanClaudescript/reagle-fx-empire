@@ -4,7 +4,8 @@ import type { DailyUpdate, DailyUpdateType } from '@/cms/types'
 import { useCms } from '@/cms/CmsProvider'
 import { useAdminConfirm } from '@/admin/confirm'
 import { AdminCard } from '@/components/admin/AdminCard'
-import { AdminSelect, AdminTextInput } from '@/components/admin/AdminInput'
+import { AdminField } from '@/components/admin/AdminField'
+import { AdminSelect, AdminTextArea, AdminTextInput } from '@/components/admin/AdminInput'
 import { uploadWithFeedback } from '@/admin/uploadWithFeedback'
 import { useAdminToast } from '@/admin/toast'
 import { AdminMediaThumb } from '@/components/admin/media/AdminMediaThumb'
@@ -35,23 +36,25 @@ export function DailyUpdatesEditor() {
   const [busy, setBusy] = useState(false)
 
   return (
-    <div className="flex flex-col gap-4">
-      <AdminCard>
+    <div className="flex flex-col gap-3">
+      <AdminCard
+        title="New daily update"
+        description="Text, image, or video — shows like stories / WhatsApp status."
+      >
         <div className="admin-card-body">
-          <p className="admin-editor-card-intro">
-            Post quick market news anytime — text, image, or video. Shows like Instagram stories /
-            WhatsApp status (separate from event banners).
-          </p>
-
-          <div className="mt-5 grid gap-3 sm:grid-cols-2">
-            <div>
-              <label className="mb-1 block text-sm font-semibold text-theme-primary">Post type</label>
-              <AdminSelect value={type} onChange={(e) => setType(e.target.value as DailyUpdateType)} className="w-full">
+          <div className="admin-form-grid">
+            <AdminField label="Post type" htmlFor="daily-update-type">
+              <AdminSelect
+                id="daily-update-type"
+                value={type}
+                onChange={(e) => setType(e.target.value as DailyUpdateType)}
+                className="w-full"
+              >
                 <option value="text">Text only</option>
                 <option value="image">Image</option>
                 <option value="video">Video</option>
               </AdminSelect>
-            </div>
+            </AdminField>
 
             <div className="flex items-end">
               <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-theme bg-theme-surface/50 px-4 py-3 text-sm text-theme-primary">
@@ -61,40 +64,42 @@ export function DailyUpdatesEditor() {
             </div>
 
             <div className="sm:col-span-2">
-              <label className="mb-1 block text-sm font-semibold text-theme-primary">Message / caption</label>
-              <textarea
-                value={caption}
-                onChange={(e) => setCaption(e.target.value)}
-                rows={3}
-                placeholder="EUR/USD daily outlook, gold setup, session reminder..."
-                className="w-full rounded-xl border border-theme bg-theme-elevated/60 px-3 py-2 text-sm text-theme-primary outline-none focus:border-theme-accent/50"
-              />
+              <AdminField label="Message / caption" htmlFor="daily-update-caption">
+                <AdminTextArea
+                  id="daily-update-caption"
+                  value={caption}
+                  onChange={(e) => setCaption(e.target.value)}
+                  rows={3}
+                  placeholder="EUR/USD daily outlook, gold setup, session reminder..."
+                />
+              </AdminField>
             </div>
 
             {type !== 'text' ? (
-              <div className="sm:col-span-2 space-y-2">
-                <label className="mb-1 block text-sm font-semibold text-theme-primary">Media</label>
-                <label className="inline-flex cursor-pointer items-center rounded-xl border border-theme bg-theme-elevated/60 px-3 py-2 text-sm font-semibold text-theme-primary">
-                  Upload {type}
-                  <input
-                    type="file"
-                    accept={type === 'video' ? 'video/*' : 'image/*'}
-                    className="hidden"
-                    disabled={busy}
-                    onChange={async (e) => {
-                      const file = e.target.files?.[0]
-                      if (!file) return
-                      setBusy(true)
-                      try {
-                        const url = await uploadWithFeedback(file, push)
-                        if (url) setMediaDataUrl(url)
-                      } finally {
-                        setBusy(false)
-                        e.target.value = ''
-                      }
-                    }}
-                  />
-                </label>
+              <div className="space-y-2 sm:col-span-2">
+                <AdminField label="Media">
+                  <label className="inline-flex cursor-pointer items-center rounded-xl border border-theme bg-theme-elevated/60 px-3 py-2 text-sm font-semibold text-theme-primary">
+                    Upload {type}
+                    <input
+                      type="file"
+                      accept={type === 'video' ? 'video/*' : 'image/*'}
+                      className="hidden"
+                      disabled={busy}
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0]
+                        if (!file) return
+                        setBusy(true)
+                        try {
+                          const url = await uploadWithFeedback(file, push)
+                          if (url) setMediaDataUrl(url)
+                        } finally {
+                          setBusy(false)
+                          e.target.value = ''
+                        }
+                      }}
+                    />
+                  </label>
+                </AdminField>
                 <AdminTextInput
                   value={mediaDataUrl}
                   onChange={(e) => setMediaDataUrl(e.target.value)}
@@ -104,12 +109,14 @@ export function DailyUpdatesEditor() {
             ) : null}
 
             <div className="sm:col-span-2">
-              <label className="mb-1 block text-sm font-semibold text-theme-primary">External link (optional)</label>
-              <AdminTextInput
-                value={externalLink}
-                onChange={(e) => setExternalLink(e.target.value)}
-                placeholder="Instagram / Facebook / WhatsApp post URL"
-              />
+              <AdminField label="External link (optional)" htmlFor="daily-update-link">
+                <AdminTextInput
+                  id="daily-update-link"
+                  value={externalLink}
+                  onChange={(e) => setExternalLink(e.target.value)}
+                  placeholder="Instagram / Facebook / WhatsApp post URL"
+                />
+              </AdminField>
             </div>
           </div>
 
@@ -138,20 +145,19 @@ export function DailyUpdatesEditor() {
               setExternalLink('')
               setType('text')
             }}
-            className="mt-5 h-11 rounded-xl bg-gradient-to-r from-empire-purple to-empire-blue px-5 text-sm font-semibold text-white shadow-glow disabled:opacity-50"
+            className="admin-btn admin-btn--primary mt-4 w-full sm:w-auto"
           >
             Post update
           </motion.button>
         </div>
       </AdminCard>
 
-      <AdminCard>
+      <AdminCard title="Live updates" description="Published posts appear on the public site.">
         <div className="admin-card-body">
-          <h3 className="font-display text-md font-bold text-theme-primary">Live updates</h3>
           {updates.length === 0 ? (
-            <p className="mt-3 text-sm text-theme-muted">No updates yet. Post your first daily news.</p>
+            <p className="text-sm text-theme-muted">No updates yet. Post your first daily news.</p>
           ) : (
-            <div className="mt-4 flex flex-col gap-3">
+            <div className="flex flex-col gap-2.5">
               {updates.map((item, idx) => (
                 <motion.div key={item.id} className="admin-editor-row">
                   <div className="flex min-w-0 flex-col gap-3 lg:flex-row lg:items-start">
@@ -198,7 +204,7 @@ export function DailyUpdatesEditor() {
                           Live
                         </label>
                       </div>
-                      <textarea
+                      <AdminTextArea
                         value={item.caption}
                         rows={2}
                         onChange={(e) => {
@@ -212,9 +218,9 @@ export function DailyUpdatesEditor() {
                             ),
                           }))
                         }}
-                        className="w-full rounded-xl border border-theme bg-theme-elevated/60 px-3 py-2 text-sm text-theme-primary"
                       />
-                      <AdminTextInput
+                      <AdminField label="External link">
+                        <AdminTextInput
                         value={item.externalLink ?? ''}
                         onChange={(e) => {
                           const value = e.target.value
@@ -230,7 +236,8 @@ export function DailyUpdatesEditor() {
                           }))
                         }}
                         placeholder="Optional external link"
-                      />
+                        />
+                      </AdminField>
                     </div>
 
                     <div className="admin-editor-actions">

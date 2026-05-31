@@ -30,7 +30,7 @@ export function CertificatesEditor() {
   const addDisabled = uploadBusy
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="admin-form-stack">
       <AdminCard>
         <div className="admin-card-body">
           <p className="admin-editor-card-intro">
@@ -39,12 +39,12 @@ export function CertificatesEditor() {
 
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
             <div className="sm:col-span-2">
-              <label className="mb-1 block text-sm font-semibold text-theme-primary">Certificate Title (optional)</label>
+              <label className="admin-field-label">Certificate Title (optional)</label>
               <AdminTextInput value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Risk Management Certificate" />
             </div>
 
             <div className="sm:col-span-2">
-              <label className="mb-1 block text-sm font-semibold text-theme-primary">External Post Link (optional)</label>
+              <label className="admin-field-label">External Post Link (optional)</label>
               <AdminTextInput
                 value={externalLink}
                 onChange={(e) => setExternalLink(e.target.value)}

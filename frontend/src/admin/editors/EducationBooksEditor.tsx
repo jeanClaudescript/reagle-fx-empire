@@ -127,7 +127,7 @@ export function EducationBooksEditor() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="admin-form-stack">
       <AdminCard>
         <div className="admin-card-body">
           <p className="admin-editor-card-intro">
@@ -159,7 +159,7 @@ export function EducationBooksEditor() {
 
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
             <div>
-              <label className="mb-1 block text-sm font-semibold text-theme-primary">Split mode</label>
+              <label className="admin-field-label">Split mode</label>
               <select
                 className="admin-input w-full"
                 value={settings?.lessonSplitMode ?? 'words'}
@@ -172,7 +172,7 @@ export function EducationBooksEditor() {
               </select>
             </div>
             <div>
-              <label className="mb-1 block text-sm font-semibold text-theme-primary">Lessons per day</label>
+              <label className="admin-field-label">Lessons per day</label>
               <AdminTextInput
                 type="number"
                 min={1}
@@ -190,11 +190,11 @@ export function EducationBooksEditor() {
           <h3 className="font-display text-lg font-bold text-theme-primary">Upload book</h3>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
             <div className="sm:col-span-2">
-              <label className="mb-1 block text-sm font-semibold text-theme-primary">Title</label>
+              <label className="admin-field-label">Title</label>
               <AdminTextInput value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Forex fundamentals" />
             </div>
             <div className="sm:col-span-2">
-              <label className="mb-1 block text-sm font-semibold text-theme-primary">Description</label>
+              <label className="admin-field-label">Description</label>
               <AdminTextInput
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
@@ -202,7 +202,7 @@ export function EducationBooksEditor() {
               />
             </div>
             <div className="sm:col-span-2">
-              <label className="mb-1 block text-sm font-semibold text-theme-primary">File (PDF, TXT, EPUB)</label>
+              <label className="admin-field-label">File (PDF, TXT, EPUB)</label>
               <input
                 type="file"
                 accept=".pdf,.txt,.epub,application/pdf,text/plain,application/epub+zip"

@@ -156,7 +156,7 @@ export function PaymentsEditor({
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="admin-form-stack">
       {!embedded && (
         <AdminCard>
           <div className="admin-card-body">

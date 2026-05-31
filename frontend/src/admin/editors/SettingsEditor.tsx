@@ -82,7 +82,7 @@ export function SettingsEditor() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="admin-form-stack">
       <AdminsEditor />
 
       <AdminCard>

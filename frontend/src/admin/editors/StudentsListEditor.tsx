@@ -66,7 +66,7 @@ export function StudentsListEditor() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="admin-form-stack">
       <AdminCard>
         <div className="admin-card-body">
           <div className="flex flex-wrap items-end justify-between gap-3">
