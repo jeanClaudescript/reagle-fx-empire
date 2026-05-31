@@ -1756,6 +1756,8 @@
   /* —— VIP paid desk (/desk) —— */
   body.vip-desk-active {
     @apply overflow-hidden;
+    height: 100%;
+    width: 100%;
   }
 
   .vip-desk-gate {
@@ -1763,7 +1765,10 @@
   }
 
   .vip-desk {
-    @apply flex min-h-[100svh] flex-col bg-theme-bg text-theme-primary;
+    @apply flex min-h-0 flex-col bg-theme-bg text-theme-primary;
+    height: 100dvh;
+    max-height: 100dvh;
+    overflow: hidden;
     background: linear-gradient(165deg, rgb(var(--color-bg)) 0%, rgb(var(--color-bg)) 40%, rgb(var(--color-accent) / 0.06) 100%);
   }
 
@@ -1789,7 +1794,26 @@
   }
 
   .vip-desk__body {
-    @apply relative flex min-h-0 flex-1;
+    @apply relative flex min-h-0 flex-1 overflow-hidden;
+  }
+
+  .vip-desk__main {
+    @apply min-h-0 min-w-0 flex-1 overflow-y-auto overscroll-y-contain p-4 pb-[calc(4.75rem+env(safe-area-inset-bottom))] sm:p-6 lg:pb-[max(1.5rem,env(safe-area-inset-bottom))] lg:p-8;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  @media (max-width: 1023px) {
+    .vip-desk--chat-panel .vip-desk__membership {
+      display: none;
+    }
+
+    .vip-desk--chat-panel .vip-desk__main {
+      @apply flex flex-col overflow-hidden p-2 pb-[calc(4.75rem+env(safe-area-inset-bottom))];
+    }
+
+    .vip-desk--chat-panel .vip-panel--chat {
+      @apply min-h-0 flex-1;
+    }
   }
 
   .vip-desk__sidebar {
@@ -1810,10 +1834,6 @@
   .vip-desk__overlay {
     @apply fixed inset-0 z-40 bg-black/50 backdrop-blur-sm;
     top: calc(3.25rem + env(safe-area-inset-top));
-  }
-
-  .vip-desk__main {
-    @apply min-h-0 min-w-0 flex-1 overflow-y-auto p-4 pb-[calc(4.75rem+env(safe-area-inset-bottom))] sm:p-6 lg:pb-[max(1.5rem,env(safe-area-inset-bottom))] lg:p-8;
   }
 
   .vip-desk__panel-bar {
@@ -4415,18 +4435,36 @@
 
 .engagement-center-backdrop {
   @apply fixed inset-0 z-[80] bg-black/50 backdrop-blur-sm;
+  padding-top: env(safe-area-inset-top);
 }
 
 .engagement-center {
   @apply fixed right-0 top-0 z-[81] flex h-full w-full max-w-md flex-col border-l border-theme bg-theme-elevated shadow-2xl;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 .engagement-center__head {
-  @apply flex items-center justify-between gap-3 border-b border-theme px-4 py-4;
+  @apply grid grid-cols-[auto_1fr_auto] items-center gap-2 border-b border-theme px-3 py-3 sm:px-4 sm:py-4;
+}
+
+.engagement-center__back {
+  @apply inline-flex min-h-[44px] items-center gap-1.5 rounded-xl px-2 py-2 text-sm font-semibold text-theme-primary transition hover:bg-theme-surface/60;
+}
+
+.engagement-center__close {
+  @apply flex h-10 w-10 items-center justify-center rounded-xl transition hover:bg-theme-surface/60;
 }
 
 .engagement-center__body {
-  @apply flex-1 overflow-y-auto;
+  @apply min-h-0 flex-1 overflow-y-auto overscroll-y-contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 639px) {
+  .engagement-center {
+    @apply max-w-none border-l-0;
+  }
 }
 
 .engagement-center__item {
@@ -4573,8 +4611,10 @@
 }
 
 .messenger-chat--keyboard {
-  max-height: calc(100dvh - var(--chat-keyboard-gap, 0px) - 5.5rem);
-  height: calc(100dvh - var(--chat-keyboard-gap, 0px) - 5.5rem);
+  flex: 1;
+  min-height: 0;
+  max-height: none;
+  height: auto;
 }
 
 .vip-panel .messenger-chat,
@@ -4597,21 +4637,29 @@
 
 @media (max-width: 640px) {
   .messenger-chat {
-    min-height: min(420px, calc(100dvh - 10rem));
-    max-height: calc(100dvh - 8rem);
-    height: calc(100dvh - 8rem);
+    min-height: 0;
+    max-height: none;
+    height: 100%;
+    flex: 1;
     border-radius: 0.85rem;
   }
 
-  .vip-panel .messenger-chat {
-    min-height: calc(100dvh - 11rem);
-    max-height: calc(100dvh - 9rem);
-    height: calc(100dvh - 9rem);
+  .vip-panel .messenger-chat,
+  .vip-desk--chat-panel .messenger-chat {
+    min-height: 0;
+    max-height: none;
+    height: 100%;
+    flex: 1;
   }
 
   .messenger-chat--keyboard {
-    max-height: calc(100dvh - var(--chat-keyboard-gap, 0px) - 4rem);
-    height: calc(100dvh - var(--chat-keyboard-gap, 0px) - 4rem);
+    max-height: none;
+    height: 100%;
+    flex: 1;
+  }
+
+  .vip-desk--chat-panel .messenger-composer {
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom, 0px));
   }
 }
 

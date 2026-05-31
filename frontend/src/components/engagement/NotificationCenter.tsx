@@ -1,4 +1,5 @@
-import { X } from 'lucide-react'
+import { ArrowLeft, X } from 'lucide-react'
+import { useEffect } from 'react'
 import { useEngagement } from '@/engagement/EngagementProvider'
 import type { VipPanelId } from '@/components/student/vip/VipDeskShell'
 
@@ -8,16 +9,28 @@ type Props = {
 
 export function NotificationCenter({ onNavigate }: Props) {
   const { centerOpen, setCenterOpen, notifications, feed, markRead, markAllRead } = useEngagement()
+
+  useEffect(() => {
+    if (!centerOpen) return
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = prev
+    }
+  }, [centerOpen])
+
   if (!centerOpen) return null
+
+  const close = () => setCenterOpen(false)
 
   const openItem = async (id: string, panelId?: string) => {
     await markRead(id)
     if (panelId && onNavigate) onNavigate(panelId as VipPanelId)
-    setCenterOpen(false)
+    close()
   }
 
   return (
-    <div className="engagement-center-backdrop" onClick={() => setCenterOpen(false)}>
+    <div className="engagement-center-backdrop" onClick={close}>
       <aside
         className="engagement-center"
         onClick={(e) => e.stopPropagation()}
@@ -25,12 +38,16 @@ export function NotificationCenter({ onNavigate }: Props) {
         aria-label="Notification center"
       >
         <div className="engagement-center__head">
-          <h3 className="font-display text-lg font-bold text-theme-primary">Notifications</h3>
+          <button type="button" className="engagement-center__back" onClick={close}>
+            <ArrowLeft className="h-5 w-5" />
+            <span>Back</span>
+          </button>
+          <h3 className="font-display text-base font-bold text-theme-primary sm:text-lg">Notifications</h3>
           <div className="flex items-center gap-2">
             <button type="button" className="text-xs font-semibold text-theme-accent" onClick={() => void markAllRead()}>
               Mark all read
             </button>
-            <button type="button" onClick={() => setCenterOpen(false)} aria-label="Close">
+            <button type="button" className="engagement-center__close" onClick={close} aria-label="Close">
               <X className="h-5 w-5 text-theme-muted" />
             </button>
           </div>
@@ -68,7 +85,7 @@ export function NotificationCenter({ onNavigate }: Props) {
               className={`engagement-center__item ${f.readAt ? '' : 'engagement-center__item--unread'}`}
               onClick={() => {
                 if (f.panelId && onNavigate) onNavigate(f.panelId as VipPanelId)
-                setCenterOpen(false)
+                close()
               }}
             >
               <p className="font-semibold text-theme-primary">{f.title}</p>

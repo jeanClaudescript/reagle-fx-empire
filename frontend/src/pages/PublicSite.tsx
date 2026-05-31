@@ -44,7 +44,7 @@ export function PublicSite({
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-theme-bg text-theme-muted transition-colors duration-500">
       <Navbar />
-      <main>
+      <main className="pb-20 sm:pb-0">
         <Hero />
         <Suspense fallback={<SectionFallback />}>
           <About />

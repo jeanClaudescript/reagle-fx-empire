@@ -615,8 +615,10 @@ function VipDeskShellInner() {
     </nav>
   )
 
+  const isChatPanel = panel === 'community-chat' || panel === 'coach-chat'
+
   return (
-    <div className="vip-desk">
+    <div className={`vip-desk ${isChatPanel ? 'vip-desk--chat-panel' : ''}`}>
       <header className="vip-desk__header">
         <div className="vip-desk__header-inner">
           <button
@@ -668,7 +670,7 @@ function VipDeskShellInner() {
           />
         ) : null}
         <main className="vip-desk__main">
-          {panel !== 'overview' ? (
+          {panel !== 'overview' && panel !== 'community-chat' ? (
             <div className="vip-desk__panel-bar">
               <button type="button" className="vip-desk__panel-back" onClick={() => selectPanel('overview')}>
                 <ArrowLeft className="h-4 w-4" />
