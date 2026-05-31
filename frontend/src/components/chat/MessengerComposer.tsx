@@ -26,6 +26,7 @@ type Props = {
   onUpload: (file: File) => Promise<{ url: string; type: 'image' | 'video' | 'voice' | 'file'; mimeType?: string; fileName?: string }>
   onTyping?: (typing: boolean) => void
   onFocus?: () => void
+  onSent?: () => void
   sendLabel?: string
 }
 
@@ -43,6 +44,7 @@ export function MessengerComposer({
   onUpload,
   onTyping,
   onFocus,
+  onSent,
   sendLabel = 'Send message',
 }: Props) {
   const [text, setText] = useState('')
@@ -83,8 +85,14 @@ export function MessengerComposer({
 
   const refocusInput = () => {
     window.requestAnimationFrame(() => {
-      inputRef.current?.focus()
-      resizeTextarea(inputRef.current)
+      const el = inputRef.current
+      if (!el) return
+      try {
+        el.focus({ preventScroll: true })
+      } catch {
+        el.focus()
+      }
+      resizeTextarea(el)
     })
   }
 
@@ -97,6 +105,7 @@ export function MessengerComposer({
       setAttachOpen(false)
       onTyping?.(false)
       if (inputRef.current) inputRef.current.style.height = 'auto'
+      onSent?.()
       refocusInput()
     } finally {
       setBusy(false)
@@ -267,7 +276,9 @@ export function MessengerComposer({
           autoCorrect="on"
           spellCheck
           aria-label={placeholder}
-          onFocus={() => onFocus?.()}
+          onFocus={() => {
+            onFocus?.()
+          }}
           onChange={(e) => {
             setText(e.target.value)
             notifyTyping(e.target.value)

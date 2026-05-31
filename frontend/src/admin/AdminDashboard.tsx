@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { isAdminAuthenticated, logoutAdmin } from '@/admin/auth'
+import { logoutAdmin } from '@/admin/auth'
+import { refreshAppSocketAuth } from '@/realtime/appSocket'
 import { useCms } from '@/cms/CmsProvider'
 import { AdminToastProvider, useAdminToast } from '@/admin/toast'
 import { AdminConfirmProvider, useAdminConfirm } from '@/admin/confirm'
@@ -91,13 +92,6 @@ function AdminDashboardInner() {
     }
     window.addEventListener('popstate', onPop)
     return () => window.removeEventListener('popstate', onPop)
-  }, [])
-
-  useEffect(() => {
-    if (!isAdminAuthenticated()) {
-      window.history.pushState({}, '', '/login?tab=admin')
-      window.dispatchEvent(new PopStateEvent('popstate'))
-    }
   }, [])
 
   useEffect(() => {
@@ -300,7 +294,8 @@ function AdminDashboardInner() {
     })
     if (!ok) return
     await logoutAdmin()
-    window.location.pathname = '/admin-login'
+    refreshAppSocketAuth()
+    window.location.replace('/login?tab=admin')
   }, [confirm])
 
   const handleSaveDraft = useCallback(() => {

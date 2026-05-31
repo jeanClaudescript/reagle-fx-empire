@@ -11,7 +11,9 @@ import { LoginPage } from '@/pages/LoginPage'
 import { StudentDeskPage } from '@/pages/StudentDeskPage'
 import { ClassroomRoomPage } from '@/pages/ClassroomRoomPage'
 import { AdminLogin } from '@/admin/AdminLogin'
-import { AdminDashboard } from '@/admin/AdminDashboard'
+import { AdminRouteGate } from '@/admin/AdminRouteGate'
+import { isAdminAuthenticated } from '@/admin/adminSession'
+import { resolvePathWithAdminGuard } from '@/admin/adminRouteGuard'
 import { MediaViewerProvider } from '@/components/admin/media/MediaViewerContext'
 import { captureReferralFromSearch, resolveReferralPath } from '@/referral/referralStorage'
 
@@ -25,18 +27,34 @@ function syncAppPath() {
   return window.location.pathname
 }
 
+function readAppPath() {
+  return resolvePathWithAdminGuard(syncAppPath())
+}
+
 function App() {
-  const [path, setPath] = useState(() => syncAppPath())
+  const [path, setPath] = useState(() => readAppPath())
 
   useEffect(() => {
-    const onPop = () => setPath(syncAppPath())
+    const onPop = () => setPath(readAppPath())
     window.addEventListener('popstate', onPop)
-    return () => window.removeEventListener('popstate', onPop)
+
+    const onPageShow = (e: PageTransitionEvent) => {
+      if (!e.persisted) return
+      setPath(readAppPath())
+    }
+    window.addEventListener('pageshow', onPageShow)
+
+    return () => {
+      window.removeEventListener('popstate', onPop)
+      window.removeEventListener('pageshow', onPageShow)
+    }
   }, [])
+
+  const adminMode = path.startsWith('/admin') && isAdminAuthenticated()
 
   return (
     <ThemeProvider>
-      <CmsProvider adminMode={path.startsWith('/admin')}>
+      <CmsProvider adminMode={adminMode}>
         <LanguageProvider>
           <StudentAccessProvider>
             <AppRealtimeProvider>
@@ -45,7 +63,7 @@ function App() {
             ) : path === '/admin-login' ? (
               <AdminLogin />
             ) : path.startsWith('/admin') ? (
-              <AdminDashboard />
+              <AdminRouteGate />
             ) : path === '/pay' ? (
               <MediaViewerProvider>
                 <PayPage />

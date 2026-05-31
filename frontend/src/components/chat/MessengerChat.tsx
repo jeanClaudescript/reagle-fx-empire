@@ -59,7 +59,7 @@ export function MessengerChat({
   const bottomRef = useRef<HTMLDivElement>(null)
   const [theme, setTheme] = useState(getChatTheme)
 
-  useChatViewport(chatRef)
+  const syncViewport = useChatViewport(chatRef)
 
   useEffect(() => {
     const onTheme = () => setTheme(getChatTheme())
@@ -67,22 +67,31 @@ export function MessengerChat({
     return () => window.removeEventListener('rfx-chat-theme', onTheme)
   }, [])
 
-  const scrollBottom = (smooth = true) => {
+  const scrollMessages = (smooth = false) => {
     scrollChatToBottom(bodyRef.current, smooth)
-    bottomRef.current?.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', block: 'end' })
   }
 
   useEffect(() => {
-    scrollBottom(true)
+    scrollMessages(false)
   }, [messages.length, typingNames.length])
 
   useEffect(() => {
     const body = bodyRef.current
     if (!body) return
-    const ro = new ResizeObserver(() => scrollBottom(false))
+    const ro = new ResizeObserver(() => scrollMessages(false))
     ro.observe(body)
     return () => ro.disconnect()
   }, [])
+
+  const handleComposerFocus = () => {
+    syncViewport()
+    scrollMessages(false)
+  }
+
+  const handleSent = () => {
+    syncViewport()
+    window.requestAnimationFrame(() => scrollMessages(false))
+  }
 
   const rows = useMemo(() => {
     const out: { kind: 'date' | 'msg'; key: string; label?: string; message?: DeskChatMessage }[] = []
@@ -146,7 +155,8 @@ export function MessengerChat({
         onSend={onSend}
         onUpload={onUpload}
         onTyping={onTyping}
-        onFocus={() => scrollBottom(false)}
+        onFocus={handleComposerFocus}
+        onSent={handleSent}
       />
     </div>
   )

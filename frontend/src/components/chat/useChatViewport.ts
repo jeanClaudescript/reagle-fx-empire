@@ -1,28 +1,53 @@
-import { useEffect, type RefObject } from 'react'
+import { useCallback, useEffect, type RefObject } from 'react'
+
+function isMobileChat() {
+  return window.matchMedia('(max-width: 640px)').matches
+}
 
 /** Keeps composer visible when the mobile keyboard opens (Visual Viewport API). */
 export function useChatViewport(containerRef: RefObject<HTMLElement | null>) {
+  const applyViewport = useCallback(() => {
+    const el = containerRef.current
+    const vv = window.visualViewport
+    if (!el || !vv) return
+
+    const keyboardGap = Math.max(0, window.innerHeight - vv.height - vv.offsetTop)
+    const keyboardOpen = keyboardGap > 50
+
+    el.style.setProperty('--chat-keyboard-gap', `${keyboardGap}px`)
+    el.classList.toggle('messenger-chat--keyboard', keyboardOpen)
+
+    if (keyboardOpen && isMobileChat()) {
+      const rect = el.getBoundingClientRect()
+      const topInViewport = rect.top - vv.offsetTop
+      const available = vv.height - Math.max(0, topInViewport)
+      el.style.setProperty('--chat-fit-height', `${Math.max(180, available)}px`)
+    } else {
+      el.style.removeProperty('--chat-fit-height')
+    }
+  }, [containerRef])
+
   useEffect(() => {
     const el = containerRef.current
     const vv = window.visualViewport
     if (!el || !vv) return
 
-    const apply = () => {
-      const keyboardGap = Math.max(0, window.innerHeight - vv.height - vv.offsetTop)
-      el.style.setProperty('--chat-keyboard-gap', `${keyboardGap}px`)
-      el.classList.toggle('messenger-chat--keyboard', keyboardGap > 80)
-    }
+    applyViewport()
+    vv.addEventListener('resize', applyViewport)
+    vv.addEventListener('scroll', applyViewport)
+    window.addEventListener('orientationchange', applyViewport)
 
-    apply()
-    vv.addEventListener('resize', apply)
-    vv.addEventListener('scroll', apply)
     return () => {
-      vv.removeEventListener('resize', apply)
-      vv.removeEventListener('scroll', apply)
+      vv.removeEventListener('resize', applyViewport)
+      vv.removeEventListener('scroll', applyViewport)
+      window.removeEventListener('orientationchange', applyViewport)
       el.style.removeProperty('--chat-keyboard-gap')
+      el.style.removeProperty('--chat-fit-height')
       el.classList.remove('messenger-chat--keyboard')
     }
-  }, [containerRef])
+  }, [containerRef, applyViewport])
+
+  return applyViewport
 }
 
 export function useClickOutside(ref: RefObject<HTMLElement | null>, onClose: () => void, active: boolean) {
@@ -45,5 +70,8 @@ export function useClickOutside(ref: RefObject<HTMLElement | null>, onClose: () 
 
 export function scrollChatToBottom(node: HTMLElement | null, smooth = true) {
   if (!node) return
-  node.scrollTo({ top: node.scrollHeight, behavior: smooth ? 'smooth' : 'auto' })
+  const mobile = isMobileChat()
+  const behavior =
+    mobile || !smooth || window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'
+  node.scrollTo({ top: node.scrollHeight, behavior })
 }

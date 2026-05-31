@@ -4658,8 +4658,8 @@
 .messenger-chat--keyboard {
   flex: 1;
   min-height: 0;
-  max-height: none;
-  height: auto;
+  max-height: var(--chat-fit-height, none);
+  height: var(--chat-fit-height, auto);
 }
 
 .vip-panel .messenger-chat,
@@ -4698,12 +4698,20 @@
   }
 
   .messenger-chat--keyboard {
-    max-height: none;
-    height: 100%;
+    max-height: var(--chat-fit-height, 100%) !important;
+    height: var(--chat-fit-height, 100%) !important;
+    min-height: 0;
     flex: 1;
   }
 
-  .vip-desk--chat-panel .messenger-composer {
+  .messenger-composer {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+  }
+
+  .vip-desk--chat-panel .messenger-composer,
+  .admin-app--desk-chat .messenger-composer {
     padding-bottom: max(0.5rem, env(safe-area-inset-bottom, 0px));
   }
 }
@@ -4716,6 +4724,7 @@
   padding: 0.85rem 1rem;
   background: var(--messenger-header, linear-gradient(135deg, #0084ff, #00c6ff));
   color: #fff;
+  flex-shrink: 0;
 }
 
 .messenger-chat__header h3 {

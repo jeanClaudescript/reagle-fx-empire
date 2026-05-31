@@ -18,7 +18,12 @@ export function AppRealtimeProvider({ children }: { children: ReactNode }) {
     boot()
 
     const onStorage = (e: StorageEvent) => {
-      if (e.key?.includes('auth') || e.key?.includes('session') || e.key?.includes('student')) {
+      if (
+        e.key?.includes('auth') ||
+        e.key?.includes('session') ||
+        e.key?.includes('student') ||
+        e.key?.includes('admin-token')
+      ) {
         refreshAppSocketAuth()
       }
     }
