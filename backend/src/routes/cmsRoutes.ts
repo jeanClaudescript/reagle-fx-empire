@@ -45,8 +45,11 @@ cmsRoutes.put('/draft', requireAdminAuth, async (req, res, next) => {
 
 cmsRoutes.post('/publish', requireAdminAuth, async (_req, res, next) => {
   try {
+    const prev = await getPublishedCms().catch(() => undefined)
     const data = await publishDraftCms()
     emitToAll('cms:published', { data, at: new Date().toISOString() })
+    const { onCmsPublished } = await import('../services/engagementIntegrations.js')
+    void onCmsPublished(data, prev).catch(console.error)
     res.json({ data })
   } catch (error) {
     next(error)

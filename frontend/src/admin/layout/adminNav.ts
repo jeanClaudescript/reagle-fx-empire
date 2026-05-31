@@ -37,6 +37,7 @@ export type AdminTab =
   | 'desk-chat'
   | 'referrals'
   | 'pay-settings'
+  | 'education'
   | 'settings'
 
 export type AdminNavGroup = 'overview' | 'website' | 'operations' | 'system'
@@ -66,9 +67,23 @@ export const ADMIN_NAV: AdminNavItem[] = [
   { id: 'desk-chat', label: 'VIP messages', icon: MessageCircle, group: 'operations' },
   { id: 'referrals', label: 'Referrals', icon: Share2, group: 'operations' },
   { id: 'pay-settings', label: 'MoMo settings', icon: Wallet, group: 'operations' },
+  { id: 'education', label: 'Daily lessons', icon: BookOpen, group: 'operations' },
   { id: 'settings', label: 'Settings', icon: Settings, group: 'system' },
 ]
 
 export function getAdminNavLabel(tab: AdminTab) {
   return ADMIN_NAV.find((n) => n.id === tab)?.label ?? 'Content hub'
+}
+
+const ADMIN_TAB_IDS = new Set<AdminTab>(ADMIN_NAV.map((n) => n.id))
+
+export function readAdminTabFromHash(): AdminTab | null {
+  const match = window.location.hash.match(/^#tab=([a-z-]+)$/)
+  if (!match) return null
+  const id = match[1] as AdminTab
+  return ADMIN_TAB_IDS.has(id) ? id : null
+}
+
+export function adminTabPath(tab: AdminTab): string {
+  return tab === 'dashboard' ? '/admin' : `/admin#tab=${tab}`
 }

@@ -295,11 +295,13 @@
     "txSaved": "Yoherejwe",
     "checkingStatus": "Turimo kureba imiterere…",
     "failedHint": "Kwishyura byanze. Tangira bundi bushya cyangwa uvugane n'ubufasha.",
+    "retryPayment": "Ongera ugerageze",
     "doneTitle": "Kwishyura byemejwe",
     "doneRef": "Inyandiko",
     "yourReferral": "Code yawe yo gutumira",
     "referralHint": "Sangiza link — uhabwa igihe umuntu wabitumiye wishyura bwa mbere.",
     "backHome": "Subira ahabanza",
+    "backToDetails": "Subira ku bisobanuro",
     "copied": "Byakoporowe",
     "copyFailed": "Ntibyakoporowe"
   },
@@ -563,6 +565,23 @@
     "download": "Kuramo",
     "empty": "Nta bitabo byashyizweho.",
     "hidden": "Ububiko bwihishe mu settings."
+  },
+  "dailyLessons": {
+    "title": "Isomo rya forex ry'uyu munsi",
+    "navTitle": "Isomo ku munsi",
+    "todayTab": "Uyu munsi",
+    "progressTab": "Intambwe",
+    "loading": "Tegereza isomo…",
+    "noLesson": "Nta somo uyu munsi — subira nyuma y'uko Coach yashyize ibitabo.",
+    "markComplete": "Emera ko warangije",
+    "completing": "Birabikwa…",
+    "completed": "Warangije isomo — imyitwarire myiza!",
+    "streak": "Iminsi {n} mu mwanya",
+    "aiEnhanced": "Byongewe na AI",
+    "quizTitle": "Ikibazo gito",
+    "totalCompleted": "Amasomo warangije",
+    "currentStreak": "Iminsi mu mwanya",
+    "noProgress": "Rangiza isomo rya mbere ukurikirane intambwe."
   },
   "referral": {
     "shareTitle": "Tumira inshuti",

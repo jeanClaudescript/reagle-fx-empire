@@ -32,4 +32,6 @@ export const env = {
   turnCredential: process.env.TURN_CREDENTIAL?.trim() || '',
   /** Optional — enables live candles, gold quotes, forex news (free tier at finnhub.io) */
   finnhubApiKey: process.env.FINNHUB_API_KEY?.trim() || '',
+  /** Optional — Gemini AI for lesson enhancement (admin toggle; core works without it) */
+  geminiApiKey: process.env.GEMINI_API_KEY?.trim() || '',
 }

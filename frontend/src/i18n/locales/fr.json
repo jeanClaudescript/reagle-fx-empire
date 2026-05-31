@@ -295,11 +295,13 @@
     "txSaved": "Envoyé",
     "checkingStatus": "Vérification du statut…",
     "failedHint": "Paiement refusé ou échoué. Recommencez ou contactez le support.",
+    "retryPayment": "Réessayer",
     "doneTitle": "Paiement confirmé",
     "doneRef": "Référence",
     "yourReferral": "Votre code parrainage",
     "referralHint": "Partagez votre lien — récompense au premier paiement d'un filleul.",
     "backHome": "Retour à l'accueil",
+    "backToDetails": "Retour aux détails",
     "copied": "Copié",
     "copyFailed": "Copie impossible"
   },
@@ -563,6 +565,23 @@
     "download": "Télécharger",
     "empty": "Aucun livre publié pour l'instant.",
     "hidden": "Bibliothèque masquée dans les paramètres."
+  },
+  "dailyLessons": {
+    "title": "Leçon forex du jour",
+    "navTitle": "Leçon quotidienne",
+    "todayTab": "Aujourd'hui",
+    "progressTab": "Progrès",
+    "loading": "Chargement de la leçon…",
+    "noLesson": "Pas de leçon aujourd'hui — revenez après l'ajout de livres.",
+    "markComplete": "Marquer comme terminée",
+    "completing": "Enregistrement…",
+    "completed": "Leçon terminée — excellente discipline !",
+    "streak": "Série de {n} jours",
+    "aiEnhanced": "Amélioré par IA",
+    "quizTitle": "Quiz rapide",
+    "totalCompleted": "Leçons faites",
+    "currentStreak": "Série",
+    "noProgress": "Terminez votre première leçon pour suivre vos progrès."
   },
   "referral": {
     "shareTitle": "Invitez des amis",

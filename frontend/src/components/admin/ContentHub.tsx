@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 import { ChevronRight, Globe, LayoutGrid, Search, Users } from 'lucide-react'
 import { useCms } from '@/cms/CmsProvider'
-import { studentApi, type StudentStats } from '@/services/api'
 import { AdminCard } from '@/components/admin/AdminCard'
+import { AdminOpsPriorities } from '@/components/admin/AdminOpsPriorities'
 import { DASHBOARD_WORKFLOW_ACTIONS } from '@/admin/layout/dashboardActions'
 import {
   ADMIN_HUB_CARDS,
@@ -41,20 +41,6 @@ export function ContentHub({
   const { draft, hasDraftChanges, sectionStates } = useCms()
   const [query, setQuery] = useState('')
   const [category, setCategory] = useState<HubCategory>('all')
-  const [opsStats, setOpsStats] = useState<StudentStats | null>(null)
-
-  const loadOps = useCallback(async () => {
-    try {
-      const res = await studentApi.getStats()
-      setOpsStats(res.data)
-    } catch {
-      setOpsStats(null)
-    }
-  }, [])
-
-  useEffect(() => {
-    void loadOps()
-  }, [loadOps])
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -113,6 +99,8 @@ export function ContentHub({
         </div>
       </div>
 
+      <AdminOpsPriorities onNavigate={onNavigate} />
+
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {cmsStats.map((s, i) => (
           <motion.div
@@ -127,26 +115,6 @@ export function ContentHub({
           </motion.div>
         ))}
       </div>
-
-      {opsStats && (
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="admin-stat-tile admin-stat-tile--ops">
-            <p className="text-xs font-semibold uppercase tracking-wider text-theme-muted">Students</p>
-            <p className="mt-2 font-display text-3xl font-bold text-theme-primary">{opsStats.totalStudents}</p>
-            <p className="mt-1 text-xs text-emerald-400">{opsStats.paidStudents} paid</p>
-          </div>
-          <div className="admin-stat-tile admin-stat-tile--ops">
-            <p className="text-xs font-semibold uppercase tracking-wider text-theme-muted">Pending payments</p>
-            <p className="mt-2 font-display text-3xl font-bold text-amber-400">{opsStats.pendingPayments}</p>
-          </div>
-          <div className="admin-stat-tile admin-stat-tile--ops sm:col-span-2">
-            <p className="text-xs font-semibold uppercase tracking-wider text-theme-muted">Revenue (paid)</p>
-            <p className="mt-2 font-display text-3xl font-bold text-theme-primary">
-              {opsStats.totalRevenue.toLocaleString()} {opsStats.currency}
-            </p>
-          </div>
-        </div>
-      )}
 
       <AdminCard>
         <div className="admin-card-body">

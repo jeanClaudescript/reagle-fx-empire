@@ -1,91 +1,83 @@
-import { useEffect, useRef, useState } from 'react'
-import { Send } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { useLanguage } from '@/context/LanguageContext'
 import { deskChatApi } from '@/services/api'
-import { emitDeskDirectSend, onDirectMessage, type DeskChatMessage } from '@/realtime/appSocket'
-
-function mergeMessage(list: DeskChatMessage[], msg: DeskChatMessage) {
-  if (list.some((m) => m.id === msg.id)) return list
-  return [...list, msg].slice(-200)
-}
+import { MessengerChat, mergeMessage } from '@/components/chat/MessengerChat'
+import type { ChatSendPayload } from '@/components/chat/MessengerComposer'
+import {
+  emitDeskDirectSend,
+  emitDeskDirectTyping,
+  onDirectMessage,
+  onDirectRead,
+  onDirectTyping,
+  type DeskChatMessage,
+} from '@/realtime/appSocket'
 
 export function VipCoachChat() {
   const { t } = useLanguage()
   const [messages, setMessages] = useState<DeskChatMessage[]>([])
-  const [text, setText] = useState('')
   const [loading, setLoading] = useState(true)
-  const [sending, setSending] = useState(false)
-  const bottomRef = useRef<HTMLDivElement>(null)
+  const [typingNames, setTypingNames] = useState<string[]>([])
+  const [coachTyping, setCoachTyping] = useState(false)
 
   useEffect(() => {
     deskChatApi
       .directList()
       .then((res) => setMessages(res.data))
       .finally(() => setLoading(false))
+    void deskChatApi.directMarkRead()
   }, [])
 
   useEffect(() => onDirectMessage((msg) => setMessages((prev) => mergeMessage(prev, msg))), [])
 
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages.length])
+  useEffect(
+    () =>
+      onDirectTyping((p) => {
+        if (p.userId && p.userName !== messages[0]?.fromUserName) {
+          setCoachTyping(p.typing)
+          setTypingNames(p.typing ? ['Coach'] : [])
+        }
+      }),
+    [messages],
+  )
 
-  const send = async () => {
-    const msg = text.trim()
-    if (!msg || sending) return
-    setSending(true)
+  useEffect(
+    () =>
+      onDirectRead(() => {
+        setMessages((prev) =>
+          prev.map((m) => (m.fromRole === 'student' ? { ...m, readAt: new Date().toISOString() } : m)),
+        )
+      }),
+    [],
+  )
+
+  const send = async (payload: ChatSendPayload) => {
     try {
-      await emitDeskDirectSend(msg)
-      setText('')
+      await emitDeskDirectSend(payload)
     } catch {
-      try {
-        const res = await deskChatApi.directSend(msg)
-        setMessages((prev) => mergeMessage(prev, res.data))
-        setText('')
-      } catch {
-        /* ignore */
-      }
-    } finally {
-      setSending(false)
+      const res = await deskChatApi.directSend(payload)
+      setMessages((prev) => mergeMessage(prev, res.data))
     }
   }
 
-  if (loading) return <p className="text-sm text-theme-muted">{t.chat.coachLoading}</p>
+  const upload = async (file: File) => {
+    const res = await deskChatApi.upload(file)
+    return res.data
+  }
 
   return (
-    <div className="desk-chat desk-chat--direct">
-      <p className="desk-chat__hint text-sm text-theme-muted mb-3">{t.chat.coachHint}</p>
-      <div className="desk-chat__messages">
-        {messages.length === 0 ? (
-          <p className="text-sm text-theme-muted py-4 text-center">{t.chat.coachEmpty}</p>
-        ) : (
-          messages.map((m) => (
-            <div
-              key={m.id}
-              className={`desk-chat__row desk-chat__row--${m.fromRole === 'student' ? 'mine' : 'coach'}`}
-            >
-              <div className="desk-chat__meta">
-                <strong>{m.fromUserName}</strong>
-                <span>{new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-              </div>
-              <p>{m.message}</p>
-            </div>
-          ))
-        )}
-        <div ref={bottomRef} />
-      </div>
-      <div className="desk-chat__input">
-        <input
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), send())}
-          placeholder={t.chat.coachPlaceholder}
-          maxLength={2000}
-        />
-        <button type="button" onClick={send} disabled={sending || !text.trim()} aria-label={t.chat.sendAria}>
-          <Send size={16} />
-        </button>
-      </div>
-    </div>
+    <MessengerChat
+      title={t.chat.coachTitle}
+      subtitle={t.chat.coachHint}
+      emptyLabel={t.chat.coachEmpty}
+      placeholder={t.chat.coachPlaceholder}
+      loading={loading}
+      messages={messages}
+      mineRole="student"
+      showReadReceipts
+      typingNames={coachTyping ? typingNames : []}
+      onSend={send}
+      onUpload={upload}
+      onTyping={emitDeskDirectTyping}
+    />
   )
 }

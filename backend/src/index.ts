@@ -12,9 +12,13 @@ import { authRoutes } from './routes/authRoutes.js'
 import { liveRoutes } from './routes/liveRoutes.js'
 import { classroomRoutes } from './routes/classroomRoutes.js'
 import { deskChatRoutes } from './routes/deskChatRoutes.js'
+import { engagementRoutes } from './routes/engagementRoutes.js'
+import { educationRoutes } from './routes/educationRoutes.js'
 import { marketRoutes } from './routes/marketRoutes.js'
 import { initClassroomSocket } from './socket/classroomSocket.js'
 import { configureCloudinary, isCloudinaryConfigured } from './services/cloudinaryService.js'
+import { startEngagementScheduler } from './services/engagementScheduler.js'
+import { startEducationScheduler } from './services/educationScheduler.js'
 
 configureCloudinary()
 
@@ -106,6 +110,18 @@ app.use('/api/desk-chat', (req, res, next) => {
   }
   return deskChatRoutes(req, res, next)
 })
+app.use('/api/engagement', (req, res, next) => {
+  if (!dbReady) {
+    return res.status(503).json({ error: 'Database not configured yet' })
+  }
+  return engagementRoutes(req, res, next)
+})
+app.use('/api/education', (req, res, next) => {
+  if (!dbReady) {
+    return res.status(503).json({ error: 'Database not configured yet' })
+  }
+  return educationRoutes(req, res, next)
+})
 
 app.use(
   (
@@ -129,6 +145,10 @@ async function start() {
   dbReady = await connectDatabase()
   const httpServer = createServer(app)
   initClassroomSocket(httpServer)
+  if (dbReady) {
+    startEngagementScheduler()
+    startEducationScheduler()
+  }
   httpServer.listen(env.port, () => {
     console.log(`Backend listening on http://localhost:${env.port}`)
     console.log(`Socket.IO classroom on ws://localhost:${env.port}/socket.io`)

@@ -1,4 +1,10 @@
 import { LiveSessionModel, type LiveSessionStatus } from '../models/LiveSession.js'
+import {
+  onLiveSessionCreated,
+  onLiveSessionStatusChanged,
+  onLiveSessionUpdated,
+  onLiveSignalBatch,
+} from './engagementIntegrations.js'
 import { emitToAll } from '../socket/io.js'
 
 function broadcastLiveSession(session: ReturnType<typeof serializeLiveSession> | null) {
@@ -79,6 +85,7 @@ export async function createLiveSession(input: {
   })
   const serialized = serializeLiveSession(doc)
   broadcastLiveSession(serialized.status === 'live' ? serialized : await getActiveLiveSession())
+  void onLiveSessionCreated(serialized).catch(console.error)
   return serialized
 }
 
@@ -110,17 +117,23 @@ export async function updateLiveSession(
   if (input.signalEntry != null) doc.signalEntry = input.signalEntry
   if (input.signalStop != null) doc.signalStop = input.signalStop
   if (input.signalTarget != null) doc.signalTarget = input.signalTarget
+  const signalChanged = input.signalSide != null || input.signalEntry != null
   if (input.scheduledAt != null) doc.scheduledAt = new Date(input.scheduledAt)
   doc.updatedAt = new Date()
   await doc.save()
   const serialized = serializeLiveSession(doc)
   broadcastLiveSession(await getActiveLiveSession())
+  void onLiveSessionUpdated(serialized).catch(console.error)
+  if (signalChanged && doc.signalSide && doc.signalSide !== 'neutral') {
+    void onLiveSignalBatch(serialized).catch(console.error)
+  }
   return serialized
 }
 
 export async function setLiveSessionStatus(id: string, status: LiveSessionStatus) {
   const doc = await LiveSessionModel.findById(id)
   if (!doc) throw new Error('Session not found')
+  const prevStatus = doc.status
 
   if (status === 'live') {
     await LiveSessionModel.updateMany({ status: 'live', _id: { $ne: id } }, { status: 'ended', endedAt: new Date() })
@@ -137,5 +150,6 @@ export async function setLiveSessionStatus(id: string, status: LiveSessionStatus
   await doc.save()
   const serialized = serializeLiveSession(doc)
   broadcastLiveSession(await getActiveLiveSession())
+  void onLiveSessionStatusChanged(serialized, prevStatus).catch(console.error)
   return serialized
 }

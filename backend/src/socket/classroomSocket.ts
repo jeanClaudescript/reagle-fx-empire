@@ -399,7 +399,7 @@ export function initClassroomSocket(httpServer: HttpServer) {
 
     socket.on(
       'desk:community:send',
-      async (payload: { message: string }, ack?: (res: unknown) => void) => {
+      async (payload: { message?: string; messageType?: string; attachments?: unknown[]; replyTo?: unknown }, ack?: (res: unknown) => void) => {
         try {
           if (data.user.role !== 'student' && data.user.role !== 'admin') {
             throw new Error('Not allowed')
@@ -409,7 +409,12 @@ export function initClassroomSocket(httpServer: HttpServer) {
             fromUserId: data.user.id,
             fromUserName: data.user.name,
             fromRole: data.user.role === 'admin' ? 'admin' : 'student',
-            message: payload.message,
+            payload: {
+              message: payload.message,
+              messageType: payload.messageType as import('../types/chat.js').ChatMessageType | undefined,
+              attachments: payload.attachments as import('../types/chat.js').ChatAttachment[] | undefined,
+              replyTo: payload.replyTo as import('../types/chat.js').SerializedDeskChatMessage['replyTo'],
+            },
           })
           emitToVip('desk:community:message', msg)
           emitToAdmins('desk:community:message', msg)
@@ -422,8 +427,17 @@ export function initClassroomSocket(httpServer: HttpServer) {
 
     socket.on(
       'desk:direct:send',
-      async (payload: { message: string; toUserId?: string }, ack?: (res: unknown) => void) => {
+      async (
+        payload: { message?: string; messageType?: string; attachments?: unknown[]; replyTo?: unknown; toUserId?: string },
+        ack?: (res: unknown) => void,
+      ) => {
         try {
+          const sendPayload = {
+            message: payload.message,
+            messageType: payload.messageType as import('../types/chat.js').ChatMessageType | undefined,
+            attachments: payload.attachments as import('../types/chat.js').ChatAttachment[] | undefined,
+            replyTo: payload.replyTo as import('../types/chat.js').SerializedDeskChatMessage['replyTo'],
+          }
           if (data.user.role === 'student') {
             const msg = await saveDeskChatMessage({
               channel: 'direct',
@@ -431,7 +445,7 @@ export function initClassroomSocket(httpServer: HttpServer) {
               fromUserName: data.user.name,
               fromRole: 'student',
               toUserId: 'admin',
-              message: payload.message,
+              payload: sendPayload,
             })
             emitToDirectThread(data.user.id, 'desk:direct:message', msg)
             emitToAdmins('desk:direct:message', msg)
@@ -445,7 +459,7 @@ export function initClassroomSocket(httpServer: HttpServer) {
               fromUserName: data.user.name,
               fromRole: 'admin',
               toUserId: payload.toUserId,
-              message: payload.message,
+              payload: sendPayload,
             })
             emitToDirectThread(payload.toUserId, 'desk:direct:message', msg)
             emitToAdmins('desk:direct:message', msg)
@@ -458,6 +472,39 @@ export function initClassroomSocket(httpServer: HttpServer) {
         }
       },
     )
+
+    socket.on('desk:community:typing', (payload: { typing?: boolean }) => {
+      if (data.user.role !== 'student' && data.user.role !== 'admin') return
+      emitToVip('desk:community:typing', {
+        userId: data.user.id,
+        userName: data.user.name,
+        typing: payload?.typing !== false,
+      })
+      emitToAdmins('desk:community:typing', {
+        userId: data.user.id,
+        userName: data.user.name,
+        typing: payload?.typing !== false,
+      })
+    })
+
+    socket.on('desk:direct:typing', (payload: { typing?: boolean; toUserId?: string }) => {
+      if (data.user.role === 'student') {
+        emitToAdmins('desk:direct:typing', {
+          userId: data.user.id,
+          userName: data.user.name,
+          studentId: data.user.id,
+          typing: payload?.typing !== false,
+        })
+        return
+      }
+      if (data.user.role === 'admin' && payload.toUserId) {
+        emitToDirectThread(payload.toUserId, 'desk:direct:typing', {
+          userId: data.user.id,
+          userName: data.user.name,
+          typing: payload?.typing !== false,
+        })
+      }
+    })
 
     socket.on('disconnect', async () => {
       const roomId = data.roomId

@@ -10,6 +10,7 @@ import {
   type ClassroomRoomStatus,
 } from '../models/ClassroomRoom.js'
 import { emitToAll } from '../socket/io.js'
+import { onClassroomEnded } from './engagementIntegrations.js'
 
 const TEACHER_LEAVE_GRACE_MS = 12_000
 const teacherLeaveTimers = new Map<string, ReturnType<typeof setTimeout>>()
@@ -206,6 +207,9 @@ export async function setClassroomRoomStatus(id: string, status: ClassroomRoomSt
   await doc.save()
   const room = serializeRoom(doc)
   broadcastClassroomUpdate()
+  if (status === 'ended') {
+    void onClassroomEnded({ id, title: doc.title }).catch(console.error)
+  }
   return room
 }
 

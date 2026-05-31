@@ -1,21 +1,21 @@
-import { useEffect, useRef, useState } from 'react'
-import { Send } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { useLanguage } from '@/context/LanguageContext'
 import { deskChatApi } from '@/services/api'
-import { emitDeskCommunitySend, onCommunityMessage, type DeskChatMessage } from '@/realtime/appSocket'
-
-function mergeMessage(list: DeskChatMessage[], msg: DeskChatMessage) {
-  if (list.some((m) => m.id === msg.id)) return list
-  return [...list, msg].slice(-200)
-}
+import { MessengerChat, mergeMessage } from '@/components/chat/MessengerChat'
+import type { ChatSendPayload } from '@/components/chat/MessengerComposer'
+import {
+  emitDeskCommunitySend,
+  emitDeskCommunityTyping,
+  onCommunityMessage,
+  onCommunityTyping,
+  type DeskChatMessage,
+} from '@/realtime/appSocket'
 
 export function VipCommunityChat() {
   const { t } = useLanguage()
   const [messages, setMessages] = useState<DeskChatMessage[]>([])
-  const [text, setText] = useState('')
   const [loading, setLoading] = useState(true)
-  const [sending, setSending] = useState(false)
-  const bottomRef = useRef<HTMLDivElement>(null)
+  const [typingNames, setTypingNames] = useState<string[]>([])
 
   useEffect(() => {
     deskChatApi
@@ -26,63 +26,49 @@ export function VipCommunityChat() {
 
   useEffect(() => onCommunityMessage((msg) => setMessages((prev) => mergeMessage(prev, msg))), [])
 
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages.length])
+  useEffect(
+    () =>
+      onCommunityTyping((p) => {
+        if (!p.typing) {
+          setTypingNames((prev) => prev.filter((n) => n !== p.userName))
+          return
+        }
+        setTypingNames((prev) => (prev.includes(p.userName) ? prev : [...prev, p.userName]))
+        window.setTimeout(() => {
+          setTypingNames((prev) => prev.filter((n) => n !== p.userName))
+        }, 3000)
+      }),
+    [],
+  )
 
-  const send = async () => {
-    const msg = text.trim()
-    if (!msg || sending) return
-    setSending(true)
+  const send = async (payload: ChatSendPayload) => {
     try {
-      await emitDeskCommunitySend(msg)
-      setText('')
+      await emitDeskCommunitySend(payload)
     } catch {
-      try {
-        const res = await deskChatApi.communitySend(msg)
-        setMessages((prev) => mergeMessage(prev, res.data))
-        setText('')
-      } catch {
-        /* ignore */
-      }
-    } finally {
-      setSending(false)
+      const res = await deskChatApi.communitySend(payload)
+      setMessages((prev) => mergeMessage(prev, res.data))
     }
   }
 
-  if (loading) return <p className="text-sm text-theme-muted">{t.chat.communityLoading}</p>
+  const upload = async (file: File) => {
+    const res = await deskChatApi.upload(file)
+    return res.data
+  }
 
   return (
-    <div className="desk-chat">
-      <p className="desk-chat__hint text-sm text-theme-muted mb-3">{t.chat.communityHint}</p>
-      <div className="desk-chat__messages">
-        {messages.length === 0 ? (
-          <p className="text-sm text-theme-muted py-4 text-center">{t.chat.communityEmpty}</p>
-        ) : (
-          messages.map((m) => (
-            <div key={m.id} className={`desk-chat__row desk-chat__row--${m.fromRole}`}>
-              <div className="desk-chat__meta">
-                <strong>{m.fromUserName}</strong>
-                <span>{new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-              </div>
-              <p>{m.message}</p>
-            </div>
-          ))
-        )}
-        <div ref={bottomRef} />
-      </div>
-      <div className="desk-chat__input">
-        <input
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), send())}
-          placeholder={t.chat.communityPlaceholder}
-          maxLength={2000}
-        />
-        <button type="button" onClick={send} disabled={sending || !text.trim()} aria-label={t.chat.sendAria}>
-          <Send size={16} />
-        </button>
-      </div>
-    </div>
+    <MessengerChat
+      title={t.chat.communityTitle}
+      subtitle={t.chat.liveRealtime}
+      emptyLabel={t.chat.communityEmpty}
+      placeholder={t.chat.communityPlaceholder}
+      loading={loading}
+      messages={messages}
+      mineRole="student"
+      groupChat
+      typingNames={typingNames}
+      onSend={send}
+      onUpload={upload}
+      onTyping={emitDeskCommunityTyping}
+    />
   )
 }

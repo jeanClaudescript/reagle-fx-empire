@@ -295,11 +295,13 @@
     "txSaved": "Submitted",
     "checkingStatus": "Checking payment status…",
     "failedHint": "This payment was rejected or failed. Start a new payment or contact support.",
+    "retryPayment": "Try again",
     "doneTitle": "Payment confirmed",
     "doneRef": "Reference",
     "yourReferral": "Your referral code",
     "referralHint": "Share your link — earn when friends pay.",
     "backHome": "Back to home",
+    "backToDetails": "Back to details",
     "copied": "Copied",
     "copyFailed": "Could not copy"
   },
@@ -563,6 +565,23 @@
     "download": "Download",
     "empty": "No books published yet — check back soon.",
     "hidden": "Book library is hidden in site settings."
+  },
+  "dailyLessons": {
+    "title": "Today's forex lesson",
+    "navTitle": "Daily lesson",
+    "todayTab": "Today",
+    "progressTab": "Progress",
+    "loading": "Loading your lesson…",
+    "noLesson": "No lesson scheduled today — check back after Coach uploads books.",
+    "markComplete": "Mark lesson complete",
+    "completing": "Saving…",
+    "completed": "Lesson completed — great discipline!",
+    "streak": "{n}-day streak",
+    "aiEnhanced": "AI enhanced",
+    "quizTitle": "Quick quiz",
+    "totalCompleted": "Lessons done",
+    "currentStreak": "Day streak",
+    "noProgress": "Complete your first lesson to track progress."
   },
   "referral": {
     "shareTitle": "Invite friends & earn",

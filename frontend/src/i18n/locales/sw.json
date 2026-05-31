@@ -295,11 +295,13 @@
     "txSaved": "Imewasilishwa",
     "checkingStatus": "Inakagua hali ya malipo…",
     "failedHint": "Malipo yalikataliwa au yalishindwa. Anza upya au wasiliana na msaada.",
+    "retryPayment": "Jaribu tena",
     "doneTitle": "Malipo yamethibitishwa",
     "doneRef": "Kumbukumbu",
     "yourReferral": "Msimbo wako wa rufaa",
     "referralHint": "Shiriki kiungo chako — unapata zawadi mtu anapolipa mara ya kwanza.",
     "backHome": "Rudi nyumbani",
+    "backToDetails": "Rudi kwa maelezo",
     "copied": "Imenakiliwa",
     "copyFailed": "Imeshindwa kunakili"
   },
@@ -563,6 +565,23 @@
     "download": "Pakua",
     "empty": "Hakuna vitabu bado.",
     "hidden": "Maktaba imefichwa kwenye settings."
+  },
+  "dailyLessons": {
+    "title": "Somo la forex la leo",
+    "navTitle": "Somo la kila siku",
+    "todayTab": "Leo",
+    "progressTab": "Maendeleo",
+    "loading": "Inapakia somo…",
+    "noLesson": "Hakuna somo leo — rudi baada ya Coach kuweka vitabu.",
+    "markComplete": "Weka alama imekamilika",
+    "completing": "Inahifadhi…",
+    "completed": "Somo limekamilika — nidhamu nzuri!",
+    "streak": "Mfululizo wa siku {n}",
+    "aiEnhanced": "Imeboreshwa na AI",
+    "quizTitle": "Jaribio fupi",
+    "totalCompleted": "Masomo yaliyokamilika",
+    "currentStreak": "Mfululizo",
+    "noProgress": "Kamilisha somo la kwanza kufuatilia maendeleo."
   },
   "referral": {
     "shareTitle": "Alika marafiki",

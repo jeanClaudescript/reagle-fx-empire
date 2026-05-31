@@ -35,6 +35,7 @@ import { TradeJournal } from '@/components/forex/tools/TradeJournal'
 import { PaperTradingDesk } from '@/components/forex/tools/PaperTradingDesk'
 import { VipOverviewPanel } from '@/components/student/vip/VipOverviewPanel'
 import { VipBooksPanel } from '@/components/student/vip/VipBooksPanel'
+import { VipDailyLessonPanel } from '@/components/student/vip/VipDailyLessonPanel'
 import { VipClassroomPanel } from '@/components/student/vip/VipClassroomPanel'
 import { ForexNews } from '@/components/forex/tools/ForexNews'
 import { VipCommunityChat } from '@/components/student/vip/VipCommunityChat'
@@ -45,9 +46,16 @@ import { ReferralShareCard } from '@/components/referral/ReferralShareCard'
 import { classroomApi } from '@/services/api'
 import { onClassroomUpdated } from '@/realtime/appSocket'
 import { VipActivityProvider, useVipActivity } from '@/vip/VipActivityProvider'
+import { EngagementProvider } from '@/engagement/EngagementProvider'
+import { NotificationBell } from '@/components/engagement/NotificationBell'
+import { NotificationCenter } from '@/components/engagement/NotificationCenter'
+import { LiveToastNotifications } from '@/components/engagement/LiveToastNotifications'
+import { WhatsNewModal } from '@/components/engagement/WhatsNewModal'
+import { AnnouncementBanner } from '@/components/engagement/AnnouncementBanner'
 import { VipAlertStack } from '@/components/student/vip/VipAlertStack'
 import { VipMembershipBanner } from '@/components/student/vip/VipMembershipBanner'
 import { VipAccessTip } from '@/components/student/vip/VipAccessTip'
+import { VipMobileBottomNav } from '@/components/student/vip/VipMobileBottomNav'
 import { isSignalNew } from '@/vip/vipSignalTracking'
 
 export type VipPanelId =
@@ -63,6 +71,7 @@ export type VipPanelId =
   | 'calendar'
   | 'news'
   | 'books'
+  | 'daily-lessons'
   | 'position'
   | 'rr'
   | 'pip'
@@ -75,6 +84,41 @@ export type VipPanelId =
   | 'journal'
   | 'paper'
   | 'account'
+
+const VIP_PANEL_IDS = new Set<VipPanelId>([
+  'overview',
+  'live',
+  'classroom',
+  'community-chat',
+  'coach-chat',
+  'signals',
+  'watch',
+  'chart',
+  'session',
+  'calendar',
+  'news',
+  'books',
+  'daily-lessons',
+  'position',
+  'rr',
+  'pip',
+  'margin',
+  'breakeven',
+  'compound',
+  'lots',
+  'pivot',
+  'fib',
+  'journal',
+  'paper',
+  'account',
+])
+
+function readPanelFromHash(): VipPanelId | null {
+  const match = window.location.hash.match(/^#panel=([a-z-]+)$/)
+  if (!match) return null
+  const id = match[1] as VipPanelId
+  return VIP_PANEL_IDS.has(id) ? id : null
+}
 
 type NavGroup = {
   id: string
@@ -111,7 +155,7 @@ function VipDeskShellInner() {
     useStudentAccess()
   const { unreadByPanel, totalUnread, markSeen, groupsWithUpdates, toasts, dismissToast, setActivePanel, activeSignal } =
     useVipActivity()
-  const [panel, setPanel] = useState<VipPanelId>('overview')
+  const [panel, setPanel] = useState<VipPanelId>(() => readPanelFromHash() ?? 'overview')
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({
     live: true,
     market: true,
@@ -162,6 +206,7 @@ function VipDeskShellInner() {
         { id: 'session', label: t.tools.sessionTitle },
         { id: 'calendar', label: t.tools.calendarTitle },
         { id: 'news', label: t.tools.newsTitle },
+        { id: 'daily-lessons', label: t.dailyLessons.navTitle },
         { id: 'books', label: t.books.navTitle },
       ],
     },
@@ -205,6 +250,8 @@ function VipDeskShellInner() {
     if (id !== 'overview') markSeen(id)
     setPanel(id)
     setNavOpen(false)
+    const path = id === 'overview' ? '/desk' : `/desk#panel=${id}`
+    window.history.pushState({ vipPanel: id }, '', path)
   }
 
   const openChart = (symbol: string) => {
@@ -221,6 +268,23 @@ function VipDeskShellInner() {
     return () => document.body.classList.remove('vip-desk-active')
   }, [])
 
+  useEffect(() => {
+    const onPop = () => {
+      setPanel(readPanelFromHash() ?? 'overview')
+      setNavOpen(false)
+    }
+    window.addEventListener('popstate', onPop)
+    return () => window.removeEventListener('popstate', onPop)
+  }, [])
+
+  useEffect(() => {
+    const fromHash = readPanelFromHash()
+    if (fromHash) {
+      setActivePanel(fromHash)
+      if (fromHash !== 'overview') markSeen(fromHash)
+    }
+  }, [setActivePanel, markSeen])
+
   const goPublicSite = () => {
     window.history.pushState({}, '', '/')
     window.dispatchEvent(new PopStateEvent('popstate'))
@@ -236,15 +300,15 @@ function VipDeskShellInner() {
         return <VipClassroomPanel />
       case 'community-chat':
         return (
-          <PanelWrap title={t.chat.communityTitle}>
+          <div className="vip-panel vip-panel--chat">
             <VipCommunityChat />
-          </PanelWrap>
+          </div>
         )
       case 'coach-chat':
         return (
-          <PanelWrap title={t.chat.coachTitle}>
+          <div className="vip-panel vip-panel--chat">
             <VipCoachChat />
-          </PanelWrap>
+          </div>
         )
       case 'signals':
         return (
@@ -299,6 +363,12 @@ function VipDeskShellInner() {
             <ToolCard>
               <ForexNews />
             </ToolCard>
+          </PanelWrap>
+        )
+      case 'daily-lessons':
+        return (
+          <PanelWrap title={t.dailyLessons.title}>
+            <VipDailyLessonPanel />
           </PanelWrap>
         )
       case 'books':
@@ -572,6 +642,7 @@ function VipDeskShellInner() {
             </h1>
           </div>
           <div className="flex items-center gap-2">
+            <NotificationBell />
             <LanguageSwitcher compact />
             <ThemeToggle />
           </div>
@@ -579,6 +650,7 @@ function VipDeskShellInner() {
       </header>
 
       <div className="vip-desk__membership px-4 lg:px-8">
+        <AnnouncementBanner />
         <VipAccessTip />
         <VipMembershipBanner />
       </div>
@@ -595,8 +667,25 @@ function VipDeskShellInner() {
             onClick={() => setNavOpen(false)}
           />
         ) : null}
-        <main className="vip-desk__main">{renderPanel()}</main>
+        <main className="vip-desk__main">
+          {panel !== 'overview' ? (
+            <div className="vip-desk__panel-bar">
+              <button type="button" className="vip-desk__panel-back" onClick={() => selectPanel('overview')}>
+                <ArrowLeft className="h-4 w-4" />
+                {t.vip.navOverview}
+              </button>
+            </div>
+          ) : null}
+          {renderPanel()}
+        </main>
       </div>
+
+      <VipMobileBottomNav
+        active={panel}
+        onSelect={selectPanel}
+        onOpenMenu={() => setNavOpen(true)}
+        unreadMessages={(unreadByPanel['community-chat'] ?? 0) + (unreadByPanel['coach-chat'] ?? 0)}
+      />
 
       <VipAlertStack
         toasts={toasts}
@@ -606,6 +695,10 @@ function VipDeskShellInner() {
           selectPanel(id)
         }}
       />
+
+      <NotificationCenter onNavigate={selectPanel} />
+      <LiveToastNotifications onNavigate={selectPanel} />
+      <WhatsNewModal />
     </div>
   )
 }
@@ -613,7 +706,9 @@ function VipDeskShellInner() {
 export function VipDeskShell() {
   return (
     <VipActivityProvider>
-      <VipDeskShellInner />
+      <EngagementProvider>
+        <VipDeskShellInner />
+      </EngagementProvider>
     </VipActivityProvider>
   )
 }

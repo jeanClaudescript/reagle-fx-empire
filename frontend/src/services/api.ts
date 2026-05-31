@@ -628,31 +628,85 @@ export type DeskChatMessage = {
   fromRole: 'admin' | 'student'
   toUserId?: string
   message: string
+  messageType?: 'text' | 'image' | 'video' | 'voice' | 'file'
+  attachments?: {
+    url: string
+    type: 'image' | 'video' | 'voice' | 'file'
+    mimeType?: string
+    fileName?: string
+    durationSec?: number
+  }[]
+  replyTo?: { id: string; preview: string; fromUserName: string }
+  readAt?: string
   createdAt: string
 }
 
+export type ChatSendBody = {
+  message?: string
+  messageType?: DeskChatMessage['messageType']
+  attachments?: DeskChatMessage['attachments']
+  replyTo?: DeskChatMessage['replyTo']
+}
+
 export const deskChatApi = {
+  upload: async (file: File) => {
+    const form = new FormData()
+    form.append('file', file)
+    const token = getStudentAuthToken()
+    if (!token) throw new Error('Sign in to upload')
+    const res = await fetch(`${API_BASE}/api/desk-chat/upload`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: form,
+    })
+    if (!res.ok) throw new Error(parseApiError(await res.text(), res.status))
+    return (await res.json()) as {
+      ok: true
+      data: { url: string; type: 'image' | 'video' | 'voice' | 'file'; mimeType?: string; fileName?: string }
+    }
+  },
+  adminUpload: async (file: File) => {
+    const form = new FormData()
+    form.append('file', file)
+    const token = getAdminAuthToken()
+    if (!token) throw new Error('Not signed in as admin')
+    const res = await fetch(`${API_BASE}/api/desk-chat/admin/upload`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: form,
+    })
+    if (!res.ok) throw new Error(parseApiError(await res.text(), res.status))
+    return (await res.json()) as {
+      ok: true
+      data: { url: string; type: 'image' | 'video' | 'voice' | 'file'; mimeType?: string; fileName?: string }
+    }
+  },
   communityList: () => apiFetch<{ data: DeskChatMessage[] }>('/api/desk-chat/community', { student: true }),
-  communitySend: (message: string) =>
+  communitySend: (payload: ChatSendBody) =>
     apiFetch<{ ok: true; data: DeskChatMessage }>('/api/desk-chat/community', {
       method: 'POST',
       student: true,
-      body: { message },
+      body: payload,
     }),
   directList: () => apiFetch<{ data: DeskChatMessage[] }>('/api/desk-chat/direct', { student: true }),
-  directSend: (message: string) =>
+  directSend: (payload: ChatSendBody) =>
     apiFetch<{ ok: true; data: DeskChatMessage }>('/api/desk-chat/direct', {
       method: 'POST',
       student: true,
-      body: { message },
+      body: payload,
+    }),
+  directMarkRead: () =>
+    apiFetch<{ ok: true; data: { readAt: string } }>('/api/desk-chat/direct/read', {
+      method: 'POST',
+      student: true,
     }),
   adminCommunityList: () =>
     apiFetch<{ data: DeskChatMessage[] }>('/api/desk-chat/admin/community', { admin: true }),
-  adminCommunitySend: (message: string) =>
+  adminCommunitySend: (payload: ChatSendBody) =>
     apiFetch<{ ok: true; data: DeskChatMessage }>('/api/desk-chat/admin/community', {
       method: 'POST',
       admin: true,
-      body: { message },
+      body: payload,
     }),
   adminDirectThreads: () =>
     apiFetch<{ data: Array<{ studentId: string; studentName: string; lastMessage: string; lastAt: string; count: number }> }>(
@@ -661,11 +715,16 @@ export const deskChatApi = {
     ),
   adminDirectThread: (studentId: string) =>
     apiFetch<{ data: DeskChatMessage[] }>(`/api/desk-chat/admin/direct/${studentId}`, { admin: true }),
-  adminDirectReply: (studentId: string, message: string) =>
+  adminDirectReply: (studentId: string, payload: ChatSendBody) =>
     apiFetch<{ ok: true; data: DeskChatMessage }>(`/api/desk-chat/admin/direct/${studentId}`, {
       method: 'POST',
       admin: true,
-      body: { message },
+      body: payload,
+    }),
+  adminDirectMarkRead: (studentId: string) =>
+    apiFetch<{ ok: true; data: { readAt: string } }>(`/api/desk-chat/admin/direct/${studentId}/read`, {
+      method: 'POST',
+      admin: true,
     }),
 }
 
@@ -799,4 +858,237 @@ export const marketApi = {
     apiFetch<{ data: { symbol: string; mid: number }; at: string }>(
       `/api/market/price?symbol=${encodeURIComponent(symbol)}`,
     ),
+}
+
+export type EngagementNotification = {
+  id: string
+  contentType: string
+  contentId: string
+  priority: 1 | 2 | 3 | 4
+  title: string
+  body: string
+  actionUrl?: string
+  panelId?: string
+  groupKey?: string
+  relevanceScore: number
+  readAt?: string
+  channels: string[]
+  createdAt: string
+}
+
+export type ActivityFeedEntry = {
+  id: string
+  contentType: string
+  groupKey: string
+  title: string
+  body: string
+  itemCount: number
+  contentIds: string[]
+  panelId?: string
+  relevanceScore: number
+  readAt?: string
+  createdAt: string
+  updatedAt: string
+}
+
+export type EngagementHighlights = {
+  generatedAt: string
+  highlights: EngagementNotification[]
+  feedPreview: ActivityFeedEntry[]
+}
+
+export type EngagementRecommendations = {
+  continueLearning: { id: string; title: string; reason: string } | null
+  recommendedLesson: { id: string; title: string; reason: string } | null
+  upcomingLiveSession: {
+    id: string
+    title: string
+    scheduledAt?: string
+    pair: string
+    isLive?: boolean
+  } | null
+  focusPair: string
+  programType: string | null
+  incompleteQuiz: null
+  nextModule: { id: string; title: string; reason: string } | null
+}
+
+export type WhatsNewPayload = {
+  hasNew: boolean
+  update: {
+    version: string
+    title: string
+    summary: string
+    items: { contentType: string; contentId: string; title: string; summary?: string }[]
+    publishedAt: string
+  } | null
+}
+
+export const engagementApi = {
+  listNotifications: () =>
+    apiFetch<{ data: EngagementNotification[] }>('/api/engagement/notifications', { student: true }),
+  listFeed: () => apiFetch<{ data: ActivityFeedEntry[] }>('/api/engagement/feed', { student: true }),
+  unreadCounts: () =>
+    apiFetch<{ data: { center: number; feed: number; total: number } }>('/api/engagement/unread-counts', {
+      student: true,
+    }),
+  markRead: (id: string) =>
+    apiFetch<{ ok: true; data: EngagementNotification }>(`/api/engagement/notifications/${id}/read`, {
+      method: 'PATCH',
+      student: true,
+    }),
+  markAllRead: () =>
+    apiFetch<{ ok: true }>('/api/engagement/notifications/read-all', { method: 'POST', student: true }),
+  dismiss: (id: string) =>
+    apiFetch<{ ok: true; data: EngagementNotification }>(`/api/engagement/notifications/${id}/dismiss`, {
+      method: 'POST',
+      student: true,
+    }),
+  trackView: (body: { contentType: string; contentId: string; metadata?: Record<string, unknown> }) =>
+    apiFetch<{ ok: true }>('/api/engagement/views', { method: 'POST', body, student: true }),
+  highlights: () => apiFetch<{ data: EngagementHighlights }>('/api/engagement/highlights', { student: true }),
+  recommendations: () =>
+    apiFetch<{ data: EngagementRecommendations }>('/api/engagement/recommendations', { student: true }),
+  whatsNew: () => apiFetch<{ data: WhatsNewPayload }>('/api/engagement/whats-new', { student: true }),
+  markWhatsNewSeen: () =>
+    apiFetch<{ ok: true }>('/api/engagement/whats-new/seen', { method: 'POST', student: true }),
+  joinedLiveSession: (sessionId: string) =>
+    apiFetch<{ ok: true }>(`/api/engagement/live-session/${sessionId}/joined`, {
+      method: 'POST',
+      student: true,
+    }),
+}
+
+export type EducationBook = {
+  id: string
+  title: string
+  description?: string
+  fileUrl: string
+  fileType: 'pdf' | 'txt' | 'epub'
+  fileName?: string
+  sortOrder: number
+  enabled: boolean
+  lessonCount: number
+  createdAt: string
+  updatedAt: string
+}
+
+export type EducationLesson = {
+  id: string
+  bookId: string
+  bookTitle?: string
+  title: string
+  content: string
+  aiContent?: string
+  aiQuiz?: { question: string; options: string[]; answerIndex: number }[]
+  orderIndex: number
+  wordCount: number
+  chapterTitle?: string
+}
+
+export type EducationSettings = {
+  aiMode: boolean
+  lessonSplitMode: 'chapter' | 'words'
+  wordsPerLessonMin: number
+  wordsPerLessonMax: number
+  lessonsPerDay: number
+  enabled: boolean
+  geminiConfigured?: boolean
+}
+
+export type TodayLessonPayload = {
+  date: string
+  dayIndex: number
+  lesson: EducationLesson | null
+  book: EducationBook | null
+  completed: boolean
+  aiMode: boolean
+  streakCount: number
+}
+
+export type EducationProgress = {
+  state: {
+    userId: string
+    startedAt: string
+    streakCount: number
+    lastCompletedDate?: string
+    totalCompleted: number
+    currentDayIndex: number
+  }
+  books: { bookId: string; title: string; totalLessons: number; completedLessons: number; percent: number }[]
+  recentCompletions: { lessonId: string; lessonTitle: string; bookTitle: string; dateCompleted: string }[]
+}
+
+export const educationApi = {
+  adminSettings: () =>
+    apiFetch<{ data: EducationSettings }>('/api/education/admin/settings', { admin: true }),
+  updateSettings: (body: Partial<EducationSettings>) =>
+    apiFetch<{ data: EducationSettings }>('/api/education/admin/settings', {
+      method: 'PUT',
+      body,
+      admin: true,
+    }),
+  toggleAi: (enabled: boolean) =>
+    apiFetch<{ data: { aiMode: boolean; geminiConfigured: boolean } }>('/api/education/admin/toggle-ai', {
+      method: 'POST',
+      body: { enabled },
+      admin: true,
+    }),
+  listBooks: () => apiFetch<{ data: EducationBook[] }>('/api/education/admin/books', { admin: true }),
+  uploadBook: async (file: File, title: string, description?: string) => {
+    const form = new FormData()
+    form.append('file', file)
+    form.append('title', title)
+    if (description) form.append('description', description)
+    const token = getAdminAuthToken()
+    if (!token) throw new Error('Not signed in as admin')
+    const res = await fetch(`${API_BASE}/api/education/admin/books/upload`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: form,
+    })
+    if (!res.ok) throw new Error(parseApiError(await res.text(), res.status))
+    return (await res.json()) as { ok: true; data: EducationBook }
+  },
+  updateBook: (id: string, body: { title?: string; description?: string; enabled?: boolean }) =>
+    apiFetch<{ data: EducationBook }>(`/api/education/admin/books/${id}`, {
+      method: 'PATCH',
+      body,
+      admin: true,
+    }),
+  deleteBook: (id: string) =>
+    apiFetch<{ ok: true }>(`/api/education/admin/books/${id}`, { method: 'DELETE', admin: true }),
+  reorderBooks: (orderedIds: string[]) =>
+    apiFetch<{ data: EducationBook[] }>('/api/education/admin/books/reorder', {
+      method: 'POST',
+      body: { orderedIds },
+      admin: true,
+    }),
+  regenerateLessons: (id: string) =>
+    apiFetch<{ ok: true; data: { lessonCount: number } }>(
+      `/api/education/admin/books/${id}/regenerate-lessons`,
+      { method: 'POST', admin: true },
+    ),
+  adminUserProgress: () =>
+    apiFetch<{
+      data: {
+        userId: string
+        name?: string
+        phone?: string
+        email?: string
+        streakCount: number
+        totalCompleted: number
+        startedAt: string
+        lastCompletedDate?: string
+      }[]
+    }>('/api/education/admin/user-progress', { admin: true }),
+  todayLesson: () => apiFetch<{ data: TodayLessonPayload }>('/api/education/today-lesson', { student: true }),
+  completeLesson: (lessonId: string) =>
+    apiFetch<{ ok: true; data: { streakCount: number; totalCompleted: number } }>(
+      '/api/education/complete-lesson',
+      { method: 'POST', body: { lessonId }, student: true },
+    ),
+  progress: () => apiFetch<{ data: EducationProgress }>('/api/education/progress', { student: true }),
+  settings: () =>
+    apiFetch<{ data: { enabled: boolean; aiMode: boolean } }>('/api/education/settings', { student: true }),
 }

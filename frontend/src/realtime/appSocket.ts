@@ -11,7 +11,31 @@ export type DeskChatMessage = {
   fromRole: 'admin' | 'student'
   toUserId?: string
   message: string
+  messageType?: 'text' | 'image' | 'video' | 'voice' | 'file'
+  attachments?: {
+    url: string
+    type: 'image' | 'video' | 'voice' | 'file'
+    mimeType?: string
+    fileName?: string
+    durationSec?: number
+  }[]
+  replyTo?: { id: string; preview: string; fromUserName: string }
+  readAt?: string
   createdAt: string
+}
+
+export type ChatSendPayload = {
+  message?: string
+  messageType?: DeskChatMessage['messageType']
+  attachments?: DeskChatMessage['attachments']
+  replyTo?: DeskChatMessage['replyTo']
+}
+
+export type TypingPayload = {
+  userId: string
+  userName: string
+  typing: boolean
+  studentId?: string
 }
 
 export type InboxMessage = {
@@ -50,6 +74,16 @@ const inboxHandlers = new Set<(msg: InboxMessage) => void>()
 const cmsHandlers = new Set<(payload: CmsPublishedPayload) => void>()
 const liveHandlers = new Set<(payload: LiveUpdatedPayload) => void>()
 const classroomHandlers = new Set<(payload: ClassroomUpdatedPayload) => void>()
+const engagementHandlers = new Set<(payload: EngagementNotificationPayload) => void>()
+const communityTypingHandlers = new Set<(payload: TypingPayload) => void>()
+const directTypingHandlers = new Set<(payload: TypingPayload) => void>()
+const directReadHandlers = new Set<(payload: { studentId: string; readAt: string }) => void>()
+
+export type EngagementNotificationPayload = {
+  notification: import('@/services/api').EngagementNotification
+  popup: boolean
+  at: string
+}
 
 function socketUrl() {
   return API_BASE.replace(/\/$/, '')
@@ -73,6 +107,18 @@ function attachCoreListeners(s: Socket) {
   })
   s.on('classroom:updated', (payload: ClassroomUpdatedPayload) => {
     classroomHandlers.forEach((h) => h(payload))
+  })
+  s.on('notification:new', (payload: EngagementNotificationPayload) => {
+    engagementHandlers.forEach((h) => h(payload))
+  })
+  s.on('desk:community:typing', (payload: TypingPayload) => {
+    communityTypingHandlers.forEach((h) => h(payload))
+  })
+  s.on('desk:direct:typing', (payload: TypingPayload) => {
+    directTypingHandlers.forEach((h) => h(payload))
+  })
+  s.on('desk:direct:read', (payload: { studentId: string; readAt: string }) => {
+    directReadHandlers.forEach((h) => h(payload))
   })
 }
 
@@ -164,28 +210,66 @@ export function onClassroomUpdated(handler: (payload: ClassroomUpdatedPayload) =
   }
 }
 
-export function emitDeskCommunitySend(message: string) {
+export function onEngagementNotification(handler: (payload: EngagementNotificationPayload) => void) {
+  engagementHandlers.add(handler)
+  return () => {
+    engagementHandlers.delete(handler)
+  }
+}
+
+export function emitDeskCommunitySend(payload: ChatSendPayload | string) {
+  const body = typeof payload === 'string' ? { message: payload } : payload
   return new Promise<DeskChatMessage>((resolve, reject) => {
     if (!socket) {
       reject(new Error('Not connected'))
       return
     }
-    socket.emit('desk:community:send', { message }, (res: { ok: boolean; data?: DeskChatMessage; error?: string }) => {
+    socket.emit('desk:community:send', body, (res: { ok: boolean; data?: DeskChatMessage; error?: string }) => {
       if (res?.ok && res.data) resolve(res.data)
       else reject(new Error(res?.error ?? 'Send failed'))
     })
   })
 }
 
-export function emitDeskDirectSend(message: string, toUserId?: string) {
+export function emitDeskDirectSend(payload: ChatSendPayload | string, toUserId?: string) {
+  const body = typeof payload === 'string' ? { message: payload, toUserId } : { ...payload, toUserId }
   return new Promise<DeskChatMessage>((resolve, reject) => {
     if (!socket) {
       reject(new Error('Not connected'))
       return
     }
-    socket.emit('desk:direct:send', { message, toUserId }, (res: { ok: boolean; data?: DeskChatMessage; error?: string }) => {
+    socket.emit('desk:direct:send', body, (res: { ok: boolean; data?: DeskChatMessage; error?: string }) => {
       if (res?.ok && res.data) resolve(res.data)
       else reject(new Error(res?.error ?? 'Send failed'))
     })
   })
+}
+
+export function emitDeskCommunityTyping(typing: boolean) {
+  socket?.emit('desk:community:typing', { typing })
+}
+
+export function emitDeskDirectTyping(typing: boolean, toUserId?: string) {
+  socket?.emit('desk:direct:typing', { typing, toUserId })
+}
+
+export function onCommunityTyping(handler: (payload: TypingPayload) => void) {
+  communityTypingHandlers.add(handler)
+  return () => {
+    communityTypingHandlers.delete(handler)
+  }
+}
+
+export function onDirectTyping(handler: (payload: TypingPayload) => void) {
+  directTypingHandlers.add(handler)
+  return () => {
+    directTypingHandlers.delete(handler)
+  }
+}
+
+export function onDirectRead(handler: (payload: { studentId: string; readAt: string }) => void) {
+  directReadHandlers.add(handler)
+  return () => {
+    directReadHandlers.delete(handler)
+  }
 }

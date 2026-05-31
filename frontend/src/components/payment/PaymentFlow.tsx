@@ -25,6 +25,7 @@ import { useReferralCode } from '@/referral/useReferralCode'
 import { captureReferralFromSearch, clearStoredReferralCode } from '@/referral/referralStorage'
 import { ProgramValueCard } from '@/components/student/ProgramValueCard'
 import { OtherPaymentNotice } from '@/components/payment/OtherPaymentNotice'
+import { PayFlowToolbar } from '@/components/payment/PayFlowToolbar'
 import { ProgramPlanPicker } from '@/components/payment/ProgramPlanPicker'
 import type { ProgramPlanId } from '@/types/program'
 
@@ -95,6 +96,16 @@ export function PaymentFlow() {
   const [amount, setAmount] = useState<number | ''>('')
   const [program, setProgram] = useState<ProgramPlanId | null>(null)
   const [polling, setPolling] = useState(false)
+
+  const restartPayment = () => {
+    setStep('form')
+    setPayment(null)
+    setInstructions(null)
+    setTransactionId('')
+    setError(null)
+    setInfo(null)
+    setPolling(false)
+  }
 
   useEffect(() => {
     const q = readQueryParams()
@@ -250,7 +261,8 @@ export function PaymentFlow() {
   }
 
   return (
-    <div className="mx-auto max-w-xl">
+    <div className="pay-flow mx-auto max-w-xl">
+      <PayFlowToolbar step={step} showBack={step === 'pay'} onBack={() => setStep('form')} />
       <PaySteps step={step} />
 
       {step === 'form' && (
@@ -537,9 +549,14 @@ export function PaymentFlow() {
           </div>
 
           {payment.status === 'FAILED' && (
-            <div className="mt-4 flex items-start gap-2 rounded-xl border border-rose-500/30 bg-rose-500/10 p-3 text-sm text-rose-300">
-              <XCircle className="mt-0.5 h-4 w-4 shrink-0" />
-              {t.pay.failedHint}
+            <div className="mt-4 rounded-xl border border-rose-500/30 bg-rose-500/10 p-3 text-sm text-rose-300">
+              <div className="flex items-start gap-2">
+                <XCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                {t.pay.failedHint}
+              </div>
+              <button type="button" className="pay-action-btn pay-action-btn--secondary mt-3" onClick={restartPayment}>
+                {t.pay.retryPayment}
+              </button>
             </div>
           )}
 

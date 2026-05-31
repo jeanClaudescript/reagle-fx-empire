@@ -21,6 +21,7 @@ import { ClassroomEditor } from '@/admin/editors/ClassroomEditor'
 import { AdminDeskChatPanel } from '@/admin/editors/AdminDeskChatPanel'
 import { ReferralsEditor } from '@/admin/editors/ReferralsEditor'
 import { PaymentSettingsPanel } from '@/admin/editors/PaymentSettingsPanel'
+import { EducationBooksEditor } from '@/admin/editors/EducationBooksEditor'
 import { OpsSectionFrame } from '@/components/admin/OpsSectionFrame'
 import { ContentHub } from '@/components/admin/ContentHub'
 import { isContentSectionTab, isOpsTab } from '@/admin/layout/adminHubActions'
@@ -33,7 +34,7 @@ import { AdminSectionFrame } from '@/components/admin/AdminSectionFrame'
 import { AdminApiStatusBanner } from '@/components/admin/AdminApiStatusBanner'
 import { useAdminDeskChatUnread } from '@/admin/useAdminDeskChatUnread'
 import type { AdminTab } from '@/admin/layout/adminNav'
-import { getAdminNavLabel } from '@/admin/layout/adminNav'
+import { adminTabPath, getAdminNavLabel, readAdminTabFromHash } from '@/admin/layout/adminNav'
 import type { ContentSectionId } from '@/cms/validation'
 
 function PublishValidationBanner() {
@@ -70,12 +71,27 @@ function AdminDashboardInner() {
   } = useCms()
   const { push } = useAdminToast()
   const { confirm } = useAdminConfirm()
-  const [tab, setTab] = useState<AdminTab>('dashboard')
+  const [tab, setTab] = useState<AdminTab>(() => readAdminTabFromHash() ?? 'dashboard')
   const [showPreview, setShowPreview] = useState(false)
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [isPublishing, setIsPublishing] = useState(false)
   const { unread: deskChatUnread } = useAdminDeskChatUnread(tab)
+
+  const selectTab = useCallback((id: AdminTab) => {
+    setTab(id)
+    setMobileNavOpen(false)
+    window.history.pushState({ adminTab: id }, '', adminTabPath(id))
+  }, [])
+
+  useEffect(() => {
+    const onPop = () => {
+      setTab(readAdminTabFromHash() ?? 'dashboard')
+      setMobileNavOpen(false)
+    }
+    window.addEventListener('popstate', onPop)
+    return () => window.removeEventListener('popstate', onPop)
+  }, [])
 
   useEffect(() => {
     if (!isAdminAuthenticated()) {
@@ -109,17 +125,17 @@ function AdminDashboardInner() {
         setMobileNavOpen(false)
         return
       }
-      if (tab !== 'dashboard') setTab('dashboard')
+      if (tab !== 'dashboard') selectTab('dashboard')
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [mobileNavOpen, tab])
+  }, [mobileNavOpen, tab, selectTab])
 
   useEffect(() => {
     if (validationIssues.length === 0) return
     const section = validationIssues[0]?.section
-    if (section && isContentSectionTab(section) && section !== tab) setTab(section)
-  }, [validationIssues, tab])
+    if (section && isContentSectionTab(section) && section !== tab) selectTab(section)
+  }, [validationIssues, tab, selectTab])
 
   const syncLabel = hasDraftChanges
     ? 'Draft · not yet on live site'
@@ -200,11 +216,11 @@ function AdminDashboardInner() {
     [handlePublish, push],
   )
 
-  const goDashboard = useCallback(() => setTab('dashboard'), [])
+  const goDashboard = useCallback(() => selectTab('dashboard'), [selectTab])
 
   const tabContent = useMemo(() => {
     if (tab === 'dashboard') {
-      return <ContentHub onNavigate={setTab} onWorkflow={handleWorkflowFixed} />
+      return <ContentHub onNavigate={selectTab} onWorkflow={handleWorkflowFixed} />
     }
 
     if (isOpsTab(tab)) {
@@ -216,6 +232,7 @@ function AdminDashboardInner() {
         'desk-chat': <AdminDeskChatPanel />,
         referrals: <ReferralsEditor />,
         'pay-settings': <PaymentSettingsPanel />,
+        education: <EducationBooksEditor />,
       }
       return (
         <OpsSectionFrame tab={tab} onBack={goDashboard}>
@@ -246,7 +263,7 @@ function AdminDashboardInner() {
         {editor}
       </AdminSectionFrame>
     )
-  }, [tab, handleWorkflowFixed, goDashboard])
+  }, [tab, handleWorkflowFixed, goDashboard, selectTab])
 
   const handleUndo = useCallback(async () => {
     const ok = await confirm({
@@ -299,7 +316,7 @@ function AdminDashboardInner() {
 
       <AdminSidebar
         activeTab={tab}
-        onSelectTab={setTab}
+        onSelectTab={selectTab}
         mode={sidebarMode}
         mobileOpen={mobileNavOpen}
         onCloseMobile={() => setMobileNavOpen(false)}

@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react'
-import { GraduationCap, LineChart, Radio, Target } from 'lucide-react'
+import { ChevronDown, GraduationCap, LineChart, Radio, Target } from 'lucide-react'
 import { useLanguage } from '@/context/LanguageContext'
 import { useStudentAccess } from '@/context/StudentAccessContext'
 import { VipActivityFeed } from '@/components/student/vip/VipActivityFeed'
 import { VipLearningPath } from '@/components/student/vip/VipLearningPath'
-import { VipMembershipBanner } from '@/components/student/vip/VipMembershipBanner'
+import { VipNextActions } from '@/components/student/vip/VipNextActions'
 import { VipPhysicalClassCard } from '@/components/student/vip/VipPhysicalClassCard'
+import { DashboardHighlights } from '@/components/engagement/DashboardHighlights'
+import { RecommendationWidgets } from '@/components/engagement/RecommendationWidgets'
 import { useVipActivity } from '@/vip/VipActivityProvider'
 import { isSignalNew } from '@/vip/vipSignalTracking'
 import type { VipPanelId } from '@/components/student/vip/VipDeskShell'
@@ -81,17 +83,14 @@ export function VipOverviewPanel({ onNavigate }: { onNavigate: (id: VipPanelId) 
 
   return (
     <div className="vip-overview">
-      <div className="vip-overview__hero">
+      <div className="vip-overview__hero vip-overview__hero--compact">
         <p className="text-sm text-theme-muted">{t.vip.welcome}</p>
-        <h2 className="mt-1 font-display text-2xl font-bold text-theme-primary sm:text-3xl">
+        <h2 className="mt-0.5 font-display text-xl font-bold text-theme-primary sm:text-2xl">
           {contact?.name || t.vip.traderFallback}
         </h2>
-        <p className="mt-2 max-w-xl text-sm text-theme-muted">{t.vip.overviewSubtitle}</p>
       </div>
 
-      <VipMembershipBanner />
-
-      <VipPhysicalClassCard />
+      <VipNextActions onNavigate={onNavigate} />
 
       <div className="vip-overview__grid">
         {tiles.map((tile) => {
@@ -114,35 +113,52 @@ export function VipOverviewPanel({ onNavigate }: { onNavigate: (id: VipPanelId) 
         })}
       </div>
 
-      <div className="mt-6">
+      <VipPhysicalClassCard />
+
+      <DashboardHighlights onNavigate={onNavigate} />
+      <RecommendationWidgets onNavigate={onNavigate} />
+
+      <details className="vip-overview__collapse">
+        <summary className="vip-overview__collapse-head">
+          Learning path
+          <ChevronDown className="h-4 w-4" />
+        </summary>
         <VipLearningPath onNavigate={onNavigate} />
-      </div>
+      </details>
 
-      <VipActivityFeed onNavigate={onNavigate} />
+      <details className="vip-overview__collapse">
+        <summary className="vip-overview__collapse-head">
+          Recent activity
+          <ChevronDown className="h-4 w-4" />
+        </summary>
+        <VipActivityFeed onNavigate={onNavigate} />
+      </details>
 
-      <div className="vip-checklist">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <h3 className="font-display text-lg font-bold text-theme-primary">{t.vip.checklistTitle}</h3>
+      <details className="vip-overview__collapse">
+        <summary className="vip-overview__collapse-head">
+          {t.vip.checklistTitle}
           <span className="text-xs font-semibold text-theme-accent">
             {doneCount}/{DEFAULT_CHECKS.length}
           </span>
+        </summary>
+        <div className="vip-checklist vip-checklist--nested">
+          <p className="text-sm text-theme-muted">{t.vip.checklistSubtitle}</p>
+          <ul className="mt-4 space-y-2">
+            {DEFAULT_CHECKS.map((item) => (
+              <li key={item.id}>
+                <label className="vip-checklist__item">
+                  <input
+                    type="checkbox"
+                    checked={Boolean(checks[item.id])}
+                    onChange={() => toggleCheck(item.id)}
+                  />
+                  <span>{t.vip[item.key]}</span>
+                </label>
+              </li>
+            ))}
+          </ul>
         </div>
-        <p className="mt-1 text-sm text-theme-muted">{t.vip.checklistSubtitle}</p>
-        <ul className="mt-4 space-y-2">
-          {DEFAULT_CHECKS.map((item) => (
-            <li key={item.id}>
-              <label className="vip-checklist__item">
-                <input
-                  type="checkbox"
-                  checked={Boolean(checks[item.id])}
-                  onChange={() => toggleCheck(item.id)}
-                />
-                <span>{t.vip[item.key]}</span>
-              </label>
-            </li>
-          ))}
-        </ul>
-      </div>
+      </details>
     </div>
   )
 }

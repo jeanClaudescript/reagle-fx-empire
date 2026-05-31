@@ -169,6 +169,14 @@ export const ADMIN_HUB_CARDS: HubCard[] = [
     accent: 'purple',
   },
   {
+    tab: 'education',
+    title: 'Daily forex lessons',
+    description: 'Upload books, auto-split lessons, optional AI',
+    icon: BookOpen,
+    category: 'operations',
+    accent: 'sky',
+  },
+  {
     tab: 'settings',
     title: 'Site settings',
     description: 'Section visibility, messages, admins',
@@ -194,5 +202,5 @@ export function isContentSectionTab(tab: AdminTab): tab is ContentSectionId {
 }
 
 export function isOpsTab(tab: AdminTab): boolean {
-  return ['students', 'payments', 'live', 'classroom', 'desk-chat', 'referrals', 'pay-settings'].includes(tab)
+  return ['students', 'payments', 'live', 'classroom', 'desk-chat', 'referrals', 'pay-settings', 'education'].includes(tab)
 }

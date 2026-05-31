@@ -1,12 +1,18 @@
 import { useEffect, useState } from 'react'
-import { Send } from 'lucide-react'
 import { deskChatApi } from '@/services/api'
-import { emitDeskCommunitySend, emitDeskDirectSend, onCommunityMessage, onDirectMessage, type DeskChatMessage } from '@/realtime/appSocket'
-
-function mergeMessage(list: DeskChatMessage[], msg: DeskChatMessage) {
-  if (list.some((m) => m.id === msg.id)) return list
-  return [...list, msg].slice(-200)
-}
+import { MessengerChat, mergeMessage } from '@/components/chat/MessengerChat'
+import type { ChatSendPayload } from '@/components/chat/MessengerComposer'
+import { avatarColor, initials } from '@/components/chat/chatTheme'
+import {
+  emitDeskCommunitySend,
+  emitDeskCommunityTyping,
+  emitDeskDirectSend,
+  emitDeskDirectTyping,
+  onCommunityMessage,
+  onDirectMessage,
+  onDirectTyping,
+  type DeskChatMessage,
+} from '@/realtime/appSocket'
 
 type DirectThread = {
   studentId: string
@@ -22,8 +28,7 @@ export function AdminDeskChatPanel() {
   const [threads, setThreads] = useState<DirectThread[]>([])
   const [activeStudentId, setActiveStudentId] = useState<string | null>(null)
   const [directMessages, setDirectMessages] = useState<DeskChatMessage[]>([])
-  const [text, setText] = useState('')
-  const [sending, setSending] = useState(false)
+  const [typingNames, setTypingNames] = useState<string[]>([])
 
   useEffect(() => {
     void deskChatApi.adminCommunityList().then((res) => setCommunity(res.data))
@@ -38,26 +43,36 @@ export function AdminDeskChatPanel() {
   useEffect(
     () =>
       onDirectMessage((msg) => {
-        if (!activeStudentId) return
-        const studentId =
-          msg.fromRole === 'student' ? msg.fromUserId : msg.toUserId
-        if (studentId !== activeStudentId) return
-        setDirectMessages((prev) => mergeMessage(prev, msg))
+        const studentId = msg.fromRole === 'student' ? msg.fromUserId : msg.toUserId
+        if (!studentId) return
         setThreads((prev) => {
-          const studentId = msg.fromRole === 'student' ? msg.fromUserId : msg.toUserId
-          if (!studentId) return prev
           const rest = prev.filter((t) => t.studentId !== studentId)
           return [
             {
               studentId,
               studentName: msg.fromRole === 'student' ? msg.fromUserName : 'Student',
-              lastMessage: msg.message,
+              lastMessage: msg.message || '📎 Media',
               lastAt: msg.createdAt,
               count: 1,
             },
             ...rest,
           ]
         })
+        if (studentId === activeStudentId) {
+          setDirectMessages((prev) => mergeMessage(prev, msg))
+        }
+      }),
+    [activeStudentId],
+  )
+
+  useEffect(
+    () =>
+      onDirectTyping((p) => {
+        if (p.studentId === activeStudentId && p.typing) {
+          setTypingNames([p.userName])
+        } else if (!p.typing) {
+          setTypingNames([])
+        }
       }),
     [activeStudentId],
   )
@@ -68,48 +83,39 @@ export function AdminDeskChatPanel() {
       return
     }
     void deskChatApi.adminDirectThread(activeStudentId).then((res) => setDirectMessages(res.data))
+    void deskChatApi.adminDirectMarkRead(activeStudentId)
   }, [activeStudentId])
 
-  const sendCommunity = async () => {
-    const msg = text.trim()
-    if (!msg || sending) return
-    setSending(true)
+  const sendCommunity = async (payload: ChatSendPayload) => {
     try {
-      await emitDeskCommunitySend(msg)
-      setText('')
+      await emitDeskCommunitySend(payload)
     } catch {
-      const res = await deskChatApi.adminCommunitySend(msg)
+      const res = await deskChatApi.adminCommunitySend(payload)
       setCommunity((prev) => mergeMessage(prev, res.data))
-      setText('')
-    } finally {
-      setSending(false)
     }
   }
 
-  const sendDirect = async () => {
-    const msg = text.trim()
-    if (!msg || sending || !activeStudentId) return
-    setSending(true)
+  const sendDirect = async (payload: ChatSendPayload) => {
+    if (!activeStudentId) return
     try {
-      await emitDeskDirectSend(msg, activeStudentId)
-      setText('')
+      await emitDeskDirectSend(payload, activeStudentId)
     } catch {
-      const res = await deskChatApi.adminDirectReply(activeStudentId, msg)
+      const res = await deskChatApi.adminDirectReply(activeStudentId, payload)
       setDirectMessages((prev) => mergeMessage(prev, res.data))
-      setText('')
-    } finally {
-      setSending(false)
     }
   }
 
-  const send = tab === 'community' ? sendCommunity : sendDirect
+  const upload = async (file: File) => {
+    const res = await deskChatApi.adminUpload(file)
+    return res.data
+  }
 
   return (
     <div className="admin-desk-chat">
       <div className="admin-editor__header mb-4">
         <div>
           <h3 className="font-display text-base font-bold text-theme-primary">VIP messages</h3>
-          <p className="text-sm text-theme-muted">Community chat and private student threads — updates in real time.</p>
+          <p className="text-sm text-theme-muted">Meta-style chat — photos, voice, video & live typing.</p>
         </div>
       </div>
       <div className="admin-desk-chat__tabs">
@@ -123,75 +129,56 @@ export function AdminDeskChatPanel() {
 
       {tab === 'direct' ? (
         <div className="admin-desk-chat__split">
-          <ul className="admin-desk-chat__threads">
+          <ul className="admin-desk-chat__threads messenger-thread-list">
             {threads.length === 0 ? (
               <li className="text-sm text-theme-muted p-3">No student messages yet.</li>
             ) : (
-              threads.map((t) => (
-                <li key={t.studentId}>
+              threads.map((th) => (
+                <li key={th.studentId}>
                   <button
                     type="button"
-                    className={activeStudentId === t.studentId ? 'active' : ''}
-                    onClick={() => setActiveStudentId(t.studentId)}
+                    className={`messenger-thread ${activeStudentId === th.studentId ? 'messenger-thread--active' : ''}`}
+                    onClick={() => setActiveStudentId(th.studentId)}
                   >
-                    <strong>{t.studentName}</strong>
-                    <span>{t.lastMessage.slice(0, 40)}</span>
+                    <span className="messenger-thread__avatar" style={{ backgroundColor: avatarColor(th.studentName) }}>
+                      {initials(th.studentName)}
+                    </span>
+                    <span className="messenger-thread__body">
+                      <strong>{th.studentName}</strong>
+                      <span>{th.lastMessage.slice(0, 36)}</span>
+                    </span>
                   </button>
                 </li>
               ))
             )}
           </ul>
-          <div className="desk-chat">
-            <div className="desk-chat__messages">
-              {directMessages.map((m) => (
-                <div key={m.id} className={`desk-chat__row desk-chat__row--${m.fromRole}`}>
-                  <div className="desk-chat__meta">
-                    <strong>{m.fromUserName}</strong>
-                    <span>{new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                  </div>
-                  <p>{m.message}</p>
-                </div>
-              ))}
-            </div>
-            <div className="desk-chat__input">
-              <input
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), send())}
-                placeholder={activeStudentId ? 'Reply to student…' : 'Select a student'}
-                disabled={!activeStudentId}
-              />
-              <button type="button" onClick={send} disabled={sending || !text.trim() || !activeStudentId}>
-                <Send size={16} />
-              </button>
-            </div>
-          </div>
+          <MessengerChat
+            title={threads.find((t) => t.studentId === activeStudentId)?.studentName ?? 'Student'}
+            subtitle="Private thread"
+            emptyLabel={activeStudentId ? 'No messages yet.' : 'Select a student'}
+            placeholder={activeStudentId ? 'Reply to student…' : 'Select a student'}
+            messages={directMessages}
+            mineRole="admin"
+            typingNames={typingNames}
+            disabled={!activeStudentId}
+            onSend={sendDirect}
+            onUpload={upload}
+            onTyping={(typing) => activeStudentId && emitDeskDirectTyping(typing, activeStudentId)}
+          />
         </div>
       ) : (
-        <div className="desk-chat">
-          <div className="desk-chat__messages">
-            {community.map((m) => (
-              <div key={m.id} className={`desk-chat__row desk-chat__row--${m.fromRole}`}>
-                <div className="desk-chat__meta">
-                  <strong>{m.fromUserName}</strong>
-                  <span>{new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                </div>
-                <p>{m.message}</p>
-              </div>
-            ))}
-          </div>
-          <div className="desk-chat__input">
-            <input
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), send())}
-              placeholder="Post to VIP community…"
-            />
-            <button type="button" onClick={send} disabled={sending || !text.trim()}>
-              <Send size={16} />
-            </button>
-          </div>
-        </div>
+        <MessengerChat
+          title="VIP community"
+          subtitle="Group chat with all paid members"
+          emptyLabel="No community messages yet."
+          placeholder="Post to VIP community…"
+          messages={community}
+          mineRole="admin"
+          groupChat
+          onSend={sendCommunity}
+          onUpload={upload}
+          onTyping={emitDeskCommunityTyping}
+        />
       )}
     </div>
   )

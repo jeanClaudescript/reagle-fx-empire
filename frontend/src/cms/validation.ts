@@ -3,7 +3,7 @@ import type { AdminTab } from '@/admin/layout/adminNav'
 
 export type ContentSectionId = Exclude<
   AdminTab,
-  'dashboard' | 'students' | 'payments' | 'live' | 'classroom' | 'desk-chat' | 'referrals' | 'pay-settings'
+  'dashboard' | 'students' | 'payments' | 'live' | 'classroom' | 'desk-chat' | 'referrals' | 'pay-settings' | 'education'
 >
 
 export interface ValidationIssue {

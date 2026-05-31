@@ -202,11 +202,13 @@ export interface Translations {
     txSaved: string
     checkingStatus: string
     failedHint: string
+    retryPayment: string
     doneTitle: string
     doneRef: string
     yourReferral: string
     referralHint: string
     backHome: string
+    backToDetails: string
     copied: string
     copyFailed: string
   }
@@ -565,6 +567,23 @@ export interface Translations {
     download: string
     empty: string
     hidden: string
+  }
+  dailyLessons: {
+    title: string
+    navTitle: string
+    todayTab: string
+    progressTab: string
+    loading: string
+    noLesson: string
+    markComplete: string
+    completing: string
+    completed: string
+    streak: string
+    aiEnhanced: string
+    quizTitle: string
+    totalCompleted: string
+    currentStreak: string
+    noProgress: string
   }
   referral: {
     shareTitle: string
