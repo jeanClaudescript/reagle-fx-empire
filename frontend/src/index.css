@@ -1518,6 +1518,285 @@
     @apply bg-amber-500/15 text-amber-400;
   }
 
+  /* ─── Admin mobile compact (phones) ─── */
+  @media (max-width: 767px) {
+    .admin-app {
+      --admin-header-h: 52px;
+    }
+
+    .admin-content-inner {
+      @apply px-3 py-3;
+    }
+
+    .admin-content-hub {
+      @apply gap-3;
+    }
+
+    .admin-header {
+      @apply gap-2 px-3;
+    }
+
+    .admin-header-icon-btn {
+      @apply h-9 w-9;
+    }
+
+    .admin-breadcrumb {
+      @apply text-[10px];
+    }
+
+    .admin-section-frame {
+      @apply gap-2.5;
+    }
+
+    .admin-section-toolbar {
+      @apply rounded-xl p-2.5;
+    }
+
+    .admin-section-toolbar-actions {
+      @apply mt-2 pt-2;
+    }
+
+    .admin-section-body {
+      @apply gap-2.5;
+    }
+
+    .admin-card,
+    .admin-app .glass-card-glow {
+      border-radius: 0.875rem;
+    }
+
+    .admin-app .glass-card-glow:hover {
+      transform: none;
+    }
+
+    .admin-card-body {
+      @apply p-3;
+    }
+
+    .admin-editor-card-intro {
+      @apply text-xs leading-snug;
+    }
+
+    .admin-editor__header {
+      @apply mb-2;
+    }
+
+    .admin-editor__header h3 {
+      @apply text-sm;
+    }
+
+    .admin-editor__header p {
+      @apply hidden;
+    }
+
+    .admin-nav-grid {
+      @apply gap-2;
+    }
+
+    .admin-nav-tile {
+      @apply min-h-0 gap-2.5 rounded-xl p-3;
+    }
+
+    .admin-nav-tile--compact {
+      @apply py-2.5;
+    }
+
+    .admin-nav-tile-icon {
+      @apply h-9 w-9 rounded-lg;
+    }
+
+    .admin-nav-tile-icon svg {
+      @apply h-4 w-4;
+    }
+
+    .admin-nav-tile-title {
+      @apply text-[13px];
+    }
+
+    .admin-nav-tile-desc {
+      @apply mt-0 line-clamp-1 text-[11px] leading-snug;
+    }
+
+    .admin-editor-row {
+      @apply gap-2 rounded-xl p-3;
+    }
+
+    .admin-editor-row--media {
+      @apply gap-2;
+    }
+
+    .admin-stat-tile {
+      @apply rounded-xl p-2.5 shadow-none;
+    }
+
+    .admin-stat-tile__value {
+      @apply text-xl;
+    }
+
+    .admin-stat-tile--compact {
+      @apply p-2;
+    }
+
+    .admin-stat-tile--compact .admin-stat-tile__value {
+      @apply text-lg;
+    }
+
+    .admin-hub-hero,
+    .admin-hub-hero--compact {
+      @apply rounded-xl p-2.5;
+    }
+
+    .admin-hub-hero__title {
+      @apply text-base;
+    }
+
+    .admin-hub-card {
+      @apply gap-2.5 rounded-lg p-2.5;
+    }
+
+    .admin-hub-card__icon {
+      @apply h-9 w-9 rounded-lg;
+    }
+
+    .admin-hub-card__desc {
+      @apply line-clamp-2 text-[11px];
+    }
+
+    .admin-hub-bento {
+      @apply mt-3 gap-2;
+    }
+
+    .admin-hub-filters {
+      @apply gap-1.5;
+    }
+
+    .admin-hub-filter {
+      @apply px-3 py-1.5 text-[11px];
+    }
+
+    .admin-ops-hub {
+      @apply rounded-xl p-2.5;
+    }
+
+    .admin-ops-hub__title {
+      @apply text-base;
+    }
+
+    .admin-kpi-tile {
+      @apply min-h-[76px] min-w-[118px] p-2;
+    }
+
+    .admin-kpi-tile__value {
+      @apply text-lg;
+    }
+
+    .admin-attention__main {
+      @apply py-2 pl-2.5 pr-1;
+    }
+
+    .admin-attention__row-title {
+      @apply text-[13px];
+    }
+
+    .admin-attention__action {
+      @apply px-2.5 py-1.5 text-[11px];
+    }
+
+    .admin-quick-chip {
+      @apply min-h-9 px-2.5 text-[11px];
+    }
+
+    .admin-content-overview {
+      @apply rounded-xl p-2.5;
+    }
+
+    .manage-subnav {
+      @apply gap-1 rounded-xl p-1;
+    }
+
+    .manage-subnav__btn {
+      @apply px-3 py-1.5 text-xs;
+    }
+
+    .manage-stat-card {
+      @apply rounded-xl p-3;
+    }
+
+    .manage-student-row,
+    .manage-student-mini {
+      @apply gap-2 rounded-xl p-3;
+    }
+
+    .admin-payments-view-toggle button {
+      @apply min-h-8 px-2.5 text-[11px];
+    }
+
+    .admin-btn {
+      @apply min-h-10 px-3 text-xs;
+    }
+
+    .admin-btn--sm {
+      @apply min-h-9 px-2.5 text-[11px];
+    }
+
+    .admin-toolbar-actions {
+      @apply gap-1.5;
+    }
+
+    .admin-toolbar-actions > a,
+    .admin-toolbar-actions > button {
+      @apply min-h-9 text-xs;
+    }
+
+    .admin-desk-chat__tabs {
+      @apply mb-2 gap-1;
+    }
+
+    .admin-desk-chat__tabs button {
+      @apply min-h-9 py-2 text-xs;
+    }
+
+    .admin-mobile-action-bar .admin-btn {
+      @apply min-h-10 text-xs;
+    }
+
+    .admin-app .flex.flex-col.gap-4 {
+      @apply gap-2.5;
+    }
+
+    .admin-app .grid.gap-3 {
+      @apply gap-2;
+    }
+
+    .admin-app .mt-4 {
+      margin-top: 0.625rem;
+    }
+
+    .admin-app .mt-5 {
+      margin-top: 0.75rem;
+    }
+
+    .admin-stat-tile .font-display.text-2xl {
+      @apply mt-1 text-xl;
+    }
+
+    .admin-stat-tile svg.h-8 {
+      @apply h-5 w-5;
+    }
+
+    .admin-stat-tile .text-xs.text-theme-muted {
+      @apply line-clamp-1;
+    }
+
+    .admin-app .rounded-2xl.border.border-theme.bg-theme-surface\/60.px-4.py-3 {
+      @apply rounded-xl px-3 py-2.5;
+    }
+
+    .admin-app .rounded-2xl.border.border-theme.bg-theme-surface\/50.p-4 {
+      @apply rounded-xl p-3;
+    }
+  }
+
   .forex-bento {
     display: grid;
     gap: 1rem;

@@ -23,14 +23,14 @@ export function OpsSectionFrame({
       animate={{ opacity: 1, y: 0 }}
       className="admin-section-frame"
     >
-      <header className="admin-section-toolbar mb-4">
+      <header className="admin-section-toolbar">
         <div className="admin-section-toolbar-top">
           <button type="button" onClick={onBack} className="admin-header-icon-btn shrink-0" aria-label="Back">
             <ArrowLeft className="h-5 w-5" />
           </button>
           <div className="min-w-0 flex-1">
             <h2 className="truncate font-display text-base font-bold text-theme-primary sm:text-lg">{title}</h2>
-            <p className="text-xs text-theme-muted">{hint ?? 'Changes save immediately to the server.'}</p>
+            <p className="hidden text-xs text-theme-muted sm:block">{hint ?? 'Changes save immediately to the server.'}</p>
           </div>
           <button type="button" onClick={onBack} className="admin-header-icon-btn shrink-0" aria-label="Close">
             <X className="h-5 w-5" />

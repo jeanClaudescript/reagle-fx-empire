@@ -38,7 +38,7 @@ export function AdminSectionFrame({ section, onBack, children }: AdminSectionFra
             <h2 className="truncate font-display text-base font-bold text-theme-primary sm:text-lg">
               {title}
             </h2>
-            <p className="text-xs text-theme-muted">Tap back or Esc to exit</p>
+            <p className="hidden text-xs text-theme-muted sm:block">Tap back or Esc to exit</p>
           </div>
 
           <button
