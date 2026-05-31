@@ -50,6 +50,7 @@ export function MessengerComposer({
   const [attachOpen, setAttachOpen] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const emojiRef = useRef<HTMLDivElement>(null)
   const attachRef = useRef<HTMLDivElement>(null)
@@ -111,13 +112,16 @@ export function MessengerComposer({
   const uploadFile = async (file: File) => {
     setAttachOpen(false)
     setUploading(true)
+    setError(null)
     try {
       const att = await onUpload(file)
       await submit({
-        message: file.type.startsWith('image/') ? '' : file.name,
-        messageType: att.type === 'image' ? 'image' : att.type === 'video' ? 'video' : att.type === 'voice' ? 'voice' : 'file',
+        message: att.type === 'image' ? '' : file.name,
+        messageType: att.type,
         attachments: [{ ...att }],
       })
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Upload failed — try again')
     } finally {
       setUploading(false)
     }
@@ -132,16 +136,19 @@ export function MessengerComposer({
   }
 
   const sendVoice = async () => {
+    setError(null)
+    setUploading(true)
     try {
-      const { blob, durationSec } = await voice.finish()
-      const file = new File([blob], `voice-${Date.now()}.webm`, { type: blob.type || 'audio/webm' })
-      setUploading(true)
+      const { blob, durationSec, ext, mimeType } = await voice.finish()
+      const file = new File([blob], `voice-${Date.now()}.${ext}`, { type: mimeType || blob.type || 'audio/webm' })
       const att = await onUpload(file)
       await submit({
         messageType: 'voice',
         attachments: [{ ...att, type: 'voice', durationSec }],
       })
-    } catch {
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Voice message failed — try again')
+    } finally {
       setUploading(false)
     }
   }
@@ -302,6 +309,11 @@ export function MessengerComposer({
       </div>
 
       {uploading ? <p className="messenger-composer__status" aria-live="polite">Uploading…</p> : null}
+      {error ? (
+        <p className="messenger-composer__status messenger-composer__status--error" role="alert">
+          {error}
+        </p>
+      ) : null}
 
       <input ref={imageRef} type="file" accept="image/*" hidden onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ''; if (f) void uploadFile(f) }} />
       <input ref={videoRef} type="file" accept="video/*" hidden onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ''; if (f) void uploadFile(f) }} />

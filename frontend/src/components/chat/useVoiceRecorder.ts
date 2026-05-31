@@ -1,5 +1,18 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
+function pickVoiceFormat() {
+  const candidates = [
+    { mime: 'audio/webm;codecs=opus', ext: 'webm' },
+    { mime: 'audio/webm', ext: 'webm' },
+    { mime: 'audio/mp4', ext: 'm4a' },
+    { mime: 'audio/aac', ext: 'aac' },
+  ]
+  for (const candidate of candidates) {
+    if (MediaRecorder.isTypeSupported(candidate.mime)) return candidate
+  }
+  return { mime: '', ext: 'webm' }
+}
+
 export function useVoiceRecorder() {
   const [recording, setRecording] = useState(false)
   const [duration, setDuration] = useState(0)
@@ -7,6 +20,7 @@ export function useVoiceRecorder() {
   const chunksRef = useRef<Blob[]>([])
   const timerRef = useRef<number | null>(null)
   const durationRef = useRef(0)
+  const formatRef = useRef(pickVoiceFormat())
 
   const stopTracks = () => {
     mediaRef.current?.stream.getTracks().forEach((t) => t.stop())
@@ -32,7 +46,9 @@ export function useVoiceRecorder() {
 
   const start = useCallback(async () => {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-    const recorder = new MediaRecorder(stream)
+    const format = pickVoiceFormat()
+    formatRef.current = format
+    const recorder = format.mime ? new MediaRecorder(stream, { mimeType: format.mime }) : new MediaRecorder(stream)
     chunksRef.current = []
     recorder.ondataavailable = (e) => {
       if (e.data.size) chunksRef.current.push(e.data)
@@ -45,16 +61,17 @@ export function useVoiceRecorder() {
       durationRef.current += 1
       setDuration(durationRef.current)
     }, 1000)
-    recorder.start()
+    recorder.start(250)
   }, [])
 
   const finish = useCallback(async () => {
     const recorder = mediaRef.current
     if (!recorder) throw new Error('Not recording')
 
-    return new Promise<{ blob: Blob; durationSec: number }>((resolve, reject) => {
+    return new Promise<{ blob: Blob; durationSec: number; ext: string; mimeType: string }>((resolve, reject) => {
       recorder.onstop = () => {
-        const blob = new Blob(chunksRef.current, { type: recorder.mimeType || 'audio/webm' })
+        const mimeType = recorder.mimeType || formatRef.current.mime || 'audio/webm'
+        const blob = new Blob(chunksRef.current, { type: mimeType })
         const dur = durationRef.current || 1
         stopTracks()
         mediaRef.current = null
@@ -63,7 +80,7 @@ export function useVoiceRecorder() {
           timerRef.current = null
         }
         setRecording(false)
-        resolve({ blob, durationSec: dur })
+        resolve({ blob, durationSec: dur, ext: formatRef.current.ext, mimeType })
       }
       recorder.onerror = () => reject(new Error('Recording failed'))
       recorder.stop()

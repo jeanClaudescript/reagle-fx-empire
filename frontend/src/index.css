@@ -5049,6 +5049,10 @@
   text-align: center;
 }
 
+.messenger-composer__status--error {
+  color: rgb(220 38 38);
+}
+
 .messenger-composer__send--mic {
   background: rgb(var(--color-surface));
   color: var(--messenger-accent, #0084ff);

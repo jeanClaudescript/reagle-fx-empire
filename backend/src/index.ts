@@ -134,7 +134,7 @@ app.use(
     const message = err instanceof Error ? err.message : 'Internal server error'
     const isBadRequest =
       err instanceof Error &&
-      /^(Invalid |Phone |Email |Payment not found|Only pending|Transaction ID|Amount must|Custom amounts|Payments are temporarily|Merchant phone|Default amount|Referral reward|USSD template|already registered|is required|No matching|Student not found|status must be)/.test(
+      /^(Invalid |Phone |Email |Payment not found|Only pending|Transaction ID|Amount must|Custom amounts|Payments are temporarily|Merchant phone|Default amount|Referral reward|USSD template|already registered|is required|No matching|Student not found|status must be|Media upload|No file uploaded|Cloudinary is not configured)/.test(
         err.message,
       )
     res.status(isBadRequest ? 400 : 500).json({ error: message })

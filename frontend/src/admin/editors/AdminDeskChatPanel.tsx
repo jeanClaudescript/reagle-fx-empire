@@ -88,7 +88,8 @@ export function AdminDeskChatPanel() {
 
   const sendCommunity = async (payload: ChatSendPayload) => {
     try {
-      await emitDeskCommunitySend(payload)
+      const msg = await emitDeskCommunitySend(payload)
+      setCommunity((prev) => mergeMessage(prev, msg))
     } catch {
       const res = await deskChatApi.adminCommunitySend(payload)
       setCommunity((prev) => mergeMessage(prev, res.data))
@@ -98,7 +99,8 @@ export function AdminDeskChatPanel() {
   const sendDirect = async (payload: ChatSendPayload) => {
     if (!activeStudentId) return
     try {
-      await emitDeskDirectSend(payload, activeStudentId)
+      const msg = await emitDeskDirectSend(payload, activeStudentId)
+      setDirectMessages((prev) => mergeMessage(prev, msg))
     } catch {
       const res = await deskChatApi.adminDirectReply(activeStudentId, payload)
       setDirectMessages((prev) => mergeMessage(prev, res.data))

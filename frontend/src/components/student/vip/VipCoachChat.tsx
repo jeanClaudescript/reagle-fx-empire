@@ -52,7 +52,8 @@ export function VipCoachChat() {
 
   const send = async (payload: ChatSendPayload) => {
     try {
-      await emitDeskDirectSend(payload)
+      const msg = await emitDeskDirectSend(payload)
+      setMessages((prev) => mergeMessage(prev, msg))
     } catch {
       const res = await deskChatApi.directSend(payload)
       setMessages((prev) => mergeMessage(prev, res.data))

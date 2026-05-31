@@ -43,7 +43,8 @@ export function VipCommunityChat() {
 
   const send = async (payload: ChatSendPayload) => {
     try {
-      await emitDeskCommunitySend(payload)
+      const msg = await emitDeskCommunitySend(payload)
+      setMessages((prev) => mergeMessage(prev, msg))
     } catch {
       const res = await deskChatApi.communitySend(payload)
       setMessages((prev) => mergeMessage(prev, res.data))

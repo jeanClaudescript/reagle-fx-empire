@@ -28,6 +28,32 @@ function parseSendBody(body: unknown): ChatSendPayload {
   }
 }
 
+function detectUploadKind(file: Express.Multer.File) {
+  const mime = (file.mimetype || '').toLowerCase()
+  const name = (file.originalname || '').toLowerCase()
+  const voiceName = /^voice-/.test(name)
+
+  if (mime.startsWith('image/') || /\.(jpe?g|png|gif|webp|heic|heif|bmp|svg)$/i.test(name)) {
+    return { resourceType: 'image' as const, attachmentType: 'image' as const, mimeType: mime || 'image/jpeg' }
+  }
+
+  if (mime.startsWith('audio/') || voiceName || /\.(mp3|m4a|aac|ogg|wav|opus)$/i.test(name)) {
+    return { resourceType: 'video' as const, attachmentType: 'voice' as const, mimeType: mime || 'audio/webm' }
+  }
+
+  if (mime.startsWith('video/') || /\.(mp4|mov|mkv|m4v|avi)$/i.test(name)) {
+    return { resourceType: 'video' as const, attachmentType: 'video' as const, mimeType: mime || 'video/mp4' }
+  }
+
+  if (/\.webm$/i.test(name)) {
+    return voiceName
+      ? { resourceType: 'video' as const, attachmentType: 'voice' as const, mimeType: mime || 'audio/webm' }
+      : { resourceType: 'video' as const, attachmentType: 'video' as const, mimeType: mime || 'video/webm' }
+  }
+
+  return { resourceType: 'raw' as const, attachmentType: 'file' as const, mimeType: mime || 'application/octet-stream' }
+}
+
 async function handleUpload(req: Request & { file?: Express.Multer.File }) {
   if (!isCloudinaryConfigured()) {
     throw new Error('Media upload is not configured on the server')
@@ -35,29 +61,12 @@ async function handleUpload(req: Request & { file?: Express.Multer.File }) {
   const file = req.file
   if (!file) throw new Error('No file uploaded')
 
-  const isImage = file.mimetype.startsWith('image/')
-  const isVideo = file.mimetype.startsWith('video/')
-  const isAudio = file.mimetype.startsWith('audio/')
-
-  let resourceType: 'image' | 'video' | 'raw' = 'raw'
-  let attachmentType: 'image' | 'video' | 'voice' | 'file' = 'file'
-
-  if (isImage) {
-    resourceType = 'image'
-    attachmentType = 'image'
-  } else if (isVideo) {
-    resourceType = 'video'
-    attachmentType = 'video'
-  } else if (isAudio) {
-    resourceType = 'video'
-    attachmentType = 'voice'
-  }
-
-  const result = await uploadToCloudinary(file.buffer, file.mimetype, resourceType)
+  const { resourceType, attachmentType, mimeType } = detectUploadKind(file)
+  const result = await uploadToCloudinary(file.buffer, mimeType, resourceType)
   return {
     url: result.url,
     type: attachmentType,
-    mimeType: file.mimetype,
+    mimeType,
     fileName: file.originalname,
   }
 }
