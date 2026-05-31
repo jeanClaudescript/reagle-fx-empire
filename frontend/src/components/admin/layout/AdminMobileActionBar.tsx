@@ -29,22 +29,24 @@ export function AdminMobileActionBar({
       <motion.button
         type="button"
         whileTap={{ scale: 0.96 }}
-        className={`admin-btn admin-btn--secondary flex-1 ${showPreview ? 'border-theme-accent/40 text-theme-accent' : ''}`}
+        className={`admin-btn admin-btn--secondary ${showPreview ? 'border-theme-accent/40 text-theme-accent' : ''}`}
         onClick={onTogglePreview}
+        aria-label="Preview draft"
       >
         {showPreview ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-        Preview draft
+        <span className="admin-btn__label">Preview</span>
       </motion.button>
       {mode === 'cms' && onSaveDraft ? (
         <motion.button
           type="button"
           whileTap={{ scale: 0.96 }}
-          className="admin-btn admin-btn--secondary flex-1"
+          className="admin-btn admin-btn--secondary"
           onClick={onSaveDraft}
           disabled={!isHydrated}
+          aria-label="Save draft"
         >
           <Save className="h-4 w-4" />
-          Save
+          <span className="admin-btn__label">Save</span>
         </motion.button>
       ) : null}
       <motion.button
@@ -53,9 +55,10 @@ export function AdminMobileActionBar({
         className="admin-btn admin-btn--primary flex-[1.15]"
         onClick={onPublish}
         disabled={!isHydrated}
+        aria-label={publishLabel}
       >
         <Upload className="h-4 w-4" />
-        {publishLabel}
+        <span className="admin-btn__label">{publishLabel}</span>
       </motion.button>
     </div>
   )

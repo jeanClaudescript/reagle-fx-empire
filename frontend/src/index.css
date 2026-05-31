@@ -278,10 +278,23 @@
     --admin-space-field: 0.625rem;
     --admin-space-card: 0.875rem;
     --admin-space-section: 0.75rem;
+    --admin-control-h: 2.75rem;
+    --admin-control-border: rgb(var(--color-border) / 0.22);
+    --admin-control-bg: rgb(var(--color-surface));
     font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
     -webkit-font-smoothing: antialiased;
     @apply relative min-h-[100svh] min-w-0 bg-theme-bg;
+  }
+
+  .light .admin-app {
+    --admin-control-border: rgb(var(--color-border) / 0.24);
+    --admin-control-bg: rgb(var(--color-surface));
+  }
+
+  .dark .admin-app {
+    --admin-control-border: rgb(255 255 255 / 0.2);
+    --admin-control-bg: rgb(var(--color-elevated) / 0.95);
   }
 
   .admin-app .font-display,
@@ -399,7 +412,8 @@
   }
 
   .admin-btn {
-    @apply inline-flex min-h-10 items-center justify-center gap-2 rounded-lg px-4 text-sm font-semibold transition duration-200 disabled:pointer-events-none disabled:opacity-50;
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 text-sm font-semibold transition duration-200 disabled:pointer-events-none disabled:opacity-50;
+    min-height: var(--admin-control-h);
     letter-spacing: 0.01em;
   }
 
@@ -419,7 +433,8 @@
   }
 
   .admin-btn--sm {
-    @apply min-h-9 gap-1.5 px-3 text-xs;
+    @apply gap-1.5 px-4 text-xs;
+    min-height: var(--admin-control-h);
   }
 
   .admin-btn--danger {
@@ -571,15 +586,19 @@
   }
 
   .admin-control {
-    @apply block w-full min-h-[2.625rem] rounded-lg border border-theme bg-theme-elevated/80 px-3 text-sm text-theme-primary shadow-inner shadow-black/[0.03] outline-none transition;
+    @apply block w-full rounded-lg px-3.5 text-sm text-theme-primary outline-none transition;
+    min-height: var(--admin-control-h);
+    border: 2px solid var(--admin-control-border);
+    background: var(--admin-control-bg);
   }
 
   .admin-control::placeholder {
-    @apply text-theme-muted/70;
+    @apply text-theme-muted/80;
   }
 
   .admin-control:focus {
-    @apply border-theme-accent/60 ring-2 ring-theme-accent/20;
+    border-color: rgb(var(--color-accent) / 0.55);
+    box-shadow: 0 0 0 3px rgb(var(--color-accent) / 0.18);
   }
 
   .admin-control:disabled {
@@ -601,40 +620,92 @@
     background-size: 1rem;
   }
 
+  .admin-app .admin-section-body input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='hidden']):not([type='button']):not([type='submit']):not(.admin-control),
+  .admin-app .admin-section-body select:not(.admin-control),
+  .admin-app .admin-section-body textarea:not(.admin-control),
+  .admin-app .admin-card-body input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='hidden']):not([type='button']):not([type='submit']):not(.admin-control),
+  .admin-app .admin-card-body select:not(.admin-control),
   .admin-app .admin-card-body textarea:not(.admin-control),
-  .admin-app .admin-card-body input[type='text']:not(.admin-control),
-  .admin-app .admin-card-body input[type='url']:not(.admin-control),
-  .admin-app .admin-card-body input[type='email']:not(.admin-control),
-  .admin-app .admin-card-body input[type='number']:not(.admin-control),
-  .admin-app .admin-card-body input[type='date']:not(.admin-control),
-  .admin-app .admin-card-body input[type='time']:not(.admin-control),
-  .admin-app .admin-card-body input[type='search']:not(.admin-control),
-  .admin-app .admin-card-body select:not(.admin-control) {
-    @apply block w-full min-h-[2.625rem] rounded-lg border border-theme bg-theme-elevated/80 px-3 text-sm text-theme-primary shadow-inner shadow-black/[0.03] outline-none transition;
+  .admin-app .admin-editor-row input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='hidden']):not([type='button']):not([type='submit']):not(.admin-control),
+  .admin-app .admin-editor-row select:not(.admin-control),
+  .admin-app .admin-editor-row textarea:not(.admin-control) {
+    @apply block w-full rounded-lg px-3.5 text-sm text-theme-primary outline-none transition;
+    min-height: var(--admin-control-h);
+    border: 2px solid var(--admin-control-border);
+    background: var(--admin-control-bg);
   }
 
+  .admin-app .admin-section-body input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='hidden']):not([type='button']):not([type='submit']):not(.admin-control):focus,
+  .admin-app .admin-section-body select:not(.admin-control):focus,
+  .admin-app .admin-section-body textarea:not(.admin-control):focus,
+  .admin-app .admin-card-body input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='hidden']):not([type='button']):not([type='submit']):not(.admin-control):focus,
+  .admin-app .admin-card-body select:not(.admin-control):focus,
   .admin-app .admin-card-body textarea:not(.admin-control):focus,
-  .admin-app .admin-card-body input[type='text']:not(.admin-control):focus,
-  .admin-app .admin-card-body input[type='url']:not(.admin-control):focus,
-  .admin-app .admin-card-body input[type='email']:not(.admin-control):focus,
-  .admin-app .admin-card-body input[type='number']:not(.admin-control):focus,
-  .admin-app .admin-card-body input[type='date']:not(.admin-control):focus,
-  .admin-app .admin-card-body input[type='time']:not(.admin-control):focus,
-  .admin-app .admin-card-body input[type='search']:not(.admin-control):focus,
-  .admin-app .admin-card-body select:not(.admin-control):focus {
-    @apply border-theme-accent/60 ring-2 ring-theme-accent/20;
+  .admin-app .admin-editor-row input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='hidden']):not([type='button']):not([type='submit']):not(.admin-control):focus,
+  .admin-app .admin-editor-row select:not(.admin-control):focus,
+  .admin-app .admin-editor-row textarea:not(.admin-control):focus {
+    border-color: rgb(var(--color-accent) / 0.55);
+    box-shadow: 0 0 0 3px rgb(var(--color-accent) / 0.18);
   }
 
-  .admin-app .admin-card-body label:has(> input[type='file']) {
-    @apply inline-flex min-h-9 cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-theme bg-theme-surface px-3 py-2 text-xs font-semibold normal-case tracking-normal text-theme-primary shadow-sm transition hover:border-theme-accent/40 hover:bg-theme-accent/10;
+  .admin-app .admin-btn {
+    box-shadow: none;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
   }
 
-  .admin-app .admin-card-body label:has(> input[type='checkbox']) {
+  .admin-app .admin-btn--secondary,
+  .admin-app .admin-btn-secondary {
+    border-color: var(--admin-control-border);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  }
+
+  .admin-app .admin-btn--primary {
+    box-shadow: 0 2px 8px rgba(88, 28, 135, 0.25);
+  }
+
+  .admin-file-btn,
+  .admin-app label:has(input[type='file']) {
+    @apply inline-flex w-auto max-w-full cursor-pointer items-center justify-center gap-2 rounded-lg border-2 bg-theme-surface px-4 text-sm font-semibold normal-case tracking-normal text-theme-primary transition hover:border-theme-accent/50 hover:bg-theme-accent/10;
+    min-height: var(--admin-control-h);
+    border-color: var(--admin-control-border);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  }
+
+  .admin-app label:has(input[type='checkbox']) {
     display: flex;
+    width: auto;
+    max-width: 100%;
     align-items: center;
     gap: 0.75rem;
     cursor: pointer;
-    @apply min-h-[2.625rem] rounded-lg border border-theme bg-theme-surface/60 px-3 py-2 text-sm font-medium normal-case tracking-normal text-theme-primary shadow-none;
+    min-height: var(--admin-control-h);
+    @apply rounded-lg border-2 bg-theme-surface/80 px-3.5 py-2 text-sm font-medium normal-case tracking-normal text-theme-primary;
+    border-color: var(--admin-control-border);
+    box-shadow: none;
+  }
+
+  .admin-input-btn-row {
+    @apply flex w-full flex-col gap-2 sm:flex-row sm:items-stretch;
+  }
+
+  .admin-input-btn-row > .admin-control,
+  .admin-input-btn-row > input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='hidden']),
+  .admin-input-btn-row > select,
+  .admin-input-btn-row > textarea {
+    @apply min-w-0 flex-1;
+  }
+
+  .admin-input-btn-row > .admin-btn {
+    @apply w-full shrink-0 sm:w-auto sm:min-w-[9.5rem];
+    min-height: var(--admin-control-h);
+  }
+
+  .admin-app .admin-content-hub input[type='search']:not(.admin-control) {
+    @apply block w-full rounded-lg px-3.5 text-sm text-theme-primary outline-none transition;
+    min-height: var(--admin-control-h);
+    border: 2px solid var(--admin-control-border);
+    background: var(--admin-control-bg);
   }
 
   .admin-app .admin-card-body .mt-5 {
@@ -1892,7 +1963,8 @@
     }
 
     .admin-control {
-      @apply min-h-[2.5rem] px-2.5 text-[13px];
+      @apply px-3 text-[13px];
+      min-height: var(--admin-control-h);
     }
 
     .admin-field__label,
@@ -2055,11 +2127,13 @@
     }
 
     .admin-btn {
-      @apply min-h-10 px-3 text-xs;
+      @apply px-3 text-xs;
+      min-height: var(--admin-control-h);
     }
 
     .admin-btn--sm {
-      @apply min-h-9 px-2.5 text-[11px];
+      @apply px-3 text-[11px];
+      min-height: var(--admin-control-h);
     }
 
     .admin-toolbar-actions {

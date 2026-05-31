@@ -112,7 +112,7 @@ export function TeachingVideosEditor() {
                   </label>
                   <div className="rounded-xl border border-theme bg-theme-surface/45 p-2.5">
                     <p className="mb-2 text-xs font-semibold text-theme-muted">Or paste image/video URL</p>
-                    <div className="flex flex-col gap-2 sm:flex-row">
+                    <div className="admin-input-btn-row">
                       <AdminTextInput
                         type="url"
                         value={urlById[item.id] ?? ''}

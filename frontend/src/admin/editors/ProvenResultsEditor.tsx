@@ -133,7 +133,7 @@ export function ProvenResultsEditor() {
             </div>
             <div className="sm:col-span-2 rounded-2xl border border-theme bg-theme-surface/45 p-3">
               <p className="mb-2 text-xs font-semibold text-theme-muted">Media URL (image or video)</p>
-              <div className="flex flex-col gap-2 sm:flex-row">
+              <div className="admin-input-btn-row">
                 <AdminTextInput
                   type="url"
                   value={mediaUrl}

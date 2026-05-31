@@ -5,6 +5,11 @@ export function adminControlClass(hasError?: boolean, className = '') {
   return `admin-control ${errorClass} ${className}`.trim()
 }
 
+/** Upload trigger styled as a button, not a text field */
+export function adminFileBtnClass(className = '') {
+  return `admin-file-btn ${className}`.trim()
+}
+
 /** @deprecated use adminControlClass */
 export function adminFieldClass(hasError?: boolean, className = '') {
   return adminControlClass(hasError, className)
