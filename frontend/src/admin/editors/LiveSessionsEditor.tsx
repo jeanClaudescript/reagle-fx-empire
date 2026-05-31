@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { liveApi, type LiveSession } from '@/services/api'
+import { AdminEmptyState } from '@/components/admin/AdminEmptyState'
 import { AdminCard } from '@/components/admin/AdminCard'
 import { useAdminToast } from '@/admin/toast'
 
@@ -49,7 +50,7 @@ export function LiveSessionsEditor() {
   return (
     <div className="admin-form-stack">
       <AdminCard>
-        <div className="admin-card-body">
+        <div id="live-session-form" className="admin-card-body">
           <h3 className="font-display text-base font-bold text-theme-primary">Teach live</h3>
           <p className="admin-editor-card-intro mt-1">
             Start a live session — paid students see stream, coach signals, and paper trading desk.
@@ -98,7 +99,12 @@ export function LiveSessionsEditor() {
           {loading ? (
             <p className="text-sm text-theme-muted">Loading…</p>
           ) : items.length === 0 ? (
-            <p className="text-sm text-theme-muted">No sessions yet.</p>
+            <AdminEmptyState
+              title="No live sessions yet"
+              description="Create a session, then tap Go LIVE when you start teaching."
+              actionLabel="Create first session"
+              scrollToId="live-session-form"
+            />
           ) : (
             <div className="admin-form-stack">
               {items.map((s) => (

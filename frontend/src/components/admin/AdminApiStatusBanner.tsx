@@ -72,7 +72,7 @@ export function AdminApiStatusBanner() {
         <p className="flex items-start gap-2">
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
           <span>
-            Sign in at <strong>/admin-login</strong> — admin actions use your database role, not an API
+            Sign in at <strong>/login?tab=admin</strong> — admin actions use your database role, not an API
             key.
           </span>
         </p>

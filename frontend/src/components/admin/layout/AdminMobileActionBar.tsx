@@ -1,7 +1,9 @@
-import { Eye, EyeOff, Upload } from 'lucide-react'
+import { Eye, EyeOff, Save, Upload } from 'lucide-react'
 import { motion } from 'framer-motion'
+import type { AdminMobileBarMode } from '@/admin/layout/adminPageMode'
 
 interface AdminMobileActionBarProps {
+  mode: AdminMobileBarMode
   isHydrated: boolean
   showPreview: boolean
   publishLabel?: string
@@ -10,14 +12,18 @@ interface AdminMobileActionBarProps {
   onPublish: () => void
 }
 
-/** Sticky thumb-friendly actions for phones — Preview + Publish only (Save stays in header menu). */
+/** Sticky thumb-friendly actions — context-aware by page type. */
 export function AdminMobileActionBar({
+  mode,
   isHydrated,
   showPreview,
-  publishLabel = 'Publish',
+  publishLabel = 'Publish website',
   onTogglePreview,
+  onSaveDraft,
   onPublish,
 }: AdminMobileActionBarProps) {
+  if (mode === 'hidden') return null
+
   return (
     <div className="admin-mobile-action-bar lg:hidden">
       <motion.button
@@ -27,8 +33,20 @@ export function AdminMobileActionBar({
         onClick={onTogglePreview}
       >
         {showPreview ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-        Preview
+        Preview draft
       </motion.button>
+      {mode === 'cms' && onSaveDraft ? (
+        <motion.button
+          type="button"
+          whileTap={{ scale: 0.96 }}
+          className="admin-btn admin-btn--secondary flex-1"
+          onClick={onSaveDraft}
+          disabled={!isHydrated}
+        >
+          <Save className="h-4 w-4" />
+          Save
+        </motion.button>
+      ) : null}
       <motion.button
         type="button"
         whileTap={{ scale: 0.97 }}

@@ -36,6 +36,9 @@ import { AdminApiStatusBanner } from '@/components/admin/AdminApiStatusBanner'
 import { useAdminDeskChatUnread } from '@/admin/useAdminDeskChatUnread'
 import type { AdminTab } from '@/admin/layout/adminNav'
 import { adminTabPath, getAdminNavLabel, readAdminTabFromHash } from '@/admin/layout/adminNav'
+import { getAdminMobileBarMode } from '@/admin/layout/adminPageMode'
+import { saveDraftCMS } from '@/cms/storage'
+import { AdminKeyboardHelp } from '@/components/admin/AdminKeyboardHelp'
 import type { ContentSectionId } from '@/cms/validation'
 
 function PublishValidationBanner() {
@@ -61,6 +64,7 @@ function PublishValidationBanner() {
 
 function AdminDashboardInner() {
   const {
+    draft,
     isHydrated,
     hasDraftChanges,
     publishValidated,
@@ -77,6 +81,7 @@ function AdminDashboardInner() {
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [isPublishing, setIsPublishing] = useState(false)
+  const [helpOpen, setHelpOpen] = useState(false)
   const { unread: deskChatUnread } = useAdminDeskChatUnread(tab)
 
   const selectTab = useCallback((id: AdminTab) => {
@@ -114,7 +119,18 @@ function AdminDashboardInner() {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      if (e.key === '?' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        const tag = (e.target as HTMLElement | null)?.tagName
+        if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return
+        e.preventDefault()
+        setHelpOpen(true)
+        return
+      }
       if (e.key !== 'Escape') return
+      if (helpOpen) {
+        setHelpOpen(false)
+        return
+      }
       if (mobileNavOpen) {
         setMobileNavOpen(false)
         return
@@ -123,7 +139,7 @@ function AdminDashboardInner() {
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [mobileNavOpen, tab, selectTab])
+  }, [helpOpen, mobileNavOpen, tab, selectTab])
 
   useEffect(() => {
     if (validationIssues.length === 0) return
@@ -139,9 +155,9 @@ function AdminDashboardInner() {
 
   const handlePublish = useCallback(async () => {
     const ok = await confirm({
-      title: 'Publish changes?',
-      message: 'Validated content will go live immediately on the public site.',
-      confirmLabel: 'Publish',
+      title: 'Publish entire website?',
+      message: 'All validated draft sections go live. Students see changes immediately.',
+      confirmLabel: 'Publish website',
     })
     if (!ok) return
 
@@ -158,8 +174,8 @@ function AdminDashboardInner() {
       return
     }
 
-    push('Publishing…', 'info')
-    window.setTimeout(() => push('Successfully published', 'success'), 320)
+    push('Publishing website…', 'info')
+    window.setTimeout(() => push('Website published — students see your updates now.', 'success'), 320)
   }, [confirm, publishValidated, push])
 
   const handleStickyPublish = useCallback(async () => {
@@ -185,20 +201,22 @@ function AdminDashboardInner() {
         return
       }
 
-      push(`${label} published to live site.`, 'success')
+      push(`${label} is live — students see it now.`, 'success')
       return
     }
 
     void handlePublish()
   }, [confirm, handlePublish, publishSectionValidated, push, tab])
 
-  const stickyPublishLabel = isContentSectionTab(tab) ? 'Publish section' : 'Publish all'
+  const mobileBarMode = getAdminMobileBarMode(tab)
+  const stickyPublishLabel =
+    mobileBarMode === 'cms' ? 'Publish section' : 'Publish website'
 
   const handleWorkflowFixed = useCallback(
     (action: 'preview' | 'publish' | 'view-site') => {
       if (action === 'preview') {
         setShowPreview(true)
-        push('Live preview opened', 'info')
+        push('Preview draft opened', 'info')
         return
       }
       if (action === 'view-site') {
@@ -299,8 +317,10 @@ function AdminDashboardInner() {
   }, [confirm])
 
   const handleSaveDraft = useCallback(() => {
-    push('Draft saved in this browser.', 'success')
-  }, [push])
+    saveDraftCMS(draft)
+    setValidationIssues([])
+    push('Draft saved.', 'success')
+  }, [draft, push, setValidationIssues])
 
   return (
     <div
@@ -339,6 +359,7 @@ function AdminDashboardInner() {
           onUndo={handleUndo}
           onReset={handleReset}
           onLogout={handleLogout}
+          onOpenHelp={() => setHelpOpen(true)}
         />
 
         <div className="admin-content-area">
@@ -367,6 +388,7 @@ function AdminDashboardInner() {
         </div>
 
         <AdminMobileActionBar
+          mode={mobileBarMode}
           isHydrated={isHydrated && !isPublishing}
           showPreview={showPreview}
           publishLabel={stickyPublishLabel}
@@ -375,6 +397,8 @@ function AdminDashboardInner() {
           onPublish={handleStickyPublish}
         />
       </div>
+
+      <AdminKeyboardHelp open={helpOpen} onClose={() => setHelpOpen(false)} />
     </div>
   )
 }

@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import type { DailyUpdate, DailyUpdateType } from '@/cms/types'
 import { useCms } from '@/cms/CmsProvider'
 import { useAdminConfirm } from '@/admin/confirm'
+import { AdminEmptyState } from '@/components/admin/AdminEmptyState'
 import { AdminCard } from '@/components/admin/AdminCard'
 import { AdminField } from '@/components/admin/AdminField'
 import { AdminSelect, AdminTextArea, AdminTextInput } from '@/components/admin/AdminInput'
@@ -41,7 +42,7 @@ export function DailyUpdatesEditor() {
         title="New daily update"
         description="Text, image, or video — shows like stories / WhatsApp status."
       >
-        <div className="admin-card-body">
+        <div id="daily-update-form" className="admin-card-body">
           <div className="admin-form-grid">
             <AdminField label="Post type" htmlFor="daily-update-type">
               <AdminSelect
@@ -155,7 +156,12 @@ export function DailyUpdatesEditor() {
       <AdminCard title="Live updates" description="Published posts appear on the public site.">
         <div className="admin-card-body">
           {updates.length === 0 ? (
-            <p className="text-sm text-theme-muted">No updates yet. Post your first daily news.</p>
+            <AdminEmptyState
+              title="No updates yet"
+              description="Post your first market news — text, image, or video."
+              actionLabel="Create first update"
+              scrollToId="daily-update-form"
+            />
           ) : (
             <div className="flex flex-col gap-2.5">
               {updates.map((item, idx) => (

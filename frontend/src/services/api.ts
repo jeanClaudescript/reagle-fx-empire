@@ -37,7 +37,7 @@ async function apiFetch<T>(path: string, init: RequestInitLite = {}): Promise<T>
   if (init.admin) {
     const token = getAdminAuthToken()
     if (!token) {
-      throw new Error('Not signed in as admin — open /admin-login and sign in.')
+      throw new Error('Not signed in as admin — open /login?tab=admin and sign in.')
     }
     headers.Authorization = `Bearer ${token}`
   }

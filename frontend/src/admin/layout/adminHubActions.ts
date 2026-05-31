@@ -18,6 +18,7 @@ import {
   Wallet,
 } from 'lucide-react'
 import type { AdminTab } from './adminNav'
+import { getAdminNavLabel } from './adminNav'
 import type { ContentSectionId } from '@/cms/validation'
 
 export type HubCategory = 'all' | 'website' | 'operations' | 'system'
@@ -50,7 +51,7 @@ export const ADMIN_HUB_CARDS: HubCard[] = [
   },
   {
     tab: 'upcoming',
-    title: 'Upcoming banners',
+    title: getAdminNavLabel('upcoming'),
     description: 'Promos and CTAs above the chart',
     icon: Megaphone,
     category: 'website',
@@ -58,7 +59,7 @@ export const ADMIN_HUB_CARDS: HubCard[] = [
   },
   {
     tab: 'about',
-    title: 'About coach',
+    title: getAdminNavLabel('about'),
     description: 'Photo, title, and bio',
     icon: User,
     category: 'website',
@@ -82,15 +83,15 @@ export const ADMIN_HUB_CARDS: HubCard[] = [
   },
   {
     tab: 'mastery',
-    title: 'What they master',
-    description: 'Lesson cards media',
+    title: getAdminNavLabel('mastery'),
+    description: 'Optional media on lesson cards',
     icon: GraduationCap,
     category: 'website',
     accent: 'sky',
   },
   {
     tab: 'videos',
-    title: 'Teaching videos',
+    title: getAdminNavLabel('videos'),
     description: 'Six reel slots',
     icon: Play,
     category: 'website',
@@ -106,7 +107,7 @@ export const ADMIN_HUB_CARDS: HubCard[] = [
   },
   {
     tab: 'texts',
-    title: 'Site texts',
+    title: getAdminNavLabel('texts'),
     description: 'Copy overrides per language',
     icon: Type,
     category: 'website',
@@ -170,7 +171,7 @@ export const ADMIN_HUB_CARDS: HubCard[] = [
   },
   {
     tab: 'education',
-    title: 'Daily forex lessons',
+    title: getAdminNavLabel('education'),
     description: 'Upload books, auto-split lessons, optional AI',
     icon: BookOpen,
     category: 'operations',
@@ -178,7 +179,7 @@ export const ADMIN_HUB_CARDS: HubCard[] = [
   },
   {
     tab: 'settings',
-    title: 'Site settings',
+    title: getAdminNavLabel('settings'),
     description: 'Section visibility, messages, admins',
     icon: Settings,
     category: 'system',

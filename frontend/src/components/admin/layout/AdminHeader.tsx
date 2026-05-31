@@ -1,5 +1,6 @@
-import { Menu, MoreHorizontal, ExternalLink } from 'lucide-react'
+import { Menu, MoreHorizontal, ExternalLink, HelpCircle } from 'lucide-react'
 import { getAdminNavLabel, type AdminTab } from '@/admin/layout/adminNav'
+import { getAdminBreadcrumbRoot, showCmsPublishInHeader } from '@/admin/layout/adminPageMode'
 import { AdminThemeToggle } from '@/components/admin/AdminThemeToggle'
 import { AdminLanguageSwitcher } from '@/components/admin/AdminLanguageSwitcher'
 
@@ -15,6 +16,7 @@ interface AdminHeaderProps {
   onUndo: () => void
   onReset: () => void
   onLogout: () => void
+  onOpenHelp: () => void
 }
 
 export function AdminHeader({
@@ -29,8 +31,11 @@ export function AdminHeader({
   onUndo,
   onReset,
   onLogout,
+  onOpenHelp,
 }: AdminHeaderProps) {
   const pageTitle = getAdminNavLabel(activeTab)
+  const breadcrumbRoot = getAdminBreadcrumbRoot(activeTab)
+  const showPublish = showCmsPublishInHeader(activeTab)
 
   return (
     <header className="admin-header">
@@ -46,13 +51,13 @@ export function AdminHeader({
 
         <div className="min-w-0">
           <nav className="admin-breadcrumb" aria-label="Breadcrumb">
-            <span>CMS</span>
+            <span>{breadcrumbRoot}</span>
             <span className="admin-breadcrumb-sep">/</span>
             <span className="text-theme-primary">{pageTitle}</span>
           </nav>
           <p className="mt-0.5 flex flex-wrap items-center gap-2 truncate text-xs text-theme-muted">
             <span>{syncLabel}</span>
-            {hasDraftChanges && (
+            {hasDraftChanges && showPublish && (
               <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold text-amber-400">
                 Unpublished
               </span>
@@ -64,40 +69,51 @@ export function AdminHeader({
       <div className="admin-header-actions hidden lg:flex">
         <AdminLanguageSwitcher compact />
         <AdminThemeToggle />
+        <button type="button" className="admin-header-icon-btn" onClick={onOpenHelp} aria-label="Keyboard shortcuts">
+          <HelpCircle className="h-5 w-5" />
+        </button>
         <a href="/" target="_blank" rel="noopener noreferrer" className="admin-btn-ghost">
           <ExternalLink className="h-4 w-4" />
-          View site
+          View live site
         </a>
-        <button type="button" className="admin-btn-secondary" onClick={onTogglePreviewPanel}>
-          Live preview
-        </button>
-        <button
-          type="button"
-          className="admin-btn-secondary"
-          onClick={onSaveDraft}
-          disabled={!isHydrated}
-        >
-          Save draft
-        </button>
-        <button
-          type="button"
-          className="admin-btn-primary"
-          onClick={onPublish}
-          disabled={!isHydrated}
-        >
-          Publish all
-        </button>
+        {showPublish ? (
+          <>
+            <button type="button" className="admin-btn-secondary" onClick={onTogglePreviewPanel}>
+              Preview draft
+            </button>
+            <button
+              type="button"
+              className="admin-btn-secondary"
+              onClick={onSaveDraft}
+              disabled={!isHydrated}
+            >
+              Save draft
+            </button>
+            <button
+              type="button"
+              className="admin-btn-primary"
+              onClick={onPublish}
+              disabled={!isHydrated}
+            >
+              Publish website
+            </button>
+          </>
+        ) : null}
         <details className="admin-more-menu relative">
           <summary className="admin-header-icon-btn list-none cursor-pointer [&::-webkit-details-marker]:hidden">
             <MoreHorizontal className="h-5 w-5" />
           </summary>
           <div className="admin-more-dropdown">
-            <button type="button" onClick={onUndo} disabled={!isHydrated}>
-              Undo publish
-            </button>
-            <button type="button" onClick={onReset} disabled={!isHydrated}>
-              Reset draft
-            </button>
+            {showPublish ? (
+              <>
+                <button type="button" onClick={onUndo} disabled={!isHydrated}>
+                  Undo publish
+                </button>
+                <button type="button" onClick={onReset} disabled={!isHydrated}>
+                  Reset draft
+                </button>
+              </>
+            ) : null}
             <button type="button" onClick={onLogout} className="text-rose-400">
               Logout
             </button>
@@ -108,23 +124,35 @@ export function AdminHeader({
       <div className="flex items-center gap-2 lg:hidden">
         <AdminLanguageSwitcher compact />
         <AdminThemeToggle />
+        <button type="button" className="admin-header-icon-btn" onClick={onOpenHelp} aria-label="Help">
+          <HelpCircle className="h-5 w-5" />
+        </button>
         <details className="admin-more-menu relative">
           <summary className="admin-header-icon-btn list-none cursor-pointer [&::-webkit-details-marker]:hidden">
             <MoreHorizontal className="h-5 w-5" />
           </summary>
           <div className="admin-more-dropdown admin-more-dropdown--mobile">
             <a href="/" target="_blank" rel="noopener noreferrer" className="admin-btn-ghost w-full">
-              View site
+              View live site
             </a>
             <button type="button" onClick={onTogglePreviewPanel}>
-              Live preview
+              Preview draft
             </button>
-            <button type="button" onClick={onUndo} disabled={!isHydrated}>
-              Undo
-            </button>
-            <button type="button" onClick={onReset} disabled={!isHydrated}>
-              Reset draft
-            </button>
+            {showPublish ? (
+              <button type="button" onClick={onSaveDraft} disabled={!isHydrated}>
+                Save draft
+              </button>
+            ) : null}
+            {showPublish ? (
+              <>
+                <button type="button" onClick={onUndo} disabled={!isHydrated}>
+                  Undo publish
+                </button>
+                <button type="button" onClick={onReset} disabled={!isHydrated}>
+                  Reset draft
+                </button>
+              </>
+            ) : null}
             <button type="button" onClick={onLogout} className="text-rose-400">
               Logout
             </button>

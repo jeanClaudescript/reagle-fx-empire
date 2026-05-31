@@ -5,6 +5,7 @@ import { useCms } from '@/cms/CmsProvider'
 import { uploadWithFeedback } from '@/admin/uploadWithFeedback'
 import { useAdminToast } from '@/admin/toast'
 import { useAdminConfirm } from '@/admin/confirm'
+import { AdminEmptyState } from '@/components/admin/AdminEmptyState'
 import { AdminCard } from '@/components/admin/AdminCard'
 import { AdminTextInput } from '@/components/admin/AdminInput'
 import { AdminMediaThumb } from '@/components/admin/media/AdminMediaThumb'
@@ -32,7 +33,7 @@ export function CertificatesEditor() {
   return (
     <div className="admin-form-stack">
       <AdminCard>
-        <div className="admin-card-body">
+        <div id="certificate-add-form" className="admin-card-body">
           <p className="admin-editor-card-intro">
             Add certificate images and reorder them (shown in a swipeable horizontal carousel).
           </p>
@@ -137,7 +138,12 @@ export function CertificatesEditor() {
           <h3 className="font-display text-md font-bold text-theme-primary">Your Certificates</h3>
 
           {certificates.length === 0 ? (
-            <div className="mt-4 text-sm text-theme-muted">No certificates yet.</div>
+            <AdminEmptyState
+              title="No certificates yet"
+              description="Upload credential images for the About page carousel."
+              actionLabel="Add first certificate"
+              scrollToId="certificate-add-form"
+            />
           ) : (
             <div className="mt-4 flex flex-col gap-3">
               {certificates.map((cert, idx) => (

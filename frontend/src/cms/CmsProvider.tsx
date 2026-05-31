@@ -146,7 +146,7 @@ export function CmsProvider({
   const pushDraftToServer = useCallback(async (payload: CMSData) => {
     if (!adminMode) return true
     if (!hasAdminSession()) {
-      setSyncError('Sign in at /admin-login — CMS saves require an admin session.')
+      setSyncError('Sign in at /login?tab=admin — CMS saves require an admin session.')
       return false
     }
     setIsSyncing(true)

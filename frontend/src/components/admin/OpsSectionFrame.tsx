@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { ArrowLeft, X } from 'lucide-react'
 import { getAdminNavLabel } from '@/admin/layout/adminNav'
 import type { AdminTab } from '@/admin/layout/adminNav'
+import { AdminModeBanner } from '@/components/admin/AdminModeBanner'
 
 export function OpsSectionFrame({
   tab,
@@ -30,13 +31,14 @@ export function OpsSectionFrame({
           </button>
           <div className="min-w-0 flex-1">
             <h2 className="truncate font-display text-base font-bold text-theme-primary sm:text-lg">{title}</h2>
-            <p className="hidden text-xs text-theme-muted sm:block">{hint ?? 'Changes save immediately to the server.'}</p>
+            <p className="text-xs text-theme-muted">{hint ?? 'Operations · saves instantly to server'}</p>
           </div>
           <button type="button" onClick={onBack} className="admin-header-icon-btn shrink-0" aria-label="Close">
             <X className="h-5 w-5" />
           </button>
         </div>
       </header>
+      <AdminModeBanner mode="ops" />
       {children}
     </motion.div>
   )

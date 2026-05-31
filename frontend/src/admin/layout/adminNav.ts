@@ -75,6 +75,10 @@ export function getAdminNavLabel(tab: AdminTab) {
   return ADMIN_NAV.find((n) => n.id === tab)?.label ?? 'Content hub'
 }
 
+export function getAdminNavGroup(tab: AdminTab): AdminNavGroup {
+  return ADMIN_NAV.find((n) => n.id === tab)?.group ?? 'overview'
+}
+
 const ADMIN_TAB_IDS = new Set<AdminTab>(ADMIN_NAV.map((n) => n.id))
 
 export function readAdminTabFromHash(): AdminTab | null {

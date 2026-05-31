@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import type { CMSMedia, MediaOrientation, MediaType, ProvenResultsContent } from '@/cms/types'
 import { useCms } from '@/cms/CmsProvider'
 import { useAdminConfirm } from '@/admin/confirm'
+import { AdminEmptyState } from '@/components/admin/AdminEmptyState'
 import { AdminCard } from '@/components/admin/AdminCard'
 import { AdminMediaThumb } from '@/components/admin/media/AdminMediaThumb'
 import { AdminSelect, AdminTextInput } from '@/components/admin/AdminInput'
@@ -30,7 +31,7 @@ export function ProvenResultsEditor() {
   return (
     <div className="admin-form-stack">
       <AdminCard>
-        <div className="admin-card-body">
+        <div id="proven-add-form" className="admin-card-body">
           <p className="admin-editor-card-intro">
             Upload image/video cards. If you remove all items, the public Results section can disappear.
           </p>
@@ -182,7 +183,12 @@ export function ProvenResultsEditor() {
           <h3 className="font-display text-md font-bold text-theme-primary">Media Items</h3>
 
           {media.length === 0 ? (
-            <p className="mt-3 text-sm text-theme-muted">No proven results items yet.</p>
+            <AdminEmptyState
+              title="No result media yet"
+              description="Add MT5 screenshots or win videos for the Results section."
+              actionLabel="Add first result"
+              scrollToId="proven-add-form"
+            />
           ) : (
             <div className="mt-4 flex flex-col gap-3">
               {media.map((item, idx) => (

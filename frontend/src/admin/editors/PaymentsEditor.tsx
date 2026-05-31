@@ -3,6 +3,7 @@ import { LayoutGrid, List } from 'lucide-react'
 import { paymentApi, type PaymentRecord } from '@/services/api'
 import { programPlanLabel } from '@/utils/paymentPriceLabel'
 import { PaymentApproveModal } from '@/components/admin/PaymentApproveModal'
+import { AdminEmptyState } from '@/components/admin/AdminEmptyState'
 import { AdminCard } from '@/components/admin/AdminCard'
 import { useAdminToast } from '@/admin/toast'
 
@@ -160,7 +161,9 @@ export function PaymentsEditor({
       {!embedded && (
         <AdminCard>
           <div className="admin-card-body">
-            <p className="admin-editor-card-intro">Open the Settings tab for MoMo number and amounts.</p>
+            <p className="admin-editor-card-intro">
+              Configure merchant number and plan amounts in <strong>MoMo settings</strong> (sidebar).
+            </p>
           </div>
         </AdminCard>
       )}
@@ -236,7 +239,10 @@ export function PaymentsEditor({
           {loading ? (
             <p className="text-sm text-theme-muted">Loading…</p>
           ) : items.length === 0 ? (
-            <p className="text-sm text-theme-muted">No payments found.</p>
+            <AdminEmptyState
+              title="No payments in queue"
+              description="When students pay via MoMo and submit a transaction ID, they appear here for you to approve."
+            />
           ) : view === 'list' ? (
             <div className="mt-2 overflow-x-auto">
               <table className="admin-payments-table w-full min-w-[880px] text-left text-sm">

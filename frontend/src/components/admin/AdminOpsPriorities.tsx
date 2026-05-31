@@ -213,8 +213,12 @@ export function AdminOpsPriorities({ onNavigate }: Props) {
       <div className="admin-attention">
         <div className="admin-attention__head">
           <h3 className="admin-attention__title">Needs attention</h3>
-          <button type="button" className="admin-attention__view-all" onClick={() => onNavigate('students')}>
-            View all
+          <button
+            type="button"
+            className="admin-attention__view-all"
+            onClick={() => onNavigate(pending > 0 ? 'payments' : unpaid > 0 ? 'students' : 'payments')}
+          >
+            {pending > 0 ? 'Open payments' : unpaid > 0 ? 'Open students' : 'Open queue'}
           </button>
         </div>
         <ul className="admin-attention__list">

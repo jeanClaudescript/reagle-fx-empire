@@ -3,6 +3,8 @@ import { motion } from 'framer-motion'
 import { ArrowLeft, X } from 'lucide-react'
 import type { ContentSectionId } from '@/cms/validation'
 import { getAdminNavLabel } from '@/admin/layout/adminNav'
+import { useCms } from '@/cms/CmsProvider'
+import { AdminModeBanner } from '@/components/admin/AdminModeBanner'
 import { SectionEditorActions } from '@/components/admin/SectionEditorActions'
 import { EditorValidationAlert } from '@/components/admin/EditorValidationAlert'
 
@@ -14,6 +16,9 @@ interface AdminSectionFrameProps {
 
 export function AdminSectionFrame({ section, onBack, children }: AdminSectionFrameProps) {
   const title = getAdminNavLabel(section)
+  const { sectionStates } = useCms()
+  const state = sectionStates[section]
+  const bannerMode = state?.status === 'draft' ? 'draft' : 'live-sync'
 
   return (
     <motion.div
@@ -38,7 +43,7 @@ export function AdminSectionFrame({ section, onBack, children }: AdminSectionFra
             <h2 className="truncate font-display text-base font-bold text-theme-primary sm:text-lg">
               {title}
             </h2>
-            <p className="hidden text-xs text-theme-muted sm:block">Tap back or Esc to exit</p>
+            <p className="text-xs text-theme-muted">Website content · draft until you publish</p>
           </div>
 
           <button
@@ -59,6 +64,8 @@ export function AdminSectionFrame({ section, onBack, children }: AdminSectionFra
           <EditorValidationAlert section={section} />
         </div>
       </header>
+
+      <AdminModeBanner mode={bannerMode} />
 
       <div className="admin-section-body">{children}</div>
     </motion.div>

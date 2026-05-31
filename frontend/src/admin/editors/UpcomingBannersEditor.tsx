@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import type { UpcomingBanner } from '@/cms/types'
 import { useCms } from '@/cms/CmsProvider'
 import { useAdminConfirm } from '@/admin/confirm'
+import { AdminEmptyState } from '@/components/admin/AdminEmptyState'
 import { AdminCard } from '@/components/admin/AdminCard'
 import { AdminTextInput } from '@/components/admin/AdminInput'
 import { uploadWithFeedback } from '@/admin/uploadWithFeedback'
@@ -33,7 +34,7 @@ export function UpcomingBannersEditor() {
   return (
     <div className="admin-form-stack">
       <AdminCard>
-        <div className="admin-card-body">
+        <div id="banner-add-form" className="admin-card-body">
           <p className="admin-editor-card-intro">
             Hero banner above the chart. Pick date/time for countdown. Use one button link (CTA) and
             optional social post link for Share.
@@ -170,7 +171,12 @@ export function UpcomingBannersEditor() {
           <h3 className="font-display text-md font-bold text-theme-primary">Banners</h3>
 
           {banners.length === 0 ? (
-            <div className="mt-4 text-sm text-theme-muted">No banners yet.</div>
+            <AdminEmptyState
+              title="No banners yet"
+              description="Add a promo banner above the live chart with countdown and CTA."
+              actionLabel="Add first banner"
+              scrollToId="banner-add-form"
+            />
           ) : (
             <div className="mt-4 flex flex-col gap-3">
               {banners.map((banner, idx) => (

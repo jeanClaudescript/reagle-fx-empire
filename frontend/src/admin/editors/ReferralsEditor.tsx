@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { paymentApi, type ReferralRelationshipRecord, type ReferralRewardRecord } from '@/services/api'
+import { AdminEmptyState } from '@/components/admin/AdminEmptyState'
 import { AdminCard } from '@/components/admin/AdminCard'
 import { useAdminToast } from '@/admin/toast'
 
@@ -48,7 +49,10 @@ export function ReferralsEditor() {
           {loading ? (
             <p className="mt-4 text-sm text-theme-muted">Loading…</p>
           ) : relationships.length === 0 ? (
-            <p className="mt-4 text-sm text-theme-muted">No referral relationships yet.</p>
+            <AdminEmptyState
+              title="No referrals yet"
+              description="When a student signs up with a friend's invite code and pays, they appear here automatically."
+            />
           ) : (
             <div className="mt-4 overflow-x-auto">
               <table className="w-full min-w-[640px] text-left text-sm">
@@ -123,7 +127,10 @@ export function ReferralsEditor() {
           {loading ? (
             <p className="mt-4 text-sm text-theme-muted">Loading…</p>
           ) : rewards.length === 0 ? (
-            <p className="mt-4 text-sm text-theme-muted">No referral rewards yet.</p>
+            <AdminEmptyState
+              title="No rewards issued yet"
+              description="Rewards appear after a referred student's first payment is approved in Payments."
+            />
           ) : (
             <ul className="mt-4 flex flex-col gap-2">
               {rewards.map((r) => (

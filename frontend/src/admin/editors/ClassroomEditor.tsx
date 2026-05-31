@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { GraduationCap, Plus, Video } from 'lucide-react'
+import { GraduationCap, Plus } from 'lucide-react'
 import { classroomApi, type ClassroomRoom } from '@/services/api'
 import { useAdminToast } from '@/admin/toast'
+import { AdminEmptyState } from '@/components/admin/AdminEmptyState'
 import { AdminCard } from '@/components/admin/AdminCard'
 import { ClassroomRoomCard } from '@/admin/editors/ClassroomRoomCard'
 import { sanitizeJitsiRoomName } from '@/jitsi/buildJitsiConfig'
@@ -101,6 +102,20 @@ export function ClassroomEditor() {
 
   return (
     <div className="admin-form-stack">
+      <div className="admin-classroom-steps" aria-label="Classroom workflow">
+        {[
+          { n: 1, label: 'Create room' },
+          { n: 2, label: 'Start live' },
+          { n: 3, label: 'End & save' },
+          { n: 4, label: 'Watch replay' },
+        ].map((step) => (
+          <div key={step.n} className="admin-classroom-step">
+            <span className="admin-classroom-step__num">Step {step.n}</span>
+            <span className="admin-classroom-step__label">{step.label}</span>
+          </div>
+        ))}
+      </div>
+
       <AdminCard>
         <div className="admin-card-body">
           <div className="admin-classroom-header">
@@ -123,7 +138,7 @@ export function ClassroomEditor() {
       </AdminCard>
 
       <AdminCard>
-        <div className="admin-card-body">
+        <div id="classroom-create-form" className="admin-card-body">
           <h4 className="font-semibold text-theme-primary">Create room</h4>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
             <input
@@ -189,10 +204,12 @@ export function ClassroomEditor() {
           {loading ? (
             <p className="text-sm text-theme-muted">Loading…</p>
           ) : rooms.length === 0 ? (
-            <div className="admin-classroom-empty">
-              <Video className="text-theme-muted" size={28} />
-              <p>No classrooms yet. Create one above to start teaching.</p>
-            </div>
+            <AdminEmptyState
+              title="No classrooms yet"
+              description="Create a room, expand it, tap Start live session, then End & save recording when done."
+              actionLabel="Create classroom"
+              scrollToId="classroom-create-form"
+            />
           ) : (
             <div className="admin-classroom-list">
               {rooms.map((room) => (

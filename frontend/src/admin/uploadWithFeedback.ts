@@ -6,7 +6,7 @@ export type UploadToast = (message: string, kind: 'success' | 'error' | 'info') 
 function friendlyUploadError(err: unknown): string {
   const msg = err instanceof Error ? err.message : 'Upload failed'
   if (/401|unauthorized/i.test(msg)) {
-    return 'Upload blocked — sign in again at /admin-login (session expired).'
+    return 'Upload blocked — sign in again at /login?tab=admin (session expired).'
   }
   if (/503|cloudinary/i.test(msg)) {
     return 'Media server not configured on backend (Cloudinary env vars).'

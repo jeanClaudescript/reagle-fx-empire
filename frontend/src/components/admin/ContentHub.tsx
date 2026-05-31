@@ -4,6 +4,7 @@ import { ChevronRight, Globe, LayoutGrid, Search } from 'lucide-react'
 import { useCms } from '@/cms/CmsProvider'
 import { AdminCard } from '@/components/admin/AdminCard'
 import { AdminOpsPriorities } from '@/components/admin/AdminOpsPriorities'
+import { AdminFirstVisitChecklist } from '@/components/admin/AdminFirstVisitChecklist'
 import { DASHBOARD_WORKFLOW_ACTIONS } from '@/admin/layout/dashboardActions'
 import {
   ADMIN_HUB_CARDS,
@@ -67,6 +68,7 @@ export function ContentHub({
 
   return (
     <div className="admin-content-hub flex flex-col gap-4">
+      <AdminFirstVisitChecklist onNavigate={onNavigate} />
       <AdminOpsPriorities onNavigate={onNavigate} />
 
       <div className="admin-hub-hero admin-hub-hero--compact">
@@ -76,7 +78,7 @@ export function ContentHub({
             <p className="admin-hub-hero__eyebrow">Content studio</p>
             <h1 className="admin-hub-hero__title">Website content</h1>
             <p className="admin-hub-hero__desc hidden sm:block">
-              Edit sections, preview drafts, publish when validation passes.
+              Edit website sections as draft, preview, then publish when ready.
             </p>
             {hasDraftChanges ? (
               <p className="admin-hub-hero__alert">Unpublished draft — publish when ready.</p>
@@ -211,9 +213,10 @@ export function ContentHub({
         </div>
       </AdminCard>
 
-      <p className="admin-content-hub__tip hidden sm:block">
-        <Globe className="inline h-3.5 w-3.5 align-text-bottom text-theme-accent" /> Website sections use{' '}
-        <strong>draft → publish</strong>. Students and payments update instantly when you approve in Payments.
+      <p className="admin-content-hub__tip">
+        <Globe className="inline h-3.5 w-3.5 align-text-bottom text-theme-accent" />{' '}
+        <strong>Website</strong> = draft then publish. <strong>Students &amp; payments</strong> = instant save.
+        Press <kbd className="admin-inline-kbd">?</kbd> for shortcuts.
       </p>
     </div>
   )
