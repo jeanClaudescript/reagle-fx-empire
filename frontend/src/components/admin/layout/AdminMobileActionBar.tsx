@@ -6,17 +6,16 @@ interface AdminMobileActionBarProps {
   showPreview: boolean
   publishLabel?: string
   onTogglePreview: () => void
-  onSaveDraft: () => void
+  onSaveDraft?: () => void
   onPublish: () => void
 }
 
-/** Sticky thumb-friendly actions for phones. */
+/** Sticky thumb-friendly actions for phones — Preview + Publish only (Save stays in header menu). */
 export function AdminMobileActionBar({
   isHydrated,
   showPreview,
-  publishLabel = 'Publish all',
+  publishLabel = 'Publish',
   onTogglePreview,
-  onSaveDraft,
   onPublish,
 }: AdminMobileActionBarProps) {
   return (
@@ -24,24 +23,16 @@ export function AdminMobileActionBar({
       <motion.button
         type="button"
         whileTap={{ scale: 0.96 }}
-        className={`admin-mobile-bar-icon ${showPreview ? 'admin-mobile-bar-icon--active' : ''}`}
+        className={`admin-btn admin-btn--secondary flex-1 ${showPreview ? 'border-theme-accent/40 text-theme-accent' : ''}`}
         onClick={onTogglePreview}
-        aria-label={showPreview ? 'Hide preview' : 'Show preview'}
       >
-        {showPreview ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+        {showPreview ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+        Preview
       </motion.button>
-      <button
-        type="button"
-        className="admin-btn admin-btn--secondary flex-1"
-        onClick={onSaveDraft}
-        disabled={!isHydrated}
-      >
-        Save
-      </button>
       <motion.button
         type="button"
         whileTap={{ scale: 0.97 }}
-        className="admin-btn admin-btn--primary flex-[1.2]"
+        className="admin-btn admin-btn--primary flex-[1.15]"
         onClick={onPublish}
         disabled={!isHydrated}
       >
