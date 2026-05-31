@@ -3,7 +3,7 @@ import { PaymentModel, type PaymentStatus } from '../models/Payment.js'
 import { generateReferenceCode } from '../utils/referenceCode.js'
 import { buildTelUssdHref } from '../utils/ussdTel.js'
 import { formatDisplayPhone, normalizeRwPhone } from '../utils/phone.js'
-import { creditReferrerOnFirstPayment, ensureUserReferralCode } from './referralService.js'
+import { creditReferrerOnFirstPayment, ensureUserReferralCode, applyReferrerIfEligible, referralApplyErrorMessage } from './referralService.js'
 import { env } from '../config/env.js'
 import { isProgramPlanId, type ProgramPlanId } from '../types/program.js'
 import { getPaymentSettings, resolveProgramAmount, type PaymentSettings } from './paymentSettingsService.js'
@@ -64,25 +64,12 @@ export async function findOrCreateUser(input: {
 
   let user = await findUserByContact({ phone, email })
   if (!user) {
-    let referredByUserId: string | undefined
-    let referredByCode: string | undefined
-    const ref = input.referrerCode?.trim().toUpperCase()
-    if (ref) {
-      const referrer = await AppUserModel.findOne({ referralCode: ref })
-      if (referrer) {
-        referredByUserId = String(referrer._id)
-        referredByCode = ref
-      }
-    }
-
     user = await AppUserModel.create({
       phone,
       email,
       name: input.name?.trim() || undefined,
       role: 'student',
       referralCode: await uniqueUserReferralCode(),
-      referredByCode,
-      referredByUserId,
       membershipStatus: 'unpaid',
       walletBalance: 0,
       createdAt: new Date(),
@@ -111,6 +98,16 @@ export async function findOrCreateUser(input: {
     if (changed) {
       user.updatedAt = new Date()
       await user.save()
+    }
+  }
+
+  if (input.referrerCode?.trim()) {
+    const applied = await applyReferrerIfEligible(String(user._id), input.referrerCode, { phone, email })
+    if (!applied.ok) {
+      const msg = referralApplyErrorMessage(applied.reason)
+      if (msg) throw new Error(msg)
+    } else {
+      user = (await AppUserModel.findById(user._id))!
     }
   }
 

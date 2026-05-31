@@ -249,12 +249,39 @@ export type ReferralRewardRecord = {
   referredUserId: string
   referrerName?: string
   referredName?: string
+  referrerCode?: string
   paymentId: string
   rewardAmount: number
   currency: string
   status: 'PENDING' | 'CREDITED' | 'CANCELLED'
   createdAt: string
   creditedAt?: string
+}
+
+export type ReferralRelationshipRecord = {
+  id: string
+  referredName: string
+  referredPhone?: string
+  referredEmail?: string
+  referredByCode?: string
+  membershipStatus: string
+  referrerId?: string
+  referrerName?: string
+  referrerPhone?: string
+  referrerCode?: string
+  hasPaidPayment: boolean
+  firstPaidAt?: string
+  paymentReference?: string
+  reward: {
+    id: string
+    amount: number
+    currency: string
+    status: string
+    creditedAt?: string
+    paymentId: string
+  } | null
+  suspicious: boolean
+  createdAt: string
 }
 
 export type StudentPendingPayment = {
@@ -791,6 +818,10 @@ export const paymentApi = {
     }),
   adminReferrals: () =>
     apiFetch<{ data: ReferralRewardRecord[] }>('/api/payments/admin/referrals', { admin: true }),
+  adminReferralRelationships: () =>
+    apiFetch<{ data: ReferralRelationshipRecord[] }>('/api/payments/admin/referral-relationships', {
+      admin: true,
+    }),
   adminReject: (id: string) =>
     apiFetch<{ ok: true; data: PaymentRecord }>(`/api/payments/admin/${id}/reject`, {
       method: 'POST',

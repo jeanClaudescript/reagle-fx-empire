@@ -21,6 +21,7 @@ import {
   enableSiteFreeAccess,
   disableSiteFreeAccess,
 } from '../services/paymentSettingsService.js'
+import { listReferralRelationships } from '../services/referralService.js'
 
 export const paymentRoutes = Router()
 
@@ -272,7 +273,7 @@ paymentRoutes.get('/admin/referrals', requireAdminAuth, async (_req, res, next) 
     ]
     const users = userIds.length
       ? await AppUserModel.find({ _id: { $in: userIds } })
-          .select('name phone email')
+          .select('name phone email referralCode')
           .lean()
       : []
     const nameById = new Map(
@@ -281,6 +282,7 @@ paymentRoutes.get('/admin/referrals', requireAdminAuth, async (_req, res, next) 
         (u.name || u.phone || u.email || String(u._id)).trim(),
       ]),
     )
+    const codeById = new Map(users.map((u) => [String(u._id), u.referralCode]))
 
     return res.json({
       data: rewards.map((r) => ({
@@ -289,6 +291,7 @@ paymentRoutes.get('/admin/referrals', requireAdminAuth, async (_req, res, next) 
         referredUserId: r.referredUserId,
         referrerName: nameById.get(r.referrerId),
         referredName: nameById.get(r.referredUserId),
+        referrerCode: codeById.get(r.referrerId),
         paymentId: r.paymentId,
         rewardAmount: r.rewardAmount,
         currency: r.currency,
@@ -297,6 +300,15 @@ paymentRoutes.get('/admin/referrals', requireAdminAuth, async (_req, res, next) 
         creditedAt: r.creditedAt,
       })),
     })
+  } catch (error) {
+    return next(error)
+  }
+})
+
+paymentRoutes.get('/admin/referral-relationships', requireAdminAuth, async (_req, res, next) => {
+  try {
+    const data = await listReferralRelationships(200)
+    return res.json({ data })
   } catch (error) {
     return next(error)
   }

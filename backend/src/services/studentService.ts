@@ -4,6 +4,7 @@ import { generateReferenceCode } from '../utils/referenceCode.js'
 import { formatDisplayPhone, normalizeRwPhone } from '../utils/phone.js'
 import { isValidEmail, normalizeEmail } from '../utils/email.js'
 import { getPaymentSettings } from './paymentSettingsService.js'
+import { applyReferrerIfEligible, referralApplyErrorMessage } from './referralService.js'
 
 async function uniqueUserReferralCode() {
   for (let i = 0; i < 8; i += 1) {
@@ -68,17 +69,6 @@ export async function createStudentAccount(input: {
     if (emailTaken) throw new Error('Email already registered')
   }
 
-  let referredByUserId: string | undefined
-  let referredByCode: string | undefined
-  const ref = input.referrerCode?.trim().toUpperCase()
-  if (ref) {
-    const referrer = await AppUserModel.findOne({ referralCode: ref })
-    if (referrer) {
-      referredByUserId = String(referrer._id)
-      referredByCode = ref
-    }
-  }
-
   const status = input.membershipStatus ?? 'unpaid'
   const user = await AppUserModel.create({
     phone,
@@ -86,8 +76,6 @@ export async function createStudentAccount(input: {
     name: input.name?.trim() || undefined,
     role: 'student',
     referralCode: await uniqueUserReferralCode(),
-    referredByCode,
-    referredByUserId,
     membershipStatus: status,
     paidAt: status === 'paid' ? new Date() : undefined,
     notes: input.notes?.trim() || '',
@@ -96,13 +84,20 @@ export async function createStudentAccount(input: {
     updatedAt: new Date(),
   })
 
-  if (status === 'paid') {
-    await grantMembership(String(user._id))
-    const refreshed = await AppUserModel.findById(user._id)
-    if (refreshed) return enrichStudent(refreshed)
+  if (input.referrerCode?.trim()) {
+    const applied = await applyReferrerIfEligible(String(user._id), input.referrerCode, { phone, email })
+    if (!applied.ok) {
+      const msg = referralApplyErrorMessage(applied.reason)
+      if (msg) throw new Error(msg)
+    }
   }
 
-  return enrichStudent(user)
+  if (status === 'paid') {
+    await grantMembership(String(user._id))
+  }
+
+  const refreshed = await AppUserModel.findById(user._id)
+  return enrichStudent(refreshed ?? user)
 }
 
 export async function updateStudentAccount(

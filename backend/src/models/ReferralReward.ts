@@ -32,4 +32,6 @@ const referralRewardSchema = new Schema<ReferralRewardDocument>(
   { collection: 'referral_rewards' },
 )
 
+referralRewardSchema.index({ referredUserId: 1, status: 1 })
+
 export const ReferralRewardModel = model<ReferralRewardDocument>('ReferralReward', referralRewardSchema)

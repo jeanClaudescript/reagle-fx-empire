@@ -32,7 +32,7 @@ export function Hero() {
   return (
     <section
       id="home"
-      className="relative flex min-h-[100svh] flex-col overflow-hidden pt-[calc(3.5rem+env(safe-area-inset-top,0px))] sm:pt-[calc(4.5rem+env(safe-area-inset-top,0px))]"
+      className="relative flex min-h-0 flex-col overflow-hidden pt-[calc(3.25rem+env(safe-area-inset-top,0px))] sm:min-h-[100svh] sm:pt-[calc(4.5rem+env(safe-area-inset-top,0px))]"
     >
       <div className="hero-mesh absolute inset-0" />
       <div className="glow-orb -left-40 top-20 h-72 w-72 bg-empire-purple/20 dark:bg-empire-purple/25 sm:h-96 sm:w-96" />
@@ -52,7 +52,7 @@ export function Hero() {
         <p className="font-display text-2xl font-bold text-emerald-500">{t.hero.profitValue}</p>
       </motion.div>
 
-      <div className="section-container relative z-10 flex flex-1 flex-col justify-center py-8 sm:py-12 md:py-16">
+      <div className="section-container relative z-10 flex flex-1 flex-col justify-start py-3 sm:justify-center sm:py-12 md:py-16">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -63,17 +63,17 @@ export function Hero() {
             initial={{ opacity: 0, scale: 0.92 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.15 }}
-            className="mb-4 inline-flex items-center gap-2 rounded-full border border-theme-accent/30 bg-theme-accent/10 px-3 py-1.5 text-xs font-semibold text-theme-accent sm:mb-6 sm:px-4 sm:py-2 sm:text-sm"
+            className="mb-2 inline-flex items-center gap-1.5 rounded-full border border-theme-accent/30 bg-theme-accent/10 px-2.5 py-1 text-[10px] font-semibold text-theme-accent sm:mb-6 sm:gap-2 sm:px-4 sm:py-2 sm:text-sm"
           >
             <span className="live-dot h-1.5 w-1.5 rounded-full bg-emerald-400 sm:h-2 sm:w-2" />
             {t.hero.badge}
           </motion.span>
 
-          <h1 className="font-display text-[2rem] font-extrabold leading-[1.08] tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
+          <h1 className="font-display text-[1.55rem] font-extrabold leading-[1.1] tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
             <span className="text-gradient">{t.hero.headline}</span>
           </h1>
 
-          <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-theme-muted sm:mt-6 sm:text-lg md:text-xl">
+          <p className="mx-auto mt-2 max-w-2xl text-xs leading-snug text-theme-muted line-clamp-2 sm:mt-6 sm:line-clamp-none sm:text-lg sm:leading-relaxed md:text-xl">
             {t.hero.subheadline}
           </p>
 
@@ -86,10 +86,10 @@ export function Hero() {
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.35, duration: 0.7 }}
-            className="mx-auto mt-6 w-full max-w-lg sm:mt-8 md:max-w-2xl lg:max-w-3xl"
+            className="mx-auto mt-4 w-full max-w-lg sm:mt-8 md:max-w-2xl lg:max-w-3xl"
           >
             <LiveForexChart
-              className="h-[220px] w-full rounded-2xl sm:h-[280px] sm:rounded-3xl md:h-[320px]"
+              className="h-[180px] w-full rounded-2xl sm:h-[280px] sm:rounded-3xl md:h-[320px]"
               compact
             />
           </motion.div>

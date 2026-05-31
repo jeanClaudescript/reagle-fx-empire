@@ -46,11 +46,20 @@ export function ShareMenu({ url, text, variant = 'floating', className = '' }: S
   }
 
   const items = [
+    {
+      id: 'copy',
+      label: 'Copy website link',
+      icon: Copy,
+      onClick: async () => {
+        const ok = await copyShareLink(url, text)
+        if (ok) flash('Link copied')
+      },
+    },
     ...(canNativeShare
       ? [
           {
             id: 'native',
-            label: 'Share',
+            label: 'Share link',
             icon: Smartphone,
             onClick: async () => {
               const ok = await tryNativeShare({ url, text })
@@ -81,15 +90,6 @@ export function ShareMenu({ url, text, variant = 'floating', className = '' }: S
           flash('Copied — paste in Instagram')
           window.open(links.instagram, '_blank', 'noopener,noreferrer')
         }
-      },
-    },
-    {
-      id: 'copy',
-      label: 'Copy link',
-      icon: Copy,
-      onClick: async () => {
-        const ok = await copyShareLink(url, text)
-        if (ok) flash('Link copied')
       },
     },
   ]

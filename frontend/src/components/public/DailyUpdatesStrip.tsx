@@ -41,13 +41,13 @@ export function DailyUpdatesStrip() {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.28, duration: 0.5 }}
-        className="mx-auto mt-6 w-full max-w-2xl sm:mt-8"
+        className="mx-auto mt-3 w-full max-w-2xl sm:mt-8"
       >
-        <div className="mb-3 flex flex-col gap-0.5 px-1 sm:flex-row sm:items-center sm:justify-between sm:gap-2">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-theme-muted">
+        <div className="mb-2 flex flex-col gap-0.5 px-1 sm:mb-3 sm:flex-row sm:items-center sm:justify-between sm:gap-2">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-theme-muted sm:text-xs sm:tracking-[0.2em]">
             {t.hero.dailyUpdatesTitle}
           </p>
-          <p className="text-[11px] text-theme-muted/80">{t.hero.dailyUpdatesHint}</p>
+          <p className="text-[10px] text-theme-muted/80 sm:text-[11px]">{t.hero.dailyUpdatesHint}</p>
         </div>
 
         <div className="scrollbar-hide flex gap-3 overflow-x-auto px-1 pb-1">

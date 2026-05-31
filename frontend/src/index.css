@@ -863,16 +863,43 @@
     @apply border-white/20 text-white hover:bg-white/15;
   }
 
+  .upcoming-banner__inner {
+    @apply relative p-2.5 sm:p-5;
+  }
+
+  .upcoming-banner__overlay {
+    @apply bg-gradient-to-b from-slate-950/55 via-slate-950/20 to-slate-950/50;
+  }
+
+  @media (max-width: 639px) {
+    .upcoming-banner--media .upcoming-banner__overlay {
+      background: linear-gradient(
+        180deg,
+        rgb(2 6 23 / 0.48) 0%,
+        rgb(2 6 23 / 0.12) 42%,
+        rgb(2 6 23 / 0.38) 100%
+      );
+    }
+
+    .upcoming-banner__inner {
+      @apply p-2;
+    }
+
+    .upcoming-banner__actions {
+      @apply mt-0.5;
+    }
+  }
+
   .upcoming-banner-share.share-menu--overlay {
     @apply opacity-100;
   }
 
   .banner-countdown {
-    @apply rounded-2xl border p-3 backdrop-blur-md sm:p-4;
+    @apply rounded-xl border p-2 backdrop-blur-sm sm:rounded-2xl sm:p-4 sm:backdrop-blur-md;
   }
 
   .banner-countdown--on-media {
-    @apply border-white/15 bg-black/30;
+    @apply border-white/10 bg-black/10;
   }
 
   .banner-countdown--plain {
@@ -881,11 +908,11 @@
   }
 
   .banner-countdown--urgent {
-    @apply border-amber-400/40 shadow-[0_0_24px_rgba(251,191,36,0.15)];
+    @apply border-amber-400/30 shadow-[0_0_16px_rgba(251,191,36,0.1)];
   }
 
   .banner-countdown--on-media .banner-countdown-header {
-    @apply mb-3 flex flex-wrap items-center gap-2 text-[11px] text-white/75;
+    @apply mb-1.5 flex flex-wrap items-center gap-1.5 text-[10px] text-white/70 sm:mb-3 sm:gap-2 sm:text-[11px];
   }
 
   .banner-countdown--plain .banner-countdown-header {
@@ -893,7 +920,7 @@
   }
 
   .banner-countdown--on-media .banner-countdown-heading {
-    @apply font-semibold uppercase tracking-[0.16em] text-white/90;
+    @apply font-semibold uppercase tracking-[0.14em] text-white/85 sm:tracking-[0.16em];
   }
 
   .banner-countdown--plain .banner-countdown-heading {
@@ -901,7 +928,7 @@
   }
 
   .banner-countdown--on-media .banner-countdown-date {
-    @apply ml-auto rounded-full border border-white/15 bg-white/10 px-2 py-0.5 text-[10px] font-medium text-white/85;
+    @apply ml-auto rounded-full border border-white/10 bg-white/[0.06] px-1.5 py-0.5 text-[9px] font-medium text-white/80 sm:px-2 sm:text-[10px];
   }
 
   .banner-countdown--plain .banner-countdown-date {
@@ -910,11 +937,11 @@
   }
 
   .banner-countdown-grid {
-    @apply flex flex-wrap items-center justify-center gap-1 sm:justify-start sm:gap-1.5;
+    @apply flex flex-wrap items-center justify-start gap-0.5 sm:justify-start sm:gap-1.5;
   }
 
   .banner-countdown--on-media .banner-countdown-unit {
-    @apply flex min-w-[52px] flex-col items-center rounded-xl border border-white/15 bg-gradient-to-b from-white/10 to-white/5 px-2 py-2 sm:min-w-[58px];
+    @apply flex min-w-[40px] flex-col items-center rounded-lg border border-white/10 bg-white/[0.04] px-1.5 py-1 sm:min-w-[58px] sm:rounded-xl sm:px-2 sm:py-2;
   }
 
   .banner-countdown--plain .banner-countdown-unit {
@@ -923,15 +950,15 @@
   }
 
   .banner-countdown-unit--accent {
-    @apply border-empire-purple-glow/50 bg-gradient-to-b from-empire-purple/30 to-empire-blue/20;
+    @apply border-empire-purple-glow/35 bg-gradient-to-b from-empire-purple/15 to-empire-blue/10;
   }
 
   .banner-countdown-digit-wrap {
-    @apply relative flex h-8 w-full items-center justify-center overflow-hidden sm:h-9;
+    @apply relative flex h-6 w-full items-center justify-center overflow-hidden sm:h-9;
   }
 
   .banner-countdown--on-media .banner-countdown-digit {
-    @apply font-display text-xl font-bold tabular-nums text-white sm:text-2xl;
+    @apply font-display text-base font-bold tabular-nums text-white sm:text-2xl;
   }
 
   .banner-countdown--plain .banner-countdown-digit {
@@ -939,7 +966,7 @@
   }
 
   .banner-countdown--on-media .banner-countdown-label {
-    @apply mt-1 text-[9px] font-semibold uppercase tracking-wider text-white/65;
+    @apply mt-0.5 text-[8px] font-semibold uppercase tracking-wider text-white/60 sm:mt-1 sm:text-[9px];
   }
 
   .banner-countdown--plain .banner-countdown-label {
@@ -963,11 +990,11 @@
   }
 
   .story-bubble {
-    @apply flex w-[74px] flex-col items-center gap-1 text-center;
+    @apply flex w-[68px] flex-col items-center gap-0.5 text-center sm:w-[74px] sm:gap-1;
   }
 
   .story-bubble-ring {
-    @apply rounded-full bg-gradient-to-br from-empire-purple via-empire-blue-electric to-emerald-400 p-[2.5px];
+    @apply rounded-full bg-gradient-to-br from-empire-purple via-empire-blue-electric to-emerald-400 p-[2px] sm:p-[2.5px];
   }
 
   .story-bubble-ring--community {
@@ -975,7 +1002,7 @@
   }
 
   .story-bubble-inner {
-    @apply flex h-[62px] w-[62px] items-center justify-center overflow-hidden rounded-full border border-black/30 bg-theme-bg;
+    @apply flex h-[54px] w-[54px] items-center justify-center overflow-hidden rounded-full border border-black/30 bg-theme-bg sm:h-[62px] sm:w-[62px];
   }
 
   .story-bubble-inner--community {
