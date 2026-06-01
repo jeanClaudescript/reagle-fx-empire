@@ -525,6 +525,7 @@ export const studentApi = {
     anchor.click()
     URL.revokeObjectURL(url)
   },
+  get: (id: string) => apiFetch<{ data: StudentRecord }>(`/api/students/admin/${id}`, { admin: true }),
   create: (body: {
     name?: string
     phone?: string

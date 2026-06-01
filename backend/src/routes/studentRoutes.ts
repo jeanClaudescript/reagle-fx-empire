@@ -206,6 +206,16 @@ studentRoutes.post('/admin/create', requireAdminAuth, async (req, res, next) => 
   }
 })
 
+studentRoutes.get('/admin/:id', requireAdminAuth, async (req, res, next) => {
+  try {
+    const data = await getStudentById(req.params.id)
+    if (!data) return res.status(404).json({ error: 'Student not found' })
+    return res.json({ data })
+  } catch (error) {
+    return next(error)
+  }
+})
+
 studentRoutes.patch('/admin/:id', requireAdminAuth, async (req, res, next) => {
   try {
     const body = req.body as {

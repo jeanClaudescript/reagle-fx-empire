@@ -1,12 +1,45 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { studentApi, type StudentRecord } from '@/services/api'
 import { AdminCard } from '@/components/admin/AdminCard'
 import { useAdminToast } from '@/admin/toast'
+import { useAdminConfirm } from '@/admin/confirm'
 
 const filters = ['all', 'paid', 'unpaid'] as const
 
+function studentLabel(student: StudentRecord) {
+  return student.name || student.displayPhone || student.email || 'this student'
+}
+
+function matchesStudentSearch(student: StudentRecord, q: string) {
+  const term = q.trim().toLowerCase()
+  if (!term) return true
+  const digits = term.replace(/\D/g, '')
+  return (
+    (student.name?.toLowerCase().includes(term) ?? false) ||
+    (student.email?.toLowerCase().includes(term) ?? false) ||
+    student.referralCode.toLowerCase().includes(term) ||
+    (digits.length >= 3 &&
+      ((student.phone?.includes(digits) ?? false) ||
+        (student.displayPhone?.includes(digits) ?? false)))
+  )
+}
+
+function matchesFilter(student: StudentRecord, filter: (typeof filters)[number]) {
+  if (filter === 'all') return true
+  return student.membershipStatus === filter
+}
+
+function upsertInList(list: StudentRecord[], student: StudentRecord, include: boolean) {
+  const without = list.filter((row) => row.id !== student.id)
+  if (!include) return without
+  return [student, ...without].sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+  )
+}
+
 export function StudentsListEditor() {
   const { push } = useAdminToast()
+  const { confirm } = useAdminConfirm()
   const [items, setItems] = useState<StudentRecord[]>([])
   const [filter, setFilter] = useState<(typeof filters)[number]>('all')
   const [q, setQ] = useState('')
@@ -21,8 +54,30 @@ export function StudentsListEditor() {
     membershipStatus: 'unpaid' as 'paid' | 'unpaid',
   })
   const [saving, setSaving] = useState(false)
+  const searchReady = useRef(false)
 
-  const load = useCallback(async () => {
+  const applyStudent = useCallback(
+    (student: StudentRecord) => {
+      const include = matchesFilter(student, filter) && matchesStudentSearch(student, q)
+      setItems((prev) => upsertInList(prev, student, include))
+    },
+    [filter, q],
+  )
+
+  const removeStudent = useCallback((id: string) => {
+    setItems((prev) => prev.filter((row) => row.id !== id))
+  }, [])
+
+  const reloadQuiet = useCallback(async () => {
+    try {
+      const res = await studentApi.list({ status: filter, q })
+      setItems(res.data)
+    } catch {
+      push('Could not load students', 'error')
+    }
+  }, [filter, q, push])
+
+  const loadInitial = useCallback(async () => {
     setLoading(true)
     try {
       const res = await studentApi.list({ status: filter, q })
@@ -36,17 +91,34 @@ export function StudentsListEditor() {
   }, [filter, q, push])
 
   useEffect(() => {
-    void load()
-  }, [load])
+    void loadInitial()
+  }, [loadInitial])
+
+  useEffect(() => {
+    if (loading) return
+    if (!searchReady.current) {
+      searchReady.current = true
+      return
+    }
+    const timer = window.setTimeout(() => void reloadQuiet(), 320)
+    return () => window.clearTimeout(timer)
+  }, [q, filter, loading, reloadQuiet])
 
   const create = async () => {
     if (!form.phone.trim() && !form.email.trim()) {
       push('Enter phone and/or email', 'error')
       return
     }
+    const ok = await confirm({
+      title: 'Create student',
+      message: `Add ${form.name.trim() || form.phone.trim() || form.email.trim() || 'new student'}?`,
+      confirmLabel: 'Create',
+    })
+    if (!ok) return
+
     setSaving(true)
     try {
-      await studentApi.create({
+      const res = await studentApi.create({
         name: form.name.trim() || undefined,
         phone: form.phone.trim() || undefined,
         email: form.email.trim() || undefined,
@@ -57,13 +129,15 @@ export function StudentsListEditor() {
       push('Student account created', 'success')
       setForm({ name: '', phone: '', email: '', referrerCode: '', notes: '', membershipStatus: 'unpaid' })
       setShowCreate(false)
-      void load()
+      applyStudent(res.data)
     } catch (e) {
       push(e instanceof Error ? e.message : 'Create failed', 'error')
     } finally {
       setSaving(false)
     }
   }
+
+  const listSync = { applyStudent, removeStudent }
 
   return (
     <div className="admin-form-stack">
@@ -174,7 +248,7 @@ export function StudentsListEditor() {
                 className="w-full rounded-xl border border-theme bg-theme-elevated/60 px-3 py-2 text-sm"
               />
             </div>
-            <button type="button" className="admin-btn admin-btn--secondary" onClick={load}>
+            <button type="button" className="admin-btn admin-btn--secondary" onClick={() => void reloadQuiet()}>
               Refresh
             </button>
           </div>
@@ -190,7 +264,7 @@ export function StudentsListEditor() {
           ) : (
             <div className="flex flex-col gap-3">
               {items.map((s) => (
-                <StudentRow key={s.id} student={s} onChanged={load} />
+                <StudentRow key={s.id} student={s} sync={listSync} />
               ))}
             </div>
           )}
@@ -200,27 +274,96 @@ export function StudentsListEditor() {
   )
 }
 
-function StudentRow({ student, onChanged }: { student: StudentRecord; onChanged: () => void }) {
+type ListSync = {
+  applyStudent: (student: StudentRecord) => void
+  removeStudent: (id: string) => void
+}
+
+function StudentRow({ student, sync }: { student: StudentRecord; sync: ListSync }) {
   const { push } = useAdminToast()
+  const { confirm } = useAdminConfirm()
   const [editing, setEditing] = useState(false)
   const [name, setName] = useState(student.name ?? '')
   const [phone, setPhone] = useState(student.displayPhone ?? student.phone ?? '')
   const [email, setEmail] = useState(student.email ?? '')
   const [notes, setNotes] = useState(student.notes ?? '')
 
+  useEffect(() => {
+    setName(student.name ?? '')
+    setPhone(student.displayPhone ?? student.phone ?? '')
+    setEmail(student.email ?? '')
+    setNotes(student.notes ?? '')
+  }, [student])
+
   const save = async () => {
+    const ok = await confirm({
+      title: 'Save student',
+      message: `Save profile changes for ${studentLabel(student)}?`,
+      confirmLabel: 'Save changes',
+    })
+    if (!ok) return
     try {
-      await studentApi.update(student.id, {
+      const res = await studentApi.update(student.id, {
         name,
         phone: phone.trim() || undefined,
         email: email.trim() || undefined,
         notes,
       })
+      sync.applyStudent(res.data)
       push('Student updated', 'success')
       setEditing(false)
-      onChanged()
     } catch (e) {
       push(e instanceof Error ? e.message : 'Update failed', 'error')
+    }
+  }
+
+  const grantAccess = async () => {
+    const ok = await confirm({
+      title: 'Grant VIP access',
+      message: `Mark ${studentLabel(student)} as paid with VIP desk access?`,
+      confirmLabel: 'Grant access',
+    })
+    if (!ok) return
+    try {
+      const res = await studentApi.grantAccess(student.id)
+      sync.applyStudent(res.data)
+      push('Marked as paid', 'success')
+    } catch (e) {
+      push(e instanceof Error ? e.message : 'Failed', 'error')
+    }
+  }
+
+  const revokeAccess = async () => {
+    const ok = await confirm({
+      title: 'Revoke VIP access',
+      message: `Remove paid access for ${studentLabel(student)}?`,
+      confirmLabel: 'Revoke access',
+      variant: 'danger',
+    })
+    if (!ok) return
+    try {
+      const res = await studentApi.revokeAccess(student.id)
+      sync.applyStudent(res.data)
+      push('Marked as unpaid', 'info')
+    } catch (e) {
+      push(e instanceof Error ? e.message : 'Failed', 'error')
+    }
+  }
+
+  const removeStudent = async () => {
+    const ok = await confirm({
+      title: 'Delete student',
+      message: `Delete ${studentLabel(student)}? This cannot be undone.`,
+      confirmLabel: 'Delete student',
+      variant: 'danger',
+    })
+    if (!ok) return
+    try {
+      await studentApi.delete(student.id)
+      sync.removeStudent(student.id)
+      push('Student deleted', 'success')
+    } catch (e) {
+      push(e instanceof Error ? e.message : 'Delete failed', 'error')
     }
   }
 
@@ -261,7 +404,7 @@ function StudentRow({ student, onChanged }: { student: StudentRecord; onChanged:
       <div className="admin-student-actions w-full">
         {editing ? (
           <>
-            <button type="button" className="admin-btn admin-btn--primary" onClick={save}>
+            <button type="button" className="admin-btn admin-btn--primary" onClick={() => void save()}>
               Save
             </button>
             <button type="button" className="admin-btn admin-btn--secondary" onClick={() => setEditing(false)}>
@@ -274,53 +417,15 @@ function StudentRow({ student, onChanged }: { student: StudentRecord; onChanged:
               Edit
             </button>
             {student.membershipStatus === 'unpaid' ? (
-              <button
-                type="button"
-                className="admin-btn admin-btn--primary"
-                onClick={async () => {
-                  try {
-                    await studentApi.grantAccess(student.id)
-                    push('Marked as paid', 'success')
-                    onChanged()
-                  } catch (e) {
-                    push(e instanceof Error ? e.message : 'Failed', 'error')
-                  }
-                }}
-              >
+              <button type="button" className="admin-btn admin-btn--primary" onClick={() => void grantAccess()}>
                 Grant
               </button>
             ) : (
-              <button
-                type="button"
-                className="admin-btn admin-btn--danger"
-                onClick={async () => {
-                  try {
-                    await studentApi.revokeAccess(student.id)
-                    push('Marked as unpaid', 'info')
-                    onChanged()
-                  } catch (e) {
-                    push(e instanceof Error ? e.message : 'Failed', 'error')
-                  }
-                }}
-              >
+              <button type="button" className="admin-btn admin-btn--danger" onClick={() => void revokeAccess()}>
                 Revoke
               </button>
             )}
-            <button
-              type="button"
-              className="admin-btn admin-btn--danger"
-              onClick={async () => {
-                const label = student.name || student.displayPhone || student.email || 'this student'
-                if (!window.confirm(`Delete ${label}? This cannot be undone.`)) return
-                try {
-                  await studentApi.delete(student.id)
-                  push('Student deleted', 'success')
-                  onChanged()
-                } catch (e) {
-                  push(e instanceof Error ? e.message : 'Delete failed', 'error')
-                }
-              }}
-            >
+            <button type="button" className="admin-btn admin-btn--danger" onClick={() => void removeStudent()}>
               Delete
             </button>
           </>

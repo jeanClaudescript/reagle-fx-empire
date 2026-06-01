@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Copy,
   CreditCard,
@@ -19,6 +19,7 @@ import { programPlanLabel } from '@/utils/paymentPriceLabel'
 import { AdminCard } from '@/components/admin/AdminCard'
 import { PaymentsEditor } from '@/admin/editors/PaymentsEditor'
 import { useAdminToast } from '@/admin/toast'
+import { useAdminConfirm } from '@/admin/confirm'
 
 type Panel = 'all' | 'paid' | 'unpaid' | 'regular' | 'pending' | 'referrals'
 type ExportStatus = 'all' | 'paid' | 'unpaid' | 'regular'
@@ -46,8 +47,47 @@ function payLink(student: StudentRecord) {
   return `${window.location.origin}/pay${qs ? `?${qs}` : ''}`
 }
 
+function studentLabel(student: StudentRecord) {
+  return student.name || student.displayPhone || student.email || 'this student'
+}
+
+function isRegularStudent(student: StudentRecord) {
+  return student.membershipStatus === 'unpaid' && !student.pendingPayment && student.paymentCount === 0
+}
+
+function matchesStudentSearch(student: StudentRecord, q: string) {
+  const term = q.trim().toLowerCase()
+  if (!term) return true
+  const digits = term.replace(/\D/g, '')
+  return (
+    (student.name?.toLowerCase().includes(term) ?? false) ||
+    (student.email?.toLowerCase().includes(term) ?? false) ||
+    student.referralCode.toLowerCase().includes(term) ||
+    (digits.length >= 3 &&
+      ((student.phone?.includes(digits) ?? false) ||
+        (student.displayPhone?.includes(digits) ?? false)))
+  )
+}
+
+function sortStudentsByDate(list: StudentRecord[]) {
+  return [...list].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+}
+
+function upsertStudent(list: StudentRecord[], student: StudentRecord, include: boolean) {
+  const without = list.filter((row) => row.id !== student.id)
+  if (!include) return without
+  return sortStudentsByDate([student, ...without])
+}
+
+type StudentListSync = {
+  applyStudent: (student: StudentRecord) => void
+  removeStudent: (id: string) => void
+  refreshStats: () => Promise<void>
+}
+
 export function StudentsManageEditor() {
   const { push } = useAdminToast()
+  const { confirm } = useAdminConfirm()
   const [panel, setPanel] = useState<Panel>('all')
   const [stats, setStats] = useState<StudentStats | null>(null)
   const [allStudents, setAllStudents] = useState<StudentRecord[]>([])
@@ -71,8 +111,64 @@ export function StudentsManageEditor() {
     membershipStatus: 'unpaid',
   })
   const [saving, setSaving] = useState(false)
+  const searchReady = useRef(false)
 
-  const load = useCallback(async () => {
+  const applyStudent = useCallback(
+    (student: StudentRecord) => {
+      const isPaid = student.membershipStatus === 'paid'
+      const regular = isRegularStudent(student)
+      const unpaid = !isPaid && !regular
+      const inSearch = matchesStudentSearch(student, q)
+      setAllStudents((prev) => upsertStudent(prev, student, inSearch))
+      setPaid((prev) => upsertStudent(prev, student, isPaid && inSearch))
+      setRegular((prev) => upsertStudent(prev, student, regular && inSearch))
+      setUnpaid((prev) => upsertStudent(prev, student, unpaid && inSearch))
+    },
+    [q],
+  )
+
+  const removeStudentFromLists = useCallback((id: string) => {
+    const drop = (prev: StudentRecord[]) => prev.filter((row) => row.id !== id)
+    setAllStudents(drop)
+    setPaid(drop)
+    setRegular(drop)
+    setUnpaid(drop)
+  }, [])
+
+  const refreshStats = useCallback(async () => {
+    try {
+      const statsRes = await studentApi.getStats()
+      setStats(statsRes.data)
+    } catch {
+      /* keep previous counts */
+    }
+  }, [])
+
+  const listSync = useMemo<StudentListSync>(
+    () => ({ applyStudent, removeStudent: removeStudentFromLists, refreshStats }),
+    [applyStudent, removeStudentFromLists, refreshStats],
+  )
+
+  const reloadListsQuiet = useCallback(async () => {
+    try {
+      const [statsRes, allRes, paidRes, unpaidRes, regularRes] = await Promise.all([
+        studentApi.getStats(),
+        studentApi.list({ status: 'all', q }),
+        studentApi.list({ status: 'paid', q }),
+        studentApi.list({ status: 'unpaid', q }),
+        studentApi.list({ status: 'regular', q }),
+      ])
+      setStats(statsRes.data)
+      setAllStudents(allRes.data)
+      setPaid(paidRes.data)
+      setUnpaid(unpaidRes.data)
+      setRegular(regularRes.data)
+    } catch {
+      push('Could not refresh students', 'error')
+    }
+  }, [q, push])
+
+  const loadInitial = useCallback(async () => {
     setLoading(true)
     try {
       const [statsRes, allRes, paidRes, unpaidRes, regularRes, refRes, settingsRes] = await Promise.all([
@@ -101,8 +197,18 @@ export function StudentsManageEditor() {
   }, [q, push])
 
   useEffect(() => {
-    void load()
-  }, [load])
+    void loadInitial()
+  }, [loadInitial])
+
+  useEffect(() => {
+    if (loading) return
+    if (!searchReady.current) {
+      searchReady.current = true
+      return
+    }
+    const timer = window.setTimeout(() => void reloadListsQuiet(), 320)
+    return () => window.clearTimeout(timer)
+  }, [q, loading, reloadListsQuiet])
 
   const lateUnpaid = useMemo(
     () => unpaid.filter((s) => s.pendingPayment && daysSince(s.pendingPayment.createdAt) >= 1),
@@ -114,9 +220,16 @@ export function StudentsManageEditor() {
       push('Enter phone and/or email', 'error')
       return
     }
+    const ok = await confirm({
+      title: 'Create student',
+      message: `Add ${form.name.trim() || form.phone.trim() || form.email.trim() || 'new student'} to the database?`,
+      confirmLabel: 'Create',
+    })
+    if (!ok) return
+
     setSaving(true)
     try {
-      await studentApi.create({
+      const res = await studentApi.create({
         name: form.name.trim() || undefined,
         phone: form.phone.trim() || undefined,
         email: form.email.trim() || undefined,
@@ -127,7 +240,8 @@ export function StudentsManageEditor() {
       push('Student created', 'success')
       setForm({ name: '', phone: '', email: '', referrerCode: '', notes: '', membershipStatus: 'unpaid' })
       setShowCreate(false)
-      void load()
+      applyStudent(res.data)
+      void refreshStats()
     } catch (e) {
       push(e instanceof Error ? e.message : 'Create failed', 'error')
     } finally {
@@ -155,7 +269,6 @@ export function StudentsManageEditor() {
       })
       setPaySettings(res.data)
       push('Referral reward amount updated', 'success')
-      void load()
     } catch (e) {
       push(e instanceof Error ? e.message : 'Save failed', 'error')
     } finally {
@@ -271,7 +384,11 @@ export function StudentsManageEditor() {
                     className="w-full rounded-xl border border-theme bg-theme-elevated/60 px-3 py-2 text-sm"
                   />
                 </div>
-                <button type="button" className="admin-btn admin-btn--secondary" onClick={load}>
+                <button
+                  type="button"
+                  className="admin-btn admin-btn--secondary"
+                  onClick={() => void reloadListsQuiet()}
+                >
                   Refresh
                 </button>
               </div>
@@ -289,7 +406,7 @@ export function StudentsManageEditor() {
           emptyLabel="No students yet."
           students={allStudents}
           variant="unpaid"
-          onChanged={load}
+          sync={listSync}
           membershipDays={paySettings?.membershipDays ?? 60}
           autoTrialDays={paySettings?.autoTrialDays ?? 7}
         />
@@ -300,7 +417,7 @@ export function StudentsManageEditor() {
           emptyLabel="No regular (free) students yet."
           students={regular}
           variant="unpaid"
-          onChanged={load}
+          sync={listSync}
           membershipDays={paySettings?.membershipDays ?? 60}
           autoTrialDays={paySettings?.autoTrialDays ?? 7}
         />
@@ -311,7 +428,7 @@ export function StudentsManageEditor() {
           emptyLabel="No paid students yet."
           students={paid}
           variant="paid"
-          onChanged={load}
+          sync={listSync}
           membershipDays={paySettings?.membershipDays ?? 60}
           autoTrialDays={paySettings?.autoTrialDays ?? 7}
         />
@@ -332,7 +449,7 @@ export function StudentsManageEditor() {
             emptyLabel="No unpaid students."
             students={unpaid}
             variant="unpaid"
-            onChanged={load}
+            sync={listSync}
             membershipDays={paySettings?.membershipDays ?? 60}
             autoTrialDays={paySettings?.autoTrialDays ?? 7}
           />
@@ -542,14 +659,14 @@ function StudentList({
   students,
   variant,
   emptyLabel,
-  onChanged,
+  sync,
   membershipDays,
   autoTrialDays,
 }: {
   students: StudentRecord[]
   variant: 'paid' | 'unpaid'
   emptyLabel: string
-  onChanged: () => void
+  sync: StudentListSync
   membershipDays: number
   autoTrialDays: number
 }) {
@@ -571,7 +688,7 @@ function StudentList({
             key={s.id}
             student={s}
             variant={variant}
-            onChanged={onChanged}
+            sync={sync}
             membershipDays={membershipDays}
             autoTrialDays={autoTrialDays}
           />
@@ -582,29 +699,38 @@ function StudentList({
 }
 
 function GrantAccessPanel({
-  studentId,
+  student,
   membershipDays,
   autoTrialDays,
-  onChanged,
+  sync,
   onClose,
 }: {
-  studentId: string
+  student: StudentRecord
   membershipDays: number
   autoTrialDays: number
-  onChanged: () => void
+  sync: StudentListSync
   onClose: () => void
 }) {
   const { push } = useAdminToast()
+  const { confirm } = useAdminConfirm()
   const [customDays, setCustomDays] = useState(String(autoTrialDays || 7))
   const [busy, setBusy] = useState(false)
 
   const grant = async (days: number) => {
+    const ok = await confirm({
+      title: 'Grant VIP access',
+      message: `Give ${studentLabel(student)} ${days} day${days === 1 ? '' : 's'} of VIP desk access?`,
+      confirmLabel: `Grant ${days} days`,
+    })
+    if (!ok) return
+
     setBusy(true)
     try {
-      await studentApi.grantAccess(studentId, { days })
+      const res = await studentApi.grantAccess(student.id, { days })
       push(`Access granted for ${days} days`, 'success')
+      sync.applyStudent(res.data)
+      void sync.refreshStats()
       onClose()
-      onChanged()
     } catch (e) {
       push(e instanceof Error ? e.message : 'Failed', 'error')
     } finally {
@@ -664,17 +790,18 @@ function GrantAccessPanel({
 function StudentRow({
   student,
   variant,
-  onChanged,
+  sync,
   membershipDays,
   autoTrialDays,
 }: {
   student: StudentRecord
   variant: 'paid' | 'unpaid'
-  onChanged: () => void
+  sync: StudentListSync
   membershipDays: number
   autoTrialDays: number
 }) {
   const { push } = useAdminToast()
+  const { confirm } = useAdminConfirm()
   const [editing, setEditing] = useState(false)
   const [grantOpen, setGrantOpen] = useState(false)
   const [deleting, setDeleting] = useState(false)
@@ -683,6 +810,14 @@ function StudentRow({
   const [phone, setPhone] = useState(student.displayPhone ?? student.phone ?? '')
   const [email, setEmail] = useState(student.email ?? '')
   const [notes, setNotes] = useState(student.notes ?? '')
+
+  useEffect(() => {
+    setName(student.name ?? '')
+    setPhone(student.displayPhone ?? student.phone ?? '')
+    setEmail(student.email ?? '')
+    setNotes(student.notes ?? '')
+    setWalletEdit(String(student.walletBalance))
+  }, [student])
 
   const pending = student.pendingPayment
   const pendingDays = pending ? daysSince(pending.createdAt) : 0
@@ -698,10 +833,21 @@ function StudentRow({
 
   const approvePending = async () => {
     if (!pending) return
+    const ok = await confirm({
+      title: 'Approve payment',
+      message: `Approve ${pending.amount.toLocaleString()} ${pending.currency} for ${studentLabel(student)}? They will get VIP access.`,
+      confirmLabel: 'Approve payment',
+    })
+    if (!ok) return
     try {
-      await paymentApi.adminApprove(pending.id, pending.transactionId ? { transactionId: pending.transactionId } : undefined)
+      await paymentApi.adminApprove(
+        pending.id,
+        pending.transactionId ? { transactionId: pending.transactionId } : undefined,
+      )
+      const refreshed = await studentApi.get(student.id)
+      sync.applyStudent(refreshed.data)
+      void sync.refreshStats()
       push('Payment approved — student is now paid', 'success')
-      onChanged()
     } catch (e) {
       push(e instanceof Error ? e.message : 'Approve failed', 'error')
     }
@@ -713,40 +859,79 @@ function StudentRow({
       push('Invalid wallet amount', 'error')
       return
     }
+    const ok = await confirm({
+      title: 'Update wallet',
+      message: `Set referral wallet for ${studentLabel(student)} to ${bal.toLocaleString()}?`,
+      confirmLabel: 'Update wallet',
+    })
+    if (!ok) return
     try {
-      await studentApi.update(student.id, { walletBalance: bal })
+      const res = await studentApi.update(student.id, { walletBalance: bal })
+      sync.applyStudent(res.data)
       push('Wallet updated', 'success')
-      onChanged()
     } catch (e) {
       push(e instanceof Error ? e.message : 'Update failed', 'error')
     }
   }
 
   const saveProfile = async () => {
+    const ok = await confirm({
+      title: 'Save student',
+      message: `Save profile changes for ${studentLabel(student)}?`,
+      confirmLabel: 'Save changes',
+    })
+    if (!ok) return
     try {
-      await studentApi.update(student.id, { name, phone: phone.trim() || undefined, email: email.trim() || undefined, notes })
+      const res = await studentApi.update(student.id, {
+        name,
+        phone: phone.trim() || undefined,
+        email: email.trim() || undefined,
+        notes,
+      })
+      sync.applyStudent(res.data)
       push('Saved', 'success')
       setEditing(false)
-      onChanged()
     } catch (e) {
       push(e instanceof Error ? e.message : 'Save failed', 'error')
     }
   }
 
   const removeStudent = async () => {
-    const label = student.name || student.displayPhone || student.email || 'this student'
-    if (!window.confirm(`Delete ${label}? Sessions, payments, and progress for this account will be removed. This cannot be undone.`)) {
-      return
-    }
+    const ok = await confirm({
+      title: 'Delete student',
+      message: `Delete ${studentLabel(student)}? Sessions, payments, and lesson progress will be removed. This cannot be undone.`,
+      confirmLabel: 'Delete student',
+      variant: 'danger',
+    })
+    if (!ok) return
     setDeleting(true)
     try {
       await studentApi.delete(student.id)
+      sync.removeStudent(student.id)
+      void sync.refreshStats()
       push('Student deleted', 'success')
-      onChanged()
     } catch (e) {
       push(e instanceof Error ? e.message : 'Delete failed', 'error')
     } finally {
       setDeleting(false)
+    }
+  }
+
+  const revokeAccess = async () => {
+    const ok = await confirm({
+      title: 'Revoke VIP access',
+      message: `Remove paid access for ${studentLabel(student)}? They will return to unpaid / regular desk.`,
+      confirmLabel: 'Revoke access',
+      variant: 'danger',
+    })
+    if (!ok) return
+    try {
+      const res = await studentApi.revokeAccess(student.id)
+      sync.applyStudent(res.data)
+      void sync.refreshStats()
+      push('Access revoked — now unpaid', 'info')
+    } catch (e) {
+      push(e instanceof Error ? e.message : 'Failed', 'error')
     }
   }
 
@@ -863,19 +1048,7 @@ function StudentRow({
                 <button type="button" className="admin-btn admin-btn--secondary" onClick={saveWallet}>
                   Wallet
                 </button>
-                <button
-                  type="button"
-                  className="admin-btn admin-btn--danger"
-                  onClick={async () => {
-                    try {
-                      await studentApi.revokeAccess(student.id)
-                      push('Access revoked — now unpaid', 'info')
-                      onChanged()
-                    } catch (e) {
-                      push(e instanceof Error ? e.message : 'Failed', 'error')
-                    }
-                  }}
-                >
+                <button type="button" className="admin-btn admin-btn--danger" onClick={() => void revokeAccess()}>
                   Revoke
                 </button>
               </>
@@ -900,10 +1073,10 @@ function StudentRow({
         )}
         {grantOpen && !editing ? (
           <GrantAccessPanel
-            studentId={student.id}
+            student={student}
             membershipDays={membershipDays}
             autoTrialDays={autoTrialDays}
-            onChanged={onChanged}
+            sync={sync}
             onClose={() => setGrantOpen(false)}
           />
         ) : null}
