@@ -7,7 +7,7 @@ export function isMongoDuplicateKeyError(err: unknown): boolean {
 }
 
 const BAD_REQUEST_PREFIX =
-  /^(Invalid |Phone |Email |Daily lessons |Lesson not |This lesson |Payment not found|Only pending|Transaction ID|Amount must|Custom amounts|Payments are temporarily|Merchant phone|Default amount|Referral reward|USSD template|already registered|is required|No matching|Student not found|status must be|Media upload|No file uploaded|Cloudinary is not configured|Account already|Could not create|Wrong password|Sign in|Membership expired|Device id|Full name|You cannot use|This referral|Not signed in|Unauthorized|Classroom is not live|Open classroom)/
+  /^(Invalid |Phone |Email |Student not found|Daily lessons |Lesson not |This lesson |Payment not found|Only pending|Transaction ID|Amount must|Custom amounts|Payments are temporarily|Merchant phone|Default amount|Referral reward|USSD template|already registered|is required|No matching|Student not found|status must be|Media upload|No file uploaded|Cloudinary is not configured|Account already|Could not create|Wrong password|Sign in|Membership expired|Device id|Full name|You cannot use|This referral|Not signed in|Unauthorized|Classroom is not live|Open classroom)/
 
 /** Map internal / database errors to short messages for clients. */
 export function toUserFacingError(

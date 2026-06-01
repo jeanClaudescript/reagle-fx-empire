@@ -565,6 +565,8 @@ export const studentApi = {
       method: 'POST',
       admin: true,
     }),
+  delete: (id: string) =>
+    apiFetch<{ ok: true }>(`/api/students/admin/${id}`, { method: 'DELETE', admin: true }),
 }
 
 export const liveApi = {

@@ -1,5 +1,9 @@
 import { AppUserModel, type MembershipStatus, type ProgramPlanId } from '../models/AppUser.js'
 import { PaymentModel } from '../models/Payment.js'
+import { ReferralRewardModel } from '../models/ReferralReward.js'
+import { StudentSessionModel } from '../models/StudentSession.js'
+import { UserEducationStateModel } from '../models/UserEducationState.js'
+import { UserLessonProgressModel } from '../models/UserLessonProgress.js'
 import { generateReferenceCode } from '../utils/referenceCode.js'
 import { formatDisplayPhone, normalizeRwPhone } from '../utils/phone.js'
 import { isValidEmail, normalizeEmail } from '../utils/email.js'
@@ -395,4 +399,26 @@ export async function findUserByContact(input: { phone?: string; email?: string 
     if (byEmail) return byEmail
   }
   return null
+}
+
+export async function deleteStudentAccount(userId: string) {
+  const user = await AppUserModel.findById(userId)
+  if (!user || user.role === 'admin') throw new Error('Student not found')
+
+  await Promise.all([
+    StudentSessionModel.deleteMany({ userId }),
+    PaymentModel.deleteMany({ userId }),
+    UserLessonProgressModel.deleteMany({ userId }),
+    UserEducationStateModel.deleteMany({ userId }),
+    ReferralRewardModel.deleteMany({
+      $or: [{ referredUserId: userId }, { referrerId: userId }],
+    }),
+    AppUserModel.updateMany(
+      { referredByUserId: userId },
+      { $unset: { referredByUserId: '', referredByCode: '' } },
+    ),
+  ])
+
+  await AppUserModel.deleteOne({ _id: userId })
+  return { ok: true as const }
 }

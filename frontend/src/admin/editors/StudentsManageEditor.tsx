@@ -4,6 +4,7 @@ import {
   CreditCard,
   Download,
   Share2,
+  Trash2,
   UserPlus,
 } from 'lucide-react'
 import {
@@ -580,19 +581,20 @@ function StudentList({
   )
 }
 
-function GrantAccessControls({
+function GrantAccessPanel({
   studentId,
   membershipDays,
   autoTrialDays,
   onChanged,
+  onClose,
 }: {
   studentId: string
   membershipDays: number
   autoTrialDays: number
   onChanged: () => void
+  onClose: () => void
 }) {
   const { push } = useAdminToast()
-  const [open, setOpen] = useState(false)
   const [customDays, setCustomDays] = useState(String(autoTrialDays || 7))
   const [busy, setBusy] = useState(false)
 
@@ -601,7 +603,7 @@ function GrantAccessControls({
     try {
       await studentApi.grantAccess(studentId, { days })
       push(`Access granted for ${days} days`, 'success')
-      setOpen(false)
+      onClose()
       onChanged()
     } catch (e) {
       push(e instanceof Error ? e.message : 'Failed', 'error')
@@ -610,43 +612,36 @@ function GrantAccessControls({
     }
   }
 
-  if (!open) {
-    return (
-      <button type="button" className="admin-btn admin-btn--primary admin-btn--sm" onClick={() => setOpen(true)}>
-        Grant access
-      </button>
-    )
-  }
-
   return (
-    <div className="flex w-full flex-col gap-2 rounded-xl border border-theme bg-theme-elevated/40 p-2 lg:min-w-[14rem]">
+    <div className="mt-2 flex w-full flex-col gap-2 rounded-xl border border-theme bg-theme-elevated/40 p-3">
       <p className="text-xs font-semibold text-theme-muted">Grant VIP access</p>
-      <div className="flex flex-wrap gap-1">
+      <div className="admin-student-actions">
         {[autoTrialDays || 7, 14, 30, membershipDays].filter((d, i, a) => a.indexOf(d) === i).map((d) => (
           <button
             key={d}
             type="button"
             disabled={busy}
-            className="admin-btn admin-btn--secondary admin-btn--sm"
+            className="admin-btn admin-btn--secondary"
             onClick={() => void grant(d)}
           >
-            {d}d{d === membershipDays ? ' (paid)' : ''}
+            {d}d{d === membershipDays ? ' full' : ''}
           </button>
         ))}
       </div>
-      <div className="flex gap-1">
+      <div className="admin-student-actions">
         <input
           type="number"
           min={1}
           max={365}
           value={customDays}
           onChange={(e) => setCustomDays(e.target.value)}
-          className="w-20 rounded-lg border border-theme bg-theme-elevated/60 px-2 py-1 text-sm"
+          className="admin-student-actions__wallet flex-1"
+          aria-label="Custom days"
         />
         <button
           type="button"
           disabled={busy}
-          className="admin-btn admin-btn--primary admin-btn--sm"
+          className="admin-btn admin-btn--primary"
           onClick={() => {
             const d = Number(customDays)
             if (!Number.isFinite(d) || d < 1) {
@@ -656,10 +651,10 @@ function GrantAccessControls({
             void grant(d)
           }}
         >
-          Custom
+          Custom days
         </button>
-        <button type="button" className="admin-btn admin-btn--secondary admin-btn--sm" onClick={() => setOpen(false)}>
-          Cancel
+        <button type="button" className="admin-btn admin-btn--secondary" onClick={onClose}>
+          Close
         </button>
       </div>
     </div>
@@ -681,6 +676,8 @@ function StudentRow({
 }) {
   const { push } = useAdminToast()
   const [editing, setEditing] = useState(false)
+  const [grantOpen, setGrantOpen] = useState(false)
+  const [deleting, setDeleting] = useState(false)
   const [walletEdit, setWalletEdit] = useState(String(student.walletBalance))
   const [name, setName] = useState(student.name ?? '')
   const [phone, setPhone] = useState(student.displayPhone ?? student.phone ?? '')
@@ -736,9 +733,26 @@ function StudentRow({
     }
   }
 
+  const removeStudent = async () => {
+    const label = student.name || student.displayPhone || student.email || 'this student'
+    if (!window.confirm(`Delete ${label}? Sessions, payments, and progress for this account will be removed. This cannot be undone.`)) {
+      return
+    }
+    setDeleting(true)
+    try {
+      await studentApi.delete(student.id)
+      push('Student deleted', 'success')
+      onChanged()
+    } catch (e) {
+      push(e instanceof Error ? e.message : 'Delete failed', 'error')
+    } finally {
+      setDeleting(false)
+    }
+  }
+
   return (
     <div
-      className={`manage-student-row flex-col gap-3 lg:flex-row lg:items-start ${
+      className={`manage-student-row flex-col !items-stretch ${
         variant === 'paid' ? 'border-l-4 border-l-emerald-500/50' : 'border-l-4 border-l-amber-500/50'
       }`}
     >
@@ -806,82 +820,93 @@ function StudentRow({
           </div>
         )}
 
-        {variant === 'paid' && !editing && (
-          <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
-            <span className="text-theme-muted">Referral wallet:</span>
-            <input
-              value={walletEdit}
-              onChange={(e) => setWalletEdit(e.target.value)}
-              className="w-24 rounded-lg border border-theme bg-theme-elevated/60 px-2 py-1 font-mono text-sm"
-            />
-            <button type="button" className="admin-btn admin-btn--secondary admin-btn--sm" onClick={saveWallet}>
-              Set wallet
-            </button>
-          </div>
-        )}
       </div>
 
-      <div className="flex flex-wrap gap-2 lg:flex-col lg:items-stretch">
+      <div className="w-full">
         {editing ? (
-          <>
-            <button type="button" className="admin-btn admin-btn--primary admin-btn--sm" onClick={saveProfile}>
+          <div className="admin-student-actions">
+            <button type="button" className="admin-btn admin-btn--primary" onClick={saveProfile}>
               Save
             </button>
-            <button type="button" className="admin-btn admin-btn--secondary admin-btn--sm" onClick={() => setEditing(false)}>
+            <button type="button" className="admin-btn admin-btn--secondary" onClick={() => setEditing(false)}>
               Cancel
             </button>
-          </>
+            <button type="button" className="admin-btn admin-btn--danger" disabled={deleting} onClick={() => void removeStudent()}>
+              <Trash2 className="h-3.5 w-3.5" />
+              Delete
+            </button>
+          </div>
         ) : (
-          <>
-            <button type="button" className="admin-btn admin-btn--secondary admin-btn--sm" onClick={() => setEditing(true)}>
+          <div className="admin-student-actions">
+            <button type="button" className="admin-btn admin-btn--secondary" onClick={() => setEditing(true)}>
               Edit
             </button>
             {variant === 'unpaid' && (
-              <>
-                <button type="button" className="admin-btn admin-btn--secondary admin-btn--sm" onClick={copyPayLink}>
-                  <Copy className="h-3.5 w-3.5" />
-                  Pay link
-                </button>
-                {pending && (
-                  <button type="button" className="admin-btn admin-btn--primary admin-btn--sm" onClick={approvePending}>
-                    Approve payment
-                  </button>
-                )}
-                <GrantAccessControls
-                  studentId={student.id}
-                  membershipDays={membershipDays}
-                  autoTrialDays={autoTrialDays}
-                  onChanged={onChanged}
-                />
-              </>
-            )}
-            {variant === 'paid' && (
-              <button
-                type="button"
-                className="admin-btn admin-btn--danger admin-btn--sm"
-                onClick={async () => {
-                  try {
-                    await studentApi.revokeAccess(student.id)
-                    push('Access revoked — now unpaid', 'info')
-                    onChanged()
-                  } catch (e) {
-                    push(e instanceof Error ? e.message : 'Failed', 'error')
-                  }
-                }}
-              >
-                Revoke access
+              <button type="button" className="admin-btn admin-btn--secondary" onClick={copyPayLink}>
+                <Copy className="h-3.5 w-3.5 shrink-0" />
+                Pay link
               </button>
             )}
-            {variant === 'paid' && (
-              <GrantAccessControls
-                studentId={student.id}
-                membershipDays={membershipDays}
-                autoTrialDays={autoTrialDays}
-                onChanged={onChanged}
-              />
-            )}
-          </>
+            {variant === 'unpaid' && pending ? (
+              <button type="button" className="admin-btn admin-btn--primary" onClick={approvePending}>
+                Approve
+              </button>
+            ) : null}
+            {variant === 'paid' ? (
+              <>
+                <input
+                  value={walletEdit}
+                  onChange={(e) => setWalletEdit(e.target.value)}
+                  className="admin-student-actions__wallet"
+                  aria-label="Referral wallet"
+                />
+                <button type="button" className="admin-btn admin-btn--secondary" onClick={saveWallet}>
+                  Wallet
+                </button>
+                <button
+                  type="button"
+                  className="admin-btn admin-btn--danger"
+                  onClick={async () => {
+                    try {
+                      await studentApi.revokeAccess(student.id)
+                      push('Access revoked — now unpaid', 'info')
+                      onChanged()
+                    } catch (e) {
+                      push(e instanceof Error ? e.message : 'Failed', 'error')
+                    }
+                  }}
+                >
+                  Revoke
+                </button>
+              </>
+            ) : null}
+            <button
+              type="button"
+              className={`admin-btn ${grantOpen ? 'admin-btn--primary' : 'admin-btn--secondary'}`}
+              onClick={() => setGrantOpen((v) => !v)}
+            >
+              Grant
+            </button>
+            <button
+              type="button"
+              className="admin-btn admin-btn--danger"
+              disabled={deleting}
+              onClick={() => void removeStudent()}
+            >
+              <Trash2 className="h-3.5 w-3.5 shrink-0" />
+              Delete
+            </button>
+          </div>
         )}
+        {grantOpen && !editing ? (
+          <GrantAccessPanel
+            studentId={student.id}
+            membershipDays={membershipDays}
+            autoTrialDays={autoTrialDays}
+            onChanged={onChanged}
+            onClose={() => setGrantOpen(false)}
+          />
+        ) : null}
       </div>
     </div>
   )

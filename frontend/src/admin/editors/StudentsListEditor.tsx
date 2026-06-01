@@ -258,25 +258,25 @@ function StudentRow({ student, onChanged }: { student: StudentRecord; onChanged:
         )}
       </div>
 
-      <div className="flex flex-wrap gap-2">
+      <div className="admin-student-actions w-full">
         {editing ? (
           <>
-            <button type="button" className="admin-btn admin-btn--primary admin-btn--sm" onClick={save}>
+            <button type="button" className="admin-btn admin-btn--primary" onClick={save}>
               Save
             </button>
-            <button type="button" className="admin-btn admin-btn--secondary admin-btn--sm" onClick={() => setEditing(false)}>
+            <button type="button" className="admin-btn admin-btn--secondary" onClick={() => setEditing(false)}>
               Cancel
             </button>
           </>
         ) : (
           <>
-            <button type="button" className="admin-btn admin-btn--secondary admin-btn--sm" onClick={() => setEditing(true)}>
+            <button type="button" className="admin-btn admin-btn--secondary" onClick={() => setEditing(true)}>
               Edit
             </button>
             {student.membershipStatus === 'unpaid' ? (
               <button
                 type="button"
-                className="admin-btn admin-btn--primary admin-btn--sm"
+                className="admin-btn admin-btn--primary"
                 onClick={async () => {
                   try {
                     await studentApi.grantAccess(student.id)
@@ -287,12 +287,12 @@ function StudentRow({ student, onChanged }: { student: StudentRecord; onChanged:
                   }
                 }}
               >
-                Grant access
+                Grant
               </button>
             ) : (
               <button
                 type="button"
-                className="admin-btn admin-btn--danger admin-btn--sm"
+                className="admin-btn admin-btn--danger"
                 onClick={async () => {
                   try {
                     await studentApi.revokeAccess(student.id)
@@ -303,9 +303,26 @@ function StudentRow({ student, onChanged }: { student: StudentRecord; onChanged:
                   }
                 }}
               >
-                Revoke access
+                Revoke
               </button>
             )}
+            <button
+              type="button"
+              className="admin-btn admin-btn--danger"
+              onClick={async () => {
+                const label = student.name || student.displayPhone || student.email || 'this student'
+                if (!window.confirm(`Delete ${label}? This cannot be undone.`)) return
+                try {
+                  await studentApi.delete(student.id)
+                  push('Student deleted', 'success')
+                  onChanged()
+                } catch (e) {
+                  push(e instanceof Error ? e.message : 'Delete failed', 'error')
+                }
+              }}
+            >
+              Delete
+            </button>
           </>
         )}
       </div>

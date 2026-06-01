@@ -2036,6 +2036,18 @@
     @apply min-h-10 min-w-0 flex-1 basis-0 justify-center px-2;
   }
 
+  .admin-student-actions {
+    @apply flex w-full min-w-0 flex-row flex-nowrap items-stretch gap-2;
+  }
+
+  .admin-student-actions > .admin-btn {
+    @apply min-h-10 min-w-0 flex-1 basis-0 justify-center px-2 text-xs sm:text-sm;
+  }
+
+  .admin-student-actions__wallet {
+    @apply min-h-10 w-20 shrink-0 rounded-lg border border-theme bg-theme-elevated/60 px-2 py-1 font-mono text-sm;
+  }
+
   .manage-stat-card {
     display: flex;
     flex-direction: column;

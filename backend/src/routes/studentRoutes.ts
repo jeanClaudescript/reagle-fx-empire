@@ -18,6 +18,7 @@ import {
   getStudentById,
   markStudentPaid,
   updateStudentAccount,
+  deleteStudentAccount,
 } from '../services/studentService.js'
 import {
   membershipMetaForUser,
@@ -244,6 +245,15 @@ studentRoutes.post('/admin/:id/revoke-access', requireAdminAuth, async (req, res
     const data = await getStudentById(req.params.id)
     if (!data) return res.status(404).json({ error: 'Student not found' })
     return res.json({ ok: true, data })
+  } catch (error) {
+    return next(error)
+  }
+})
+
+studentRoutes.delete('/admin/:id', requireAdminAuth, async (req, res, next) => {
+  try {
+    await deleteStudentAccount(req.params.id)
+    return res.json({ ok: true })
   } catch (error) {
     return next(error)
   }
