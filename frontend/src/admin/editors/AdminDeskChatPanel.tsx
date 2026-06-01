@@ -8,9 +8,12 @@ import {
   emitDeskCommunityTyping,
   emitDeskDirectSend,
   emitDeskDirectTyping,
+  emitDeskRegularCommunitySend,
+  emitDeskRegularCommunityTyping,
   onCommunityMessage,
   onDirectMessage,
   onDirectTyping,
+  onRegularCommunityMessage,
   type DeskChatMessage,
 } from '@/realtime/appSocket'
 
@@ -23,8 +26,9 @@ type DirectThread = {
 }
 
 export function AdminDeskChatPanel() {
-  const [tab, setTab] = useState<'community' | 'direct'>('direct')
+  const [tab, setTab] = useState<'direct' | 'community' | 'regular'>('direct')
   const [community, setCommunity] = useState<DeskChatMessage[]>([])
+  const [regularCommunity, setRegularCommunity] = useState<DeskChatMessage[]>([])
   const [threads, setThreads] = useState<DirectThread[]>([])
   const [activeStudentId, setActiveStudentId] = useState<string | null>(null)
   const [directMessages, setDirectMessages] = useState<DeskChatMessage[]>([])
@@ -32,13 +36,30 @@ export function AdminDeskChatPanel() {
 
   useEffect(() => {
     void deskChatApi.adminCommunityList().then((res) => setCommunity(res.data))
+    void deskChatApi.adminRegularCommunityList().then((res) => setRegularCommunity(res.data))
     void deskChatApi.adminDirectThreads().then((res) => {
       setThreads(res.data as DirectThread[])
       if (res.data.length > 0) setActiveStudentId((res.data[0] as DirectThread).studentId)
     })
   }, [])
 
-  useEffect(() => onCommunityMessage((msg) => setCommunity((prev) => mergeMessage(prev, msg))), [])
+  useEffect(
+    () =>
+      onCommunityMessage((msg) => {
+        if (msg.channel !== 'vip-community') return
+        setCommunity((prev) => mergeMessage(prev, msg))
+      }),
+    [],
+  )
+
+  useEffect(
+    () =>
+      onRegularCommunityMessage((msg) => {
+        if (msg.channel !== 'regular-community') return
+        setRegularCommunity((prev) => mergeMessage(prev, msg))
+      }),
+    [],
+  )
 
   useEffect(
     () =>
@@ -96,6 +117,16 @@ export function AdminDeskChatPanel() {
     }
   }
 
+  const sendRegularCommunity = async (payload: ChatSendPayload) => {
+    try {
+      const msg = await emitDeskRegularCommunitySend(payload)
+      setRegularCommunity((prev) => mergeMessage(prev, msg))
+    } catch {
+      const res = await deskChatApi.adminRegularCommunitySend(payload)
+      setRegularCommunity((prev) => mergeMessage(prev, res.data))
+    }
+  }
+
   const sendDirect = async (payload: ChatSendPayload) => {
     if (!activeStudentId) return
     try {
@@ -126,6 +157,9 @@ export function AdminDeskChatPanel() {
         </button>
         <button type="button" className={tab === 'community' ? 'active' : ''} onClick={() => setTab('community')}>
           VIP community
+        </button>
+        <button type="button" className={tab === 'regular' ? 'active' : ''} onClick={() => setTab('regular')}>
+          Free student chat
         </button>
       </div>
 
@@ -170,7 +204,7 @@ export function AdminDeskChatPanel() {
             />
           </div>
         </div>
-      ) : (
+      ) : tab === 'community' ? (
         <div className="admin-desk-chat__panel admin-desk-chat__panel--full">
           <MessengerChat
             title="VIP community"
@@ -183,6 +217,21 @@ export function AdminDeskChatPanel() {
             onSend={sendCommunity}
             onUpload={upload}
             onTyping={emitDeskCommunityTyping}
+          />
+        </div>
+      ) : (
+        <div className="admin-desk-chat__panel admin-desk-chat__panel--full">
+          <MessengerChat
+            title="Free student community"
+            subtitle="Regular desk group chat"
+            emptyLabel="No messages from free students yet."
+            placeholder="Post to free community…"
+            messages={regularCommunity}
+            mineRole="admin"
+            groupChat
+            onSend={sendRegularCommunity}
+            onUpload={upload}
+            onTyping={emitDeskRegularCommunityTyping}
           />
         </div>
       )}

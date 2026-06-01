@@ -746,7 +746,7 @@ export const classroomApi = {
 
 export type DeskChatMessage = {
   id: string
-  channel: 'vip-community' | 'direct'
+  channel: 'vip-community' | 'regular-community' | 'direct'
   fromUserId: string
   fromUserName: string
   fromRole: 'admin' | 'student'
@@ -805,6 +805,30 @@ export const deskChatApi = {
       data: { url: string; type: 'image' | 'video' | 'voice' | 'file'; mimeType?: string; fileName?: string }
     }
   },
+  regularUpload: async (file: File) => {
+    const form = new FormData()
+    form.append('file', file)
+    const token = getStudentAuthToken()
+    if (!token) throw new Error('Sign in to upload')
+    const res = await fetch(`${API_BASE}/api/desk-chat/regular/upload`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: form,
+    })
+    if (!res.ok) throw new Error(parseApiError(await res.text(), res.status))
+    return (await res.json()) as {
+      ok: true
+      data: { url: string; type: 'image' | 'video' | 'voice' | 'file'; mimeType?: string; fileName?: string }
+    }
+  },
+  regularCommunityList: () =>
+    apiFetch<{ data: DeskChatMessage[] }>('/api/desk-chat/regular-community', { student: true }),
+  regularCommunitySend: (payload: ChatSendBody) =>
+    apiFetch<{ ok: true; data: DeskChatMessage }>('/api/desk-chat/regular-community', {
+      method: 'POST',
+      student: true,
+      body: payload,
+    }),
   communityList: () => apiFetch<{ data: DeskChatMessage[] }>('/api/desk-chat/community', { student: true }),
   communitySend: (payload: ChatSendBody) =>
     apiFetch<{ ok: true; data: DeskChatMessage }>('/api/desk-chat/community', {
@@ -823,6 +847,14 @@ export const deskChatApi = {
     apiFetch<{ ok: true; data: { readAt: string } }>('/api/desk-chat/direct/read', {
       method: 'POST',
       student: true,
+    }),
+  adminRegularCommunityList: () =>
+    apiFetch<{ data: DeskChatMessage[] }>('/api/desk-chat/admin/regular-community', { admin: true }),
+  adminRegularCommunitySend: (payload: ChatSendBody) =>
+    apiFetch<{ ok: true; data: DeskChatMessage }>('/api/desk-chat/admin/regular-community', {
+      method: 'POST',
+      admin: true,
+      body: payload,
     }),
   adminCommunityList: () =>
     apiFetch<{ data: DeskChatMessage[] }>('/api/desk-chat/admin/community', { admin: true }),

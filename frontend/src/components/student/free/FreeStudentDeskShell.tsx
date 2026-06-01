@@ -6,9 +6,11 @@ import {
   Globe,
   LogOut,
   Menu,
+  MessageCircle,
   Shield,
   Sparkles,
 } from 'lucide-react'
+import { FreeRegularCommunityChat } from '@/components/student/free/FreeRegularCommunityChat'
 import { useLanguage } from '@/context/LanguageContext'
 import { useStudentAccess } from '@/context/StudentAccessContext'
 import { VipDailyLessonPanel } from '@/components/student/vip/VipDailyLessonPanel'
@@ -20,9 +22,17 @@ import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher'
 import { ReferralShareCard } from '@/components/referral/ReferralShareCard'
 import { GlowButton } from '@/components/ui/GlowButton'
 
-type FreePanelId = 'overview' | 'daily-lessons' | 'pip' | 'position' | 'rr' | 'account'
+type FreePanelId = 'overview' | 'community-chat' | 'daily-lessons' | 'pip' | 'position' | 'rr' | 'account'
 
-const FREE_PANEL_IDS = new Set<FreePanelId>(['overview', 'daily-lessons', 'pip', 'position', 'rr', 'account'])
+const FREE_PANEL_IDS = new Set<FreePanelId>([
+  'overview',
+  'community-chat',
+  'daily-lessons',
+  'pip',
+  'position',
+  'rr',
+  'account',
+])
 
 function readPanelFromHash(): FreePanelId | null {
   const match = window.location.hash.match(/^#panel=([a-z-]+)$/)
@@ -119,6 +129,15 @@ export function FreeStudentDeskShell() {
                   <span className="text-xs text-theme-muted">{fd.dailyHint}</span>
                 </span>
               </button>
+              <button type="button" className="vip-stat-card" onClick={() => selectPanel('community-chat')}>
+                <span className="flex flex-col items-start gap-1">
+                  <span className="flex items-center gap-2">
+                    <MessageCircle className="h-5 w-5 text-theme-accent" />
+                    <span className="font-semibold text-theme-primary">{t.chat.regularCommunityTitle}</span>
+                  </span>
+                  <span className="text-xs text-theme-muted">{fd.communityHint}</span>
+                </span>
+              </button>
               <button type="button" className="vip-stat-card" onClick={() => selectPanel('pip')}>
                 <span className="flex flex-col items-start gap-1">
                   <span className="flex items-center gap-2">
@@ -129,6 +148,12 @@ export function FreeStudentDeskShell() {
                 </span>
               </button>
             </div>
+          </div>
+        )
+      case 'community-chat':
+        return (
+          <div className="vip-panel vip-panel--chat">
+            <FreeRegularCommunityChat />
           </div>
         )
       case 'daily-lessons':
@@ -190,8 +215,11 @@ export function FreeStudentDeskShell() {
     }
   }
 
+  const isChatPanel = panel === 'community-chat'
+
   const navItems: { id: FreePanelId; label: string; icon: typeof Sparkles }[] = [
     { id: 'overview', label: t.vip.navOverview, icon: Sparkles },
+    { id: 'community-chat', label: t.chat.regularCommunityNav, icon: MessageCircle },
     { id: 'daily-lessons', label: t.dailyLessons.navTitle, icon: BookOpen },
     { id: 'pip', label: t.tools.pipTitle, icon: Shield },
     { id: 'position', label: t.tools.positionTitle, icon: Shield },
@@ -223,7 +251,7 @@ export function FreeStudentDeskShell() {
   )
 
   return (
-    <div className="vip-desk">
+    <div className={`vip-desk ${isChatPanel ? 'vip-desk--chat-panel' : ''}`}>
       <header className="vip-desk__header">
         <div className="vip-desk__header-inner">
           <button
@@ -256,7 +284,7 @@ export function FreeStudentDeskShell() {
           />
         ) : null}
         <main className="vip-desk__main">
-          {panel !== 'overview' ? (
+          {panel !== 'overview' && panel !== 'community-chat' ? (
             <div className="vip-desk__panel-bar">
               <button type="button" className="vip-desk__panel-back" onClick={() => selectPanel('overview')}>
                 <ArrowLeft className="h-4 w-4" />

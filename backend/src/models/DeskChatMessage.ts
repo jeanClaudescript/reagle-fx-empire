@@ -1,7 +1,7 @@
 import { Schema, model } from 'mongoose'
 import type { ChatAttachment, ChatMessageType } from '../types/chat.js'
 
-export type DeskChatChannel = 'vip-community' | 'direct'
+export type DeskChatChannel = 'vip-community' | 'regular-community' | 'direct'
 
 export interface DeskChatMessageDocument {
   channel: DeskChatChannel
@@ -32,7 +32,7 @@ const attachmentSchema = new Schema(
 
 const deskChatMessageSchema = new Schema<DeskChatMessageDocument>(
   {
-    channel: { type: String, enum: ['vip-community', 'direct'], required: true, index: true },
+    channel: { type: String, enum: ['vip-community', 'regular-community', 'direct'], required: true, index: true },
     fromUserId: { type: String, required: true, index: true },
     fromUserName: { type: String, required: true, trim: true },
     fromRole: { type: String, enum: ['admin', 'student'], required: true },

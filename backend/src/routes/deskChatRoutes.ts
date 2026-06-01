@@ -1,16 +1,18 @@
 import { Router, type Request } from 'express'
 import multer from 'multer'
 import { requireAdminAuth } from '../middleware/requireAdminAuth.js'
+import { requireStudentAuth } from '../middleware/requireStudentAuth.js'
 import { requireVipMembership } from '../middleware/requireVipMembership.js'
 import {
   listCommunityMessages,
   listDirectThread,
   listDirectThreadsForAdmin,
+  listRegularCommunityMessages,
   markThreadRead,
   saveDeskChatMessage,
 } from '../services/deskChatService.js'
 import { isCloudinaryConfigured, uploadToCloudinary } from '../services/cloudinaryService.js'
-import { emitToDirectThread, emitToAdmins, emitToVip } from '../socket/io.js'
+import { emitToDirectThread, emitToAdmins, emitToRegular, emitToVip } from '../socket/io.js'
 import type { ChatSendPayload } from '../types/chat.js'
 
 const upload = multer({
@@ -82,10 +84,46 @@ deskChatRoutes.post('/upload', requireVipMembership, upload.single('file'), asyn
   }
 })
 
+deskChatRoutes.post('/regular/upload', requireStudentAuth, upload.single('file'), async (req, res, next) => {
+  try {
+    const attachment = await handleUpload(req as Request & { file?: Express.Multer.File })
+    return res.status(201).json({ ok: true, data: attachment })
+  } catch (error) {
+    return next(error)
+  }
+})
+
 deskChatRoutes.post('/admin/upload', requireAdminAuth, upload.single('file'), async (req, res, next) => {
   try {
     const attachment = await handleUpload(req as Request & { file?: Express.Multer.File })
     return res.status(201).json({ ok: true, data: attachment })
+  } catch (error) {
+    return next(error)
+  }
+})
+
+deskChatRoutes.get('/regular-community', requireStudentAuth, async (_req, res, next) => {
+  try {
+    const data = await listRegularCommunityMessages()
+    return res.json({ data })
+  } catch (error) {
+    return next(error)
+  }
+})
+
+deskChatRoutes.post('/regular-community', requireStudentAuth, async (req, res, next) => {
+  try {
+    const user = req.studentUser!
+    const msg = await saveDeskChatMessage({
+      channel: 'regular-community',
+      fromUserId: String(user._id),
+      fromUserName: user.name || user.phone || user.email || 'Student',
+      fromRole: 'student',
+      payload: parseSendBody(req.body),
+    })
+    emitToRegular('desk:regular-community:message', msg)
+    emitToAdmins('desk:regular-community:message', msg)
+    return res.status(201).json({ ok: true, data: msg })
   } catch (error) {
     return next(error)
   }
@@ -154,6 +192,33 @@ deskChatRoutes.post('/direct/read', requireVipMembership, async (req, res, next)
     const data = await markThreadRead(studentId, `direct:${studentId}`)
     emitToAdmins('desk:direct:read', { studentId, readAt: data.readAt })
     return res.json({ ok: true, data })
+  } catch (error) {
+    return next(error)
+  }
+})
+
+deskChatRoutes.get('/admin/regular-community', requireAdminAuth, async (_req, res, next) => {
+  try {
+    const data = await listRegularCommunityMessages()
+    return res.json({ data })
+  } catch (error) {
+    return next(error)
+  }
+})
+
+deskChatRoutes.post('/admin/regular-community', requireAdminAuth, async (req, res, next) => {
+  try {
+    const user = req.adminUser!
+    const msg = await saveDeskChatMessage({
+      channel: 'regular-community',
+      fromUserId: String(user._id),
+      fromUserName: user.name || user.email || 'Coach',
+      fromRole: 'admin',
+      payload: parseSendBody(req.body),
+    })
+    emitToRegular('desk:regular-community:message', msg)
+    emitToAdmins('desk:regular-community:message', msg)
+    return res.status(201).json({ ok: true, data: msg })
   } catch (error) {
     return next(error)
   }

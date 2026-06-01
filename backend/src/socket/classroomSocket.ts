@@ -2,7 +2,8 @@ import type { Server as HttpServer } from 'http'
 import { Server, type Socket } from 'socket.io'
 import { env } from '../config/env.js'
 import { validateAdminSession } from '../services/adminAuthService.js'
-import { validateStudentSession } from '../services/studentAuthService.js'
+import { validateRegisteredStudentSession } from '../services/studentAuthService.js'
+import { canAccessVipDesk } from '../services/membershipService.js'
 import { saveDeskChatMessage } from '../services/deskChatService.js'
 import {
   getClassroomRoom,
@@ -16,7 +17,7 @@ import {
   saveChatMessage,
   setParticipantCanSpeak,
 } from '../services/classroomService.js'
-import { emitToAdmins, emitToDirectThread, emitToVip, setIo } from './io.js'
+import { emitToAdmins, emitToDirectThread, emitToRegular, emitToVip, setIo } from './io.js'
 
 export type ClassroomSocketRole = 'teacher' | 'moderator' | 'student'
 
@@ -26,6 +27,8 @@ export type AppSocketUser = {
   id: string
   name: string
   role: AppSocketRole
+  /** Present when role is student — VIP desk + vip-community socket room */
+  isVip?: boolean
 }
 
 type SocketData = {
@@ -74,12 +77,14 @@ async function resolveAppUser(token: string | undefined, roleHint?: string): Pro
   }
 
   if (roleHint === 'student') {
-    const student = await validateStudentSession(token)
+    const student = await validateRegisteredStudentSession(token)
     if (!student) throw new Error('Unauthorized')
+    const isVip = await canAccessVipDesk(student.user)
     return {
       id: String(student.user._id),
       name: student.user.name || student.user.phone || student.user.email || 'Student',
       role: 'student',
+      isVip,
     }
   }
 
@@ -92,12 +97,14 @@ async function resolveAppUser(token: string | undefined, roleHint?: string): Pro
     }
   }
 
-  const student = await validateStudentSession(token)
+  const student = await validateRegisteredStudentSession(token)
   if (student) {
+    const isVip = await canAccessVipDesk(student.user)
     return {
       id: String(student.user._id),
       name: student.user.name || student.user.phone || student.user.email || 'Student',
       role: 'student',
+      isVip,
     }
   }
 
@@ -107,10 +114,13 @@ async function resolveAppUser(token: string | undefined, roleHint?: string): Pro
 function joinRoleRooms(socket: Socket, user: AppSocketUser) {
   if (user.role === 'admin' || user.role === 'teacher') {
     void socket.join('role:admin')
+    void socket.join('role:regular')
+    void socket.join('role:vip')
   }
   if (user.role === 'student') {
-    void socket.join('role:vip')
+    void socket.join('role:regular')
     void socket.join(`direct:${user.id}`)
+    if (user.isVip) void socket.join('role:vip')
   }
 }
 
@@ -405,11 +415,42 @@ export function initClassroomSocket(httpServer: HttpServer) {
     })
 
     socket.on(
+      'desk:regular-community:send',
+      async (payload: { message?: string; messageType?: string; attachments?: unknown[]; replyTo?: unknown }, ack?: (res: unknown) => void) => {
+        try {
+          if (data.user.role !== 'student' && data.user.role !== 'admin') {
+            throw new Error('Not allowed')
+          }
+          const msg = await saveDeskChatMessage({
+            channel: 'regular-community',
+            fromUserId: data.user.id,
+            fromUserName: data.user.name,
+            fromRole: data.user.role === 'admin' ? 'admin' : 'student',
+            payload: {
+              message: payload.message,
+              messageType: payload.messageType as import('../types/chat.js').ChatMessageType | undefined,
+              attachments: payload.attachments as import('../types/chat.js').ChatAttachment[] | undefined,
+              replyTo: payload.replyTo as import('../types/chat.js').SerializedDeskChatMessage['replyTo'],
+            },
+          })
+          emitToRegular('desk:regular-community:message', msg)
+          emitToAdmins('desk:regular-community:message', msg)
+          ack?.({ ok: true, data: msg })
+        } catch (error) {
+          ack?.({ ok: false, error: error instanceof Error ? error.message : 'Send failed' })
+        }
+      },
+    )
+
+    socket.on(
       'desk:community:send',
       async (payload: { message?: string; messageType?: string; attachments?: unknown[]; replyTo?: unknown }, ack?: (res: unknown) => void) => {
         try {
           if (data.user.role !== 'student' && data.user.role !== 'admin') {
             throw new Error('Not allowed')
+          }
+          if (data.user.role === 'student' && !data.user.isVip) {
+            throw new Error('VIP membership required')
           }
           const msg = await saveDeskChatMessage({
             channel: 'vip-community',
@@ -482,12 +523,27 @@ export function initClassroomSocket(httpServer: HttpServer) {
 
     socket.on('desk:community:typing', (payload: { typing?: boolean }) => {
       if (data.user.role !== 'student' && data.user.role !== 'admin') return
+      if (data.user.role === 'student' && !data.user.isVip) return
       emitToVip('desk:community:typing', {
         userId: data.user.id,
         userName: data.user.name,
         typing: payload?.typing !== false,
       })
       emitToAdmins('desk:community:typing', {
+        userId: data.user.id,
+        userName: data.user.name,
+        typing: payload?.typing !== false,
+      })
+    })
+
+    socket.on('desk:regular-community:typing', (payload: { typing?: boolean }) => {
+      if (data.user.role !== 'student' && data.user.role !== 'admin') return
+      emitToRegular('desk:regular-community:typing', {
+        userId: data.user.id,
+        userName: data.user.name,
+        typing: payload?.typing !== false,
+      })
+      emitToAdmins('desk:regular-community:typing', {
         userId: data.user.id,
         userName: data.user.name,
         typing: payload?.typing !== false,

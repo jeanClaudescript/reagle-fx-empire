@@ -17,9 +17,11 @@ export type ChatSendPayload = {
   replyTo?: { id: string; preview: string; fromUserName: string }
 }
 
+export type DeskChatChannel = 'vip-community' | 'regular-community' | 'direct'
+
 export type SerializedDeskChatMessage = {
   id: string
-  channel: 'vip-community' | 'direct'
+  channel: DeskChatChannel
   fromUserId: string
   fromUserName: string
   fromRole: 'admin' | 'student'

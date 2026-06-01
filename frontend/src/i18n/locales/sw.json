@@ -446,7 +446,8 @@
     "dailyHint": "Somo la leo na maendeleo",
     "toolsHint": "Kalkulator za hatari na ukubwa",
     "accountFreeNote": "Akaunti ya bure — VIP inafunguka baada ya malipo.",
-    "traderFallback": "Mwanafunzi"
+    "traderFallback": "Mwanafunzi",
+    "communityHint": "Maandishi, picha, sauti na video na wanafunzi wengine wa bure"
   },
   "contact": {
     "label": "Wasiliana",
@@ -674,6 +675,11 @@
     "communityLoading": "Inapakia gumzo…",
     "communityEmpty": "Hakuna ujumbe bado. Anzisha mazungumzo.",
     "communityPlaceholder": "Tuma ujumbe kwa jamii ya VIP…",
+    "regularCommunityNav": "Gumzo la jamii",
+    "regularCommunityTitle": "Jamii ya wanafunzi",
+    "regularCommunitySubtitle": "Ongea na wanafunzi wengine wa bure — mawazo na chati.",
+    "regularCommunityEmpty": "Hakuna ujumbe bado. Salimia jamii.",
+    "regularCommunityPlaceholder": "Ujumbe…",
     "sendAria": "Tuma ujumbe"
   },
   "languages": {

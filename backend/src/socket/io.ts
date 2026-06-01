@@ -22,6 +22,10 @@ export function emitToVip(event: string, payload: unknown) {
   io?.to('role:vip').emit(event, payload)
 }
 
+export function emitToRegular(event: string, payload: unknown) {
+  io?.to('role:regular').emit(event, payload)
+}
+
 export function emitToDirectThread(studentId: string, event: string, payload: unknown) {
   io?.to(`direct:${studentId}`).emit(event, payload)
 }

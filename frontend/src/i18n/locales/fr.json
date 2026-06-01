@@ -446,7 +446,8 @@
     "dailyHint": "Leçon du jour et progression",
     "toolsHint": "Calculateurs risque et taille",
     "accountFreeNote": "Compte gratuit — le VIP s'ouvre après paiement.",
-    "traderFallback": "Étudiant"
+    "traderFallback": "Étudiant",
+    "communityHint": "Texte, photos, vocal et vidéo avec les autres étudiants gratuits"
   },
   "contact": {
     "label": "Contactez-nous",
@@ -674,6 +675,11 @@
     "communityLoading": "Chargement du chat…",
     "communityEmpty": "Pas encore de messages. Lancez la conversation.",
     "communityPlaceholder": "Message à la communauté VIP…",
+    "regularCommunityNav": "Chat communauté",
+    "regularCommunityTitle": "Communauté étudiants",
+    "regularCommunitySubtitle": "Échangez avec les autres étudiants gratuits.",
+    "regularCommunityEmpty": "Pas encore de messages. Dites bonjour.",
+    "regularCommunityPlaceholder": "Message…",
     "sendAria": "Envoyer le message"
   },
   "languages": {

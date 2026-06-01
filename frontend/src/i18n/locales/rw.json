@@ -446,7 +446,8 @@
     "dailyHint": "Isomo ry'uyu munsi n'iterambere",
     "toolsHint": "Ibikoresho byo kubara risk",
     "accountFreeNote": "Konti y'ubuntu — VIP ifungura nyuma yo kwishyura.",
-    "traderFallback": "Umunyeshuri"
+    "traderFallback": "Umunyeshuri",
+    "communityHint": "Andika, ifoto, ijwi n'amashusho n'abandi banyeshuri ku buntu"
   },
   "contact": {
     "label": "Twandikire",
@@ -674,6 +675,11 @@
     "communityLoading": "Gutegura chat…",
     "communityEmpty": "Nta butumwa buhari. Tangira ikiganiro.",
     "communityPlaceholder": "Ohereza chat y'abanyamuryango ba VIP…",
+    "regularCommunityNav": "Chat y'umuryango",
+    "regularCommunityTitle": "Umuryango w'abanyeshuri",
+    "regularCommunitySubtitle": "Ganira n'abandi banyeshuri ku buntu — ibitekerezo n'ibishushanyo.",
+    "regularCommunityEmpty": "Nta butumwa buhari. Vuga mwaramutse.",
+    "regularCommunityPlaceholder": "Andika ubutumwa…",
     "sendAria": "Ohereza ubutumwa"
   },
   "languages": {

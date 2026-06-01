@@ -463,6 +463,7 @@ export interface Translations {
     toolsHint: string
     accountFreeNote: string
     traderFallback: string
+    communityHint: string
   }
   mobile: {
     joinWhatsapp: string
@@ -676,6 +677,11 @@ export interface Translations {
     communityLoading: string
     communityEmpty: string
     communityPlaceholder: string
+    regularCommunityNav: string
+    regularCommunityTitle: string
+    regularCommunitySubtitle: string
+    regularCommunityEmpty: string
+    regularCommunityPlaceholder: string
     sendAria: string
   }
   languages: {

@@ -39,6 +39,13 @@ export async function listCommunityMessages(limit = 120) {
   return rows.reverse().map(serialize)
 }
 
+export async function listRegularCommunityMessages(limit = 120) {
+  const rows = await DeskChatMessageModel.find({ channel: 'regular-community' })
+    .sort({ createdAt: -1 })
+    .limit(limit)
+  return rows.reverse().map(serialize)
+}
+
 export async function listDirectThread(studentId: string, limit = 120) {
   const rows = await DeskChatMessageModel.find({
     channel: 'direct',
@@ -88,7 +95,7 @@ function resolveMessageType(payload: ChatSendPayload): SerializedDeskChatMessage
 }
 
 export async function saveDeskChatMessage(input: {
-  channel: 'vip-community' | 'direct'
+  channel: 'vip-community' | 'regular-community' | 'direct'
   fromUserId: string
   fromUserName: string
   fromRole: 'admin' | 'student'

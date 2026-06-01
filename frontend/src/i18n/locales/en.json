@@ -445,7 +445,8 @@
     "dailyHint": "Today's lesson & progress",
     "toolsHint": "Risk & sizing calculators",
     "accountFreeNote": "Free account — VIP features unlock after payment.",
-    "traderFallback": "Student"
+    "traderFallback": "Student",
+    "communityHint": "Text, photos, voice & video with other free students"
   },
   "contact": {
     "label": "Get In Touch",
@@ -673,6 +674,11 @@
     "communityLoading": "Loading chat…",
     "communityEmpty": "No messages yet. Start the conversation.",
     "communityPlaceholder": "Message the VIP community…",
+    "regularCommunityNav": "Community chat",
+    "regularCommunityTitle": "Student community",
+    "regularCommunitySubtitle": "Chat with other free students — share ideas, charts & motivation.",
+    "regularCommunityEmpty": "No messages yet. Say hello to the community.",
+    "regularCommunityPlaceholder": "Message…",
     "sendAria": "Send message"
   },
   "languages": {

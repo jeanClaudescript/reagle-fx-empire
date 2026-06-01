@@ -5,7 +5,7 @@ import { getStudentAuthToken } from '@/student/studentSession'
 
 export type DeskChatMessage = {
   id: string
-  channel: 'vip-community' | 'direct'
+  channel: 'vip-community' | 'regular-community' | 'direct'
   fromUserId: string
   fromUserName: string
   fromRole: 'admin' | 'student'
@@ -88,6 +88,7 @@ export function resolvePreferredAppSocketRole(): 'guest' | 'admin' | 'student' |
 }
 
 const communityHandlers = new Set<(msg: DeskChatMessage) => void>()
+const regularCommunityHandlers = new Set<(msg: DeskChatMessage) => void>()
 const directHandlers = new Set<(msg: DeskChatMessage) => void>()
 const inboxHandlers = new Set<(msg: InboxMessage) => void>()
 const cmsHandlers = new Set<(payload: CmsPublishedPayload) => void>()
@@ -95,6 +96,7 @@ const liveHandlers = new Set<(payload: LiveUpdatedPayload) => void>()
 const classroomHandlers = new Set<(payload: ClassroomUpdatedPayload) => void>()
 const engagementHandlers = new Set<(payload: EngagementNotificationPayload) => void>()
 const communityTypingHandlers = new Set<(payload: TypingPayload) => void>()
+const regularCommunityTypingHandlers = new Set<(payload: TypingPayload) => void>()
 const directTypingHandlers = new Set<(payload: TypingPayload) => void>()
 const directReadHandlers = new Set<(payload: { studentId: string; readAt: string }) => void>()
 
@@ -111,6 +113,9 @@ function socketUrl() {
 function attachCoreListeners(s: Socket) {
   s.on('desk:community:message', (msg: DeskChatMessage) => {
     communityHandlers.forEach((h) => h(msg))
+  })
+  s.on('desk:regular-community:message', (msg: DeskChatMessage) => {
+    regularCommunityHandlers.forEach((h) => h(msg))
   })
   s.on('desk:direct:message', (msg: DeskChatMessage) => {
     directHandlers.forEach((h) => h(msg))
@@ -132,6 +137,9 @@ function attachCoreListeners(s: Socket) {
   })
   s.on('desk:community:typing', (payload: TypingPayload) => {
     communityTypingHandlers.forEach((h) => h(payload))
+  })
+  s.on('desk:regular-community:typing', (payload: TypingPayload) => {
+    regularCommunityTypingHandlers.forEach((h) => h(payload))
   })
   s.on('desk:direct:typing', (payload: TypingPayload) => {
     directTypingHandlers.forEach((h) => h(payload))
@@ -181,6 +189,13 @@ export function onCommunityMessage(handler: (msg: DeskChatMessage) => void) {
   communityHandlers.add(handler)
   return () => {
     communityHandlers.delete(handler)
+  }
+}
+
+export function onRegularCommunityMessage(handler: (msg: DeskChatMessage) => void) {
+  regularCommunityHandlers.add(handler)
+  return () => {
+    regularCommunityHandlers.delete(handler)
   }
 }
 
@@ -258,6 +273,24 @@ export function emitDeskCommunityTyping(typing: boolean) {
   socket?.emit('desk:community:typing', { typing })
 }
 
+export function emitDeskRegularCommunitySend(payload: ChatSendPayload | string) {
+  const body = typeof payload === 'string' ? { message: payload } : payload
+  return new Promise<DeskChatMessage>((resolve, reject) => {
+    if (!socket) {
+      reject(new Error('Not connected'))
+      return
+    }
+    socket.emit('desk:regular-community:send', body, (res: { ok: boolean; data?: DeskChatMessage; error?: string }) => {
+      if (res?.ok && res.data) resolve(res.data)
+      else reject(new Error(res?.error ?? 'Send failed'))
+    })
+  })
+}
+
+export function emitDeskRegularCommunityTyping(typing: boolean) {
+  socket?.emit('desk:regular-community:typing', { typing })
+}
+
 export function emitDeskDirectTyping(typing: boolean, toUserId?: string) {
   socket?.emit('desk:direct:typing', { typing, toUserId })
 }
@@ -266,6 +299,13 @@ export function onCommunityTyping(handler: (payload: TypingPayload) => void) {
   communityTypingHandlers.add(handler)
   return () => {
     communityTypingHandlers.delete(handler)
+  }
+}
+
+export function onRegularCommunityTyping(handler: (payload: TypingPayload) => void) {
+  regularCommunityTypingHandlers.add(handler)
+  return () => {
+    regularCommunityTypingHandlers.delete(handler)
   }
 }
 
