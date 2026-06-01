@@ -19,17 +19,23 @@ export function VipBooksSection() {
   if (!isPaid || !isSectionEnabled(active, 'books') || !hasBooks) return null
 
   return (
-    <section id="vip-books" className="border-t border-theme bg-theme-bg section-pad">
-      <div className="section-container">
-        <div className="mb-8 flex items-center gap-3">
-          <BookOpen className="h-6 w-6 text-theme-accent" />
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-theme-accent">{t.books.label}</p>
-            <h2 className="font-display text-2xl font-bold text-theme-primary sm:text-3xl">{t.books.title}</h2>
-            <p className="mt-1 text-sm text-theme-muted">{t.books.subtitle}</p>
+    <section id="vip-books" className="ps-section">
+      <div className="ps-section__inner">
+        <div className="ps-section__head">
+          <div className="flex items-start gap-3">
+            <span className="ps-hub-card__icon ps-hub-card__icon--amber">
+              <BookOpen className="h-5 w-5" />
+            </span>
+            <div>
+              <p className="ps-hub-hero__eyebrow">{t.books.label}</p>
+              <h2 className="ps-hub-hero__title">{t.books.title}</h2>
+              <p className="ps-hub-hero__desc mt-1">{t.books.subtitle}</p>
+            </div>
           </div>
         </div>
-        <VipBooksPanel />
+        <div className="ps-surface-card p-4 sm:p-6">
+          <VipBooksPanel />
+        </div>
       </div>
     </section>
   )

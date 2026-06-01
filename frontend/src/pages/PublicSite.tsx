@@ -42,7 +42,7 @@ export function PublicSite({
   }, [previewMode, setPreviewLock, setRenderSource])
 
   return (
-    <div className="relative min-h-screen overflow-x-hidden bg-theme-bg text-theme-muted transition-colors duration-500">
+    <div className="premium-site relative min-h-screen overflow-x-hidden bg-theme-bg text-theme-muted transition-colors duration-500">
       <Navbar />
       <main className="pb-20 sm:pb-0">
         <Hero />

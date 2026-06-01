@@ -83,11 +83,10 @@ export function VipOverviewPanel({ onNavigate }: { onNavigate: (id: VipPanelId) 
 
   return (
     <div className="vip-overview">
-      <div className="vip-overview__hero vip-overview__hero--compact">
-        <p className="text-sm text-theme-muted">{t.vip.welcome}</p>
-        <h2 className="mt-0.5 font-display text-xl font-bold text-theme-primary sm:text-2xl">
-          {contact?.name || t.vip.traderFallback}
-        </h2>
+      <div className="vip-overview__hero vip-overview__hero--compact relative">
+        <p className="ps-hub-hero__eyebrow">{t.vip.badge}</p>
+        <p className="mt-1 text-sm text-theme-muted">{t.vip.welcome}</p>
+        <h2 className="ps-hub-hero__title mt-0.5">{contact?.name || t.vip.traderFallback}</h2>
       </div>
 
       <VipNextActions onNavigate={onNavigate} />

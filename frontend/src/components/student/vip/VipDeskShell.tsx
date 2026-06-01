@@ -619,6 +619,10 @@ function VipDeskShellInner() {
 
   return (
     <div className={`vip-desk ${isChatPanel ? 'vip-desk--chat-panel' : ''}`}>
+      <div className="vip-desk__bg" aria-hidden>
+        <span className="vip-desk__bg-orb vip-desk__bg-orb--purple" />
+        <span className="vip-desk__bg-orb vip-desk__bg-orb--blue" />
+      </div>
       <header className="vip-desk__header">
         <div className="vip-desk__header-inner">
           <button

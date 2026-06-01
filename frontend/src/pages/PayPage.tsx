@@ -4,7 +4,7 @@ import { PaymentFlow } from '@/components/payment/PaymentFlow'
 
 export function PayPage() {
   return (
-    <div className="pay-page-bg text-theme-muted">
+    <div className="premium-site pay-page-bg text-theme-muted">
       <Navbar />
       <main className="section-container relative py-20 md:py-24">
         <PaymentFlow />

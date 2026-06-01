@@ -105,11 +105,10 @@ export function FreeStudentDeskShell() {
       case 'overview':
         return (
           <div className="vip-overview">
-            <div className="vip-overview__hero vip-overview__hero--compact">
-              <p className="text-sm text-theme-muted">{t.vip.welcome}</p>
-              <h2 className="mt-0.5 font-display text-xl font-bold text-theme-primary sm:text-2xl">
-                {displayName}
-              </h2>
+            <div className="vip-overview__hero vip-overview__hero--compact relative">
+              <p className="ps-hub-hero__eyebrow">{fd.badge}</p>
+              <p className="mt-1 text-sm text-theme-muted">{t.vip.welcome}</p>
+              <h2 className="ps-hub-hero__title mt-0.5">{displayName}</h2>
             </div>
             <p className="mt-2 text-sm text-theme-muted">{fd.overviewSubtitle}</p>
             <div className="mt-6 rounded-2xl border border-theme-accent/30 bg-theme-accent/10 p-5">
@@ -258,6 +257,10 @@ export function FreeStudentDeskShell() {
 
   return (
     <div className={`vip-desk ${isChatPanel ? 'vip-desk--chat-panel' : ''}`}>
+      <div className="vip-desk__bg" aria-hidden>
+        <span className="vip-desk__bg-orb vip-desk__bg-orb--purple" />
+        <span className="vip-desk__bg-orb vip-desk__bg-orb--blue" />
+      </div>
       <header className="vip-desk__header">
         <div className="vip-desk__header-inner">
           <button
