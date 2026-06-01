@@ -3,6 +3,7 @@ import mongoose, { Schema, type Document, type Types } from 'mongoose'
 export interface EducationLessonDocument extends Document {
   bookId: Types.ObjectId
   title: string
+  subtitle?: string
   content: string
   aiContent?: string
   aiQuiz?: { question: string; options: string[]; answerIndex: number }[]
@@ -17,6 +18,7 @@ const educationLessonSchema = new Schema<EducationLessonDocument>(
   {
     bookId: { type: Schema.Types.ObjectId, ref: 'EducationBook', required: true, index: true },
     title: { type: String, required: true, trim: true },
+    subtitle: { type: String, trim: true },
     content: { type: String, required: true },
     aiContent: { type: String },
     aiQuiz: [

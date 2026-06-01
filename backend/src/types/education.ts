@@ -29,6 +29,7 @@ export type SerializedEducationLesson = {
   bookId: string
   bookTitle?: string
   title: string
+  subtitle?: string
   content: string
   aiContent?: string
   aiQuiz?: { question: string; options: string[]; answerIndex: number }[]
@@ -46,6 +47,8 @@ export type SerializedUserEducationState = {
   currentDayIndex: number
 }
 
+export type LessonEmptyReason = 'disabled' | 'no_books' | 'no_lessons' | 'finished'
+
 export type SerializedTodayLesson = {
   date: string
   dayIndex: number
@@ -54,6 +57,15 @@ export type SerializedTodayLesson = {
   completed: boolean
   aiMode: boolean
   streakCount: number
+  emptyReason?: LessonEmptyReason
+}
+
+export type SerializedLessonHistoryItem = {
+  dayIndex: number
+  assignedDate: string
+  completed: boolean
+  lesson: SerializedEducationLesson
+  book: SerializedEducationBook
 }
 
 export type SerializedBookProgress = {

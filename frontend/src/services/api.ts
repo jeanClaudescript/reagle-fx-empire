@@ -1098,11 +1098,14 @@ export type EducationBook = {
   updatedAt: string
 }
 
+export type LessonEmptyReason = 'disabled' | 'no_books' | 'no_lessons' | 'finished'
+
 export type EducationLesson = {
   id: string
   bookId: string
   bookTitle?: string
   title: string
+  subtitle?: string
   content: string
   aiContent?: string
   aiQuiz?: { question: string; options: string[]; answerIndex: number }[]
@@ -1129,6 +1132,15 @@ export type TodayLessonPayload = {
   completed: boolean
   aiMode: boolean
   streakCount: number
+  emptyReason?: LessonEmptyReason
+}
+
+export type LessonHistoryItem = {
+  dayIndex: number
+  assignedDate: string
+  completed: boolean
+  lesson: EducationLesson
+  book: EducationBook
 }
 
 export type EducationProgress = {
@@ -1208,6 +1220,12 @@ export const educationApi = {
       }[]
     }>('/api/education/admin/user-progress', { admin: true }),
   todayLesson: () => apiFetch<{ data: TodayLessonPayload }>('/api/education/today-lesson', { student: true }),
+  lessonHistory: () =>
+    apiFetch<{ data: LessonHistoryItem[] }>('/api/education/lesson-history', { student: true }),
+  lessonForDay: (dayIndex: number) =>
+    apiFetch<{
+      data: TodayLessonPayload & { lesson: EducationLesson; book: EducationBook; completed: boolean }
+    }>(`/api/education/lesson/${dayIndex}`, { student: true }),
   completeLesson: (lessonId: string) =>
     apiFetch<{ ok: true; data: { streakCount: number; totalCompleted: number } }>(
       '/api/education/complete-lesson',

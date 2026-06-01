@@ -17,6 +17,8 @@ import {
   updateEducationBook,
   updateEducationSettings,
   uploadEducationBook,
+  getLessonForDay,
+  listLessonHistory,
 } from '../services/educationService.js'
 import { isGeminiConfigured } from '../services/geminiService.js'
 
@@ -166,6 +168,25 @@ educationRoutes.get('/admin/user-progress', requireAdminAuth, async (_req, res, 
 educationRoutes.get('/today-lesson', requireStudentAuth, async (req, res, next) => {
   try {
     const data = await getOrAssignTodayLesson(String(req.studentUser!._id))
+    res.json({ data })
+  } catch (error) {
+    next(error)
+  }
+})
+
+educationRoutes.get('/lesson-history', requireStudentAuth, async (req, res, next) => {
+  try {
+    const data = await listLessonHistory(String(req.studentUser!._id))
+    res.json({ data })
+  } catch (error) {
+    next(error)
+  }
+})
+
+educationRoutes.get('/lesson/:dayIndex', requireStudentAuth, async (req, res, next) => {
+  try {
+    const dayIndex = Number(req.params.dayIndex)
+    const data = await getLessonForDay(String(req.studentUser!._id), dayIndex)
     res.json({ data })
   } catch (error) {
     next(error)

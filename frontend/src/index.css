@@ -5858,6 +5858,26 @@
   @apply mb-4 flex gap-3;
 }
 
+.vip-lesson-card__subtitle {
+  @apply mt-1 text-sm leading-snug text-theme-muted;
+}
+
+.vip-lesson-history__list {
+  @apply flex flex-col gap-2;
+}
+
+.vip-lesson-history__item {
+  @apply flex w-full items-start gap-3 rounded-xl border border-theme bg-theme-surface/30 p-3 text-left transition hover:border-theme-accent/40;
+}
+
+.vip-lesson-history__subtitle {
+  @apply mt-0.5 line-clamp-2 text-xs text-theme-muted;
+}
+
+.vip-lesson-history__done {
+  @apply shrink-0 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-emerald-400;
+}
+
 .vip-lesson-content {
   @apply max-h-[50vh] overflow-y-auto rounded-xl border border-theme bg-theme-elevated/30 p-4;
 }

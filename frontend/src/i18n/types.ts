@@ -607,9 +607,18 @@ export interface Translations {
     title: string
     navTitle: string
     todayTab: string
+    historyTab: string
     progressTab: string
     loading: string
+    loadError: string
+    retry: string
     noLesson: string
+    emptyDisabled: string
+    emptyNoBooks: string
+    emptyFinished: string
+    noHistory: string
+    backToList: string
+    doneBadge: string
     markComplete: string
     completing: string
     completed: string

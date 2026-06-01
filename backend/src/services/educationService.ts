@@ -10,8 +10,10 @@ import type {
   EducationSettingsData,
   SerializedEducationBook,
   SerializedEducationLesson,
+  SerializedLessonHistoryItem,
   SerializedTodayLesson,
   SerializedUserProgress,
+  LessonEmptyReason,
 } from '../types/education.js'
 import { extractBookText, fetchBookBuffer } from './bookTextExtractor.js'
 import { generateLessonsFromText } from './lessonGeneratorService.js'
@@ -53,16 +55,30 @@ export function serializeBook(doc: EducationBookDocument): SerializedEducationBo
   }
 }
 
+function lessonSubtitle(
+  doc: EducationLessonDocument,
+  book?: { title?: string; description?: string },
+): string | undefined {
+  const raw = doc.subtitle?.trim() || doc.chapterTitle?.trim()
+  if (raw) return raw
+  if (book?.description?.trim()) return book.description.trim().slice(0, 160)
+  if (book?.title) return `From ${book.title}`
+  return undefined
+}
+
 export function serializeLesson(
   doc: EducationLessonDocument,
   bookTitle?: string,
   aiMode = false,
+  bookMeta?: { title?: string; description?: string },
 ): SerializedEducationLesson {
+  const book = bookMeta ?? (bookTitle ? { title: bookTitle } : undefined)
   return {
     id: String(doc._id),
     bookId: String(doc.bookId),
-    bookTitle,
+    bookTitle: bookTitle ?? book?.title,
     title: doc.title,
+    subtitle: lessonSubtitle(doc, book),
     content: aiMode && doc.aiContent ? doc.aiContent : doc.content,
     aiContent: doc.aiContent,
     aiQuiz: aiMode ? doc.aiQuiz : undefined,
@@ -216,6 +232,7 @@ export async function generateLessonsForBook(bookId: string, settingsOverride?: 
     await EducationLessonModel.create({
       bookId: book._id,
       title: chunk.title,
+      subtitle: chunk.chapterTitle?.trim() || `Day ${i + 1} · ${book.title}`,
       content: chunk.content,
       aiContent,
       aiQuiz,
@@ -267,6 +284,44 @@ export function resolveLessonForDayIndex(
   return null
 }
 
+async function loadLessonFromProgress(
+  progress: { lessonId: Types.ObjectId; bookId: Types.ObjectId; completed: boolean },
+  settings: EducationSettingsData,
+) {
+  const [lesson, book] = await Promise.all([
+    EducationLessonModel.findById(progress.lessonId),
+    EducationBookModel.findById(progress.bookId),
+  ])
+  if (!lesson || !book) return null
+  return {
+    lesson: serializeLesson(lesson, book.title, settings.aiMode, {
+      title: book.title,
+      description: book.description,
+    }),
+    book: serializeBook(book),
+    completed: progress.completed,
+  }
+}
+
+function emptyTodayPayload(
+  state: { streakCount: number },
+  today: string,
+  dayIndex: number,
+  settings: EducationSettingsData,
+  emptyReason: LessonEmptyReason,
+): SerializedTodayLesson {
+  return {
+    date: today,
+    dayIndex,
+    lesson: null,
+    book: null,
+    completed: false,
+    aiMode: settings.aiMode,
+    streakCount: state.streakCount,
+    emptyReason,
+  }
+}
+
 async function ensureUserState(userId: string | Types.ObjectId) {
   let state = await UserEducationStateModel.findOne({ userId })
   if (!state) {
@@ -283,39 +338,49 @@ async function ensureUserState(userId: string | Types.ObjectId) {
 
 export async function getOrAssignTodayLesson(userId: string) {
   const settings = await getEducationSettings()
-  if (!settings.enabled) {
-    return {
-      date: formatDate(new Date()),
-      dayIndex: 0,
-      lesson: null,
-      book: null,
-      completed: false,
-      aiMode: settings.aiMode,
-      streakCount: 0,
-    } satisfies SerializedTodayLesson
-  }
-
   const state = await ensureUserState(userId)
   const today = formatDate(new Date())
   const startDate = formatDate(state.startedAt)
   const dayIndex = daysBetween(startDate, today)
 
-  const { books, byBook } = await getActiveBooksWithLessons()
-  const resolved = resolveLessonForDayIndex(dayIndex, books, byBook)
-
-  if (!resolved) {
-    return {
-      date: today,
-      dayIndex,
-      lesson: null,
-      book: null,
-      completed: false,
-      aiMode: settings.aiMode,
-      streakCount: state.streakCount,
-    } satisfies SerializedTodayLesson
+  if (!settings.enabled) {
+    return emptyTodayPayload(state, today, dayIndex, settings, 'disabled')
   }
 
-  let progress = await UserLessonProgressModel.findOne({ userId, dayIndex })
+  const { books, byBook } = await getActiveBooksWithLessons()
+  const totalLessons = [...byBook.values()].reduce((n, list) => n + list.length, 0)
+
+  if (!books.length) {
+    return emptyTodayPayload(state, today, dayIndex, settings, 'no_books')
+  }
+  if (totalLessons === 0) {
+    return emptyTodayPayload(state, today, dayIndex, settings, 'no_lessons')
+  }
+
+  let progress =
+    (await UserLessonProgressModel.findOne({ userId, assignedDate: today })) ??
+    (await UserLessonProgressModel.findOne({ userId, dayIndex }))
+
+  if (progress) {
+    const loaded = await loadLessonFromProgress(progress, settings)
+    if (loaded) {
+      return {
+        date: today,
+        dayIndex: progress.dayIndex,
+        lesson: loaded.lesson,
+        book: loaded.book,
+        completed: loaded.completed,
+        aiMode: settings.aiMode,
+        streakCount: state.streakCount,
+      } satisfies SerializedTodayLesson
+    }
+  }
+
+  const resolved = resolveLessonForDayIndex(dayIndex, books, byBook)
+  if (!resolved) {
+    return emptyTodayPayload(state, today, dayIndex, settings, 'finished')
+  }
+
   if (!progress) {
     progress = await UserLessonProgressModel.create({
       userId,
@@ -330,17 +395,116 @@ export async function getOrAssignTodayLesson(userId: string) {
     await state.save()
   }
 
-  const completed = progress.completed
+  return {
+    date: today,
+    dayIndex,
+    lesson: serializeLesson(resolved.lesson, resolved.book.title, settings.aiMode, {
+      title: resolved.book.title,
+      description: resolved.book.description,
+    }),
+    book: serializeBook(resolved.book),
+    completed: progress.completed,
+    aiMode: settings.aiMode,
+    streakCount: state.streakCount,
+  } satisfies SerializedTodayLesson
+}
+
+function dateForDayIndex(startedAt: Date, dayIndex: number) {
+  const d = new Date(startedAt.getTime() + dayIndex * 86_400_000)
+  return formatDate(d)
+}
+
+export async function listLessonHistory(userId: string, limit = 80): Promise<SerializedLessonHistoryItem[]> {
+  const settings = await getEducationSettings()
+  if (!settings.enabled) return []
+
+  const state = await ensureUserState(userId)
+  const today = formatDate(new Date())
+  const currentDayIndex = daysBetween(formatDate(state.startedAt), today)
+  const progressRows = await UserLessonProgressModel.find({ userId })
+  const progressByDay = new Map(progressRows.map((r) => [r.dayIndex, r]))
+
+  const { books, byBook } = await getActiveBooksWithLessons()
+  const items: SerializedLessonHistoryItem[] = []
+
+  for (let dayIndex = currentDayIndex; dayIndex >= 0 && items.length < limit; dayIndex -= 1) {
+    const row = progressByDay.get(dayIndex)
+    if (row) {
+      const loaded = await loadLessonFromProgress(row, settings)
+      if (!loaded) continue
+      items.push({
+        dayIndex: row.dayIndex,
+        assignedDate: row.assignedDate,
+        completed: row.completed,
+        lesson: loaded.lesson,
+        book: loaded.book,
+      })
+      continue
+    }
+
+    const resolved = resolveLessonForDayIndex(dayIndex, books, byBook)
+    if (!resolved) continue
+
+    items.push({
+      dayIndex,
+      assignedDate: dateForDayIndex(state.startedAt, dayIndex),
+      completed: false,
+      lesson: serializeLesson(resolved.lesson, resolved.book.title, settings.aiMode, {
+        title: resolved.book.title,
+        description: resolved.book.description,
+      }),
+      book: serializeBook(resolved.book),
+    })
+  }
+
+  return items
+}
+
+export async function getLessonForDay(userId: string, dayIndex: number) {
+  if (!Number.isFinite(dayIndex) || dayIndex < 0) {
+    throw new Error('Invalid lesson day')
+  }
+
+  const settings = await getEducationSettings()
+  if (!settings.enabled) throw new Error('Daily lessons are not available right now')
+
+  const state = await ensureUserState(userId)
+  const today = formatDate(new Date())
+  const currentDayIndex = daysBetween(formatDate(state.startedAt), today)
+  if (dayIndex > currentDayIndex) {
+    throw new Error('This lesson is not available yet')
+  }
+
+  const progress = await UserLessonProgressModel.findOne({ userId, dayIndex })
+  if (progress) {
+    const loaded = await loadLessonFromProgress(progress, settings)
+    if (loaded) {
+      return {
+        date: progress.assignedDate,
+        dayIndex,
+        ...loaded,
+        aiMode: settings.aiMode,
+        streakCount: state.streakCount,
+      }
+    }
+  }
+
+  const { books, byBook } = await getActiveBooksWithLessons()
+  const resolved = resolveLessonForDayIndex(dayIndex, books, byBook)
+  if (!resolved) throw new Error('Lesson not found')
 
   return {
     date: today,
     dayIndex,
-    lesson: serializeLesson(resolved.lesson, resolved.book.title, settings.aiMode),
+    lesson: serializeLesson(resolved.lesson, resolved.book.title, settings.aiMode, {
+      title: resolved.book.title,
+      description: resolved.book.description,
+    }),
     book: serializeBook(resolved.book),
-    completed,
+    completed: false,
     aiMode: settings.aiMode,
     streakCount: state.streakCount,
-  } satisfies SerializedTodayLesson
+  }
 }
 
 export async function completeLesson(userId: string, lessonId: string) {
