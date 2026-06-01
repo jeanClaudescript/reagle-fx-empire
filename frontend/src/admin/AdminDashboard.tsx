@@ -36,7 +36,7 @@ import { AdminApiStatusBanner } from '@/components/admin/AdminApiStatusBanner'
 import { useAdminDeskChatUnread } from '@/admin/useAdminDeskChatUnread'
 import type { AdminTab } from '@/admin/layout/adminNav'
 import { adminTabPath, getAdminNavLabel, readAdminTabFromHash } from '@/admin/layout/adminNav'
-import { getAdminMobileBarMode, showCmsPublishInHeader } from '@/admin/layout/adminPageMode'
+import { getAdminMobileBarMode, showAdminWorkflowActions } from '@/admin/layout/adminPageMode'
 import { saveDraftCMS } from '@/cms/storage'
 import { AdminKeyboardHelp } from '@/components/admin/AdminKeyboardHelp'
 import type { ContentSectionId } from '@/cms/validation'
@@ -147,10 +147,6 @@ function AdminDashboardInner() {
     if (section && isContentSectionTab(section) && section !== tab) selectTab(section)
   }, [validationIssues, tab, selectTab])
 
-  const syncLabel = hasDraftChanges
-    ? 'Draft · not yet on live site'
-    : 'Published · in sync with live site'
-
   const sidebarMode = sidebarCollapsed ? 'collapsed' : 'expanded'
 
   const handlePublish = useCallback(async () => {
@@ -208,8 +204,8 @@ function AdminDashboardInner() {
     void handlePublish()
   }, [confirm, handlePublish, publishSectionValidated, push, tab])
 
-  const showPublishChrome = hasDraftChanges && showCmsPublishInHeader(tab)
-  const mobileBarMode = showPublishChrome ? getAdminMobileBarMode(tab) : 'hidden'
+  const showWorkflowActions = showAdminWorkflowActions(tab, hasDraftChanges)
+  const mobileBarMode = showWorkflowActions ? getAdminMobileBarMode(tab) : 'hidden'
   const stickyPublishLabel =
     mobileBarMode === 'cms' ? 'Publish section' : 'Publish website'
 
@@ -342,15 +338,12 @@ function AdminDashboardInner() {
         showPreview={showPreview}
         onTogglePreview={() => setShowPreview((v) => !v)}
         canCollapse
-        syncLabel={syncLabel}
-        hasDraftChanges={hasDraftChanges}
         deskChatUnread={deskChatUnread}
       />
 
       <div className="admin-main">
         <AdminHeader
           activeTab={tab}
-          syncLabel={syncLabel}
           hasDraftChanges={hasDraftChanges}
           isHydrated={isHydrated && !isPublishing}
           onOpenMobileNav={() => setMobileNavOpen(true)}
@@ -394,7 +387,7 @@ function AdminDashboardInner() {
           showPreview={showPreview}
           publishLabel={stickyPublishLabel}
           onTogglePreview={() => setShowPreview((v) => !v)}
-          onSaveDraft={handleSaveDraft}
+          onSaveDraft={showWorkflowActions ? handleSaveDraft : undefined}
           onPublish={handleStickyPublish}
         />
       </div>

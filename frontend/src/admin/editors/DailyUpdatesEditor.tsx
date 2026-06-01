@@ -244,9 +244,8 @@ export function DailyUpdatesEditor() {
                         placeholder="Optional external link"
                         />
                       </AdminField>
-                    </div>
 
-                    <div className="admin-editor-actions">
+                      <div className="admin-editor-actions">
                       <button
                         type="button"
                         disabled={idx === 0}
@@ -300,6 +299,7 @@ export function DailyUpdatesEditor() {
                       >
                         Delete
                       </button>
+                      </div>
                     </div>
                   </div>
                 </motion.div>

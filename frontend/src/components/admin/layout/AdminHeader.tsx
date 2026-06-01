@@ -1,12 +1,16 @@
 import { Menu, MoreHorizontal, ExternalLink, HelpCircle } from 'lucide-react'
 import { getAdminNavLabel, type AdminTab } from '@/admin/layout/adminNav'
-import { getAdminBreadcrumbRoot, showCmsPublishInHeader } from '@/admin/layout/adminPageMode'
+import {
+  getAdminBreadcrumbRoot,
+  showAdminWorkflowActions,
+  showCmsPublishInHeader,
+} from '@/admin/layout/adminPageMode'
+import { isContentSectionTab } from '@/admin/layout/adminHubActions'
 import { AdminThemeToggle } from '@/components/admin/AdminThemeToggle'
 import { AdminLanguageSwitcher } from '@/components/admin/AdminLanguageSwitcher'
 
 interface AdminHeaderProps {
   activeTab: AdminTab
-  syncLabel: string
   hasDraftChanges: boolean
   isHydrated: boolean
   onOpenMobileNav: () => void
@@ -21,7 +25,6 @@ interface AdminHeaderProps {
 
 export function AdminHeader({
   activeTab,
-  syncLabel,
   hasDraftChanges,
   isHydrated,
   onOpenMobileNav,
@@ -36,6 +39,8 @@ export function AdminHeader({
   const pageTitle = getAdminNavLabel(activeTab)
   const breadcrumbRoot = getAdminBreadcrumbRoot(activeTab)
   const showPublish = showCmsPublishInHeader(activeTab)
+  const showWorkflow = showAdminWorkflowActions(activeTab, hasDraftChanges)
+  const isCmsSection = isContentSectionTab(activeTab)
 
   return (
     <header className="admin-header">
@@ -55,14 +60,6 @@ export function AdminHeader({
             <span className="admin-breadcrumb-sep">/</span>
             <span className="text-theme-primary">{pageTitle}</span>
           </nav>
-          <p className="mt-0.5 flex flex-wrap items-center gap-2 truncate text-xs text-theme-muted">
-            <span>{syncLabel}</span>
-            {hasDraftChanges && showPublish && (
-              <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold text-amber-400">
-                Unpublished
-              </span>
-            )}
-          </p>
         </div>
       </div>
 
@@ -76,10 +73,10 @@ export function AdminHeader({
           <ExternalLink className="h-4 w-4" />
           View live site
         </a>
-        {showPublish && hasDraftChanges ? (
+        {showWorkflow ? (
           <>
             <button type="button" className="admin-btn-secondary" onClick={onTogglePreviewPanel}>
-              Preview draft
+              Preview
             </button>
             <button
               type="button"
@@ -135,14 +132,14 @@ export function AdminHeader({
             <a href="/" target="_blank" rel="noopener noreferrer" className="admin-btn-ghost w-full">
               View live site
             </a>
-            {showPublish && hasDraftChanges ? (
+            {showWorkflow && !isCmsSection ? (
               <button type="button" onClick={onTogglePreviewPanel}>
-                Preview draft
+                Preview
               </button>
             ) : null}
-            {showPublish && hasDraftChanges ? (
+            {showWorkflow && !isCmsSection ? (
               <button type="button" onClick={onSaveDraft} disabled={!isHydrated}>
-                Save draft
+                Save
               </button>
             ) : null}
             {showPublish ? (

@@ -24,8 +24,12 @@ export function AdminMobileActionBar({
 }: AdminMobileActionBarProps) {
   if (mode === 'hidden') return null
 
+  const showSave = Boolean(onSaveDraft)
+
   return (
-    <div className="admin-mobile-action-bar lg:hidden">
+    <div
+      className={`admin-mobile-action-bar lg:hidden${showSave ? '' : ' admin-mobile-action-bar--compact'}`}
+    >
       <motion.button
         type="button"
         whileTap={{ scale: 0.96 }}

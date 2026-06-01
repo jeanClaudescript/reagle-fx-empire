@@ -42,6 +42,13 @@ export type AdminTab =
 
 export type AdminNavGroup = 'overview' | 'website' | 'operations' | 'system'
 
+export const ADMIN_NAV_GROUPS: { id: AdminNavGroup; label: string }[] = [
+  { id: 'overview', label: 'Overview' },
+  { id: 'operations', label: 'Operations' },
+  { id: 'website', label: 'Website' },
+  { id: 'system', label: 'Settings' },
+]
+
 export type AdminNavItem = {
   id: AdminTab
   label: string
@@ -51,6 +58,14 @@ export type AdminNavItem = {
 
 export const ADMIN_NAV: AdminNavItem[] = [
   { id: 'dashboard', label: 'Content hub', icon: LayoutDashboard, group: 'overview' },
+  { id: 'students', label: 'Students', icon: Users, group: 'operations' },
+  { id: 'payments', label: 'Payments', icon: CreditCard, group: 'operations' },
+  { id: 'live', label: 'Live class', icon: Radio, group: 'operations' },
+  { id: 'classroom', label: 'Trading classroom', icon: GraduationCap, group: 'operations' },
+  { id: 'desk-chat', label: 'VIP messages', icon: MessageCircle, group: 'operations' },
+  { id: 'referrals', label: 'Referrals', icon: Share2, group: 'operations' },
+  { id: 'pay-settings', label: 'MoMo settings', icon: Wallet, group: 'operations' },
+  { id: 'education', label: 'Daily lessons', icon: BookOpen, group: 'operations' },
   { id: 'updates', label: 'Daily updates', icon: Newspaper, group: 'website' },
   { id: 'upcoming', label: 'Banners', icon: Megaphone, group: 'website' },
   { id: 'about', label: 'About', icon: User, group: 'website' },
@@ -60,14 +75,6 @@ export const ADMIN_NAV: AdminNavItem[] = [
   { id: 'videos', label: 'Videos', icon: Play, group: 'website' },
   { id: 'books', label: 'VIP books', icon: BookOpen, group: 'website' },
   { id: 'texts', label: 'Texts', icon: Type, group: 'website' },
-  { id: 'students', label: 'Students', icon: Users, group: 'operations' },
-  { id: 'payments', label: 'Payments', icon: CreditCard, group: 'operations' },
-  { id: 'live', label: 'Live class', icon: Radio, group: 'operations' },
-  { id: 'classroom', label: 'Trading classroom', icon: GraduationCap, group: 'operations' },
-  { id: 'desk-chat', label: 'VIP messages', icon: MessageCircle, group: 'operations' },
-  { id: 'referrals', label: 'Referrals', icon: Share2, group: 'operations' },
-  { id: 'pay-settings', label: 'MoMo settings', icon: Wallet, group: 'operations' },
-  { id: 'education', label: 'Daily lessons', icon: BookOpen, group: 'operations' },
   { id: 'settings', label: 'Settings', icon: Settings, group: 'system' },
 ]
 

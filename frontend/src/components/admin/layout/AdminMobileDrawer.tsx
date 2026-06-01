@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { X } from 'lucide-react'
-import { ADMIN_NAV, type AdminTab } from '@/admin/layout/adminNav'
+import { ADMIN_NAV, ADMIN_NAV_GROUPS, type AdminTab } from '@/admin/layout/adminNav'
 import { useCms } from '@/cms/CmsProvider'
 import type { ContentSectionId } from '@/cms/validation'
 
@@ -41,8 +41,6 @@ function SectionNavDot({ sectionId }: { sectionId: AdminTab }) {
 interface AdminMobileDrawerProps {
   open: boolean
   activeTab: AdminTab
-  syncLabel: string
-  hasDraftChanges: boolean
   deskChatUnread?: number
   onClose: () => void
   onSelectTab: (tab: AdminTab) => void
@@ -52,8 +50,6 @@ interface AdminMobileDrawerProps {
 export function AdminMobileDrawer({
   open,
   activeTab,
-  syncLabel,
-  hasDraftChanges,
   deskChatUnread = 0,
   onClose,
   onSelectTab,
@@ -89,22 +85,14 @@ export function AdminMobileDrawer({
             <div className="admin-mobile-drawer-header">
               <div className="min-w-0">
                 <p className="font-display text-sm font-bold text-gradient-brand">REAGLE FX</p>
-                <p className="mt-0.5 truncate text-xs text-theme-muted">{syncLabel}</p>
+                <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-theme-muted">
+                  Content studio
+                </p>
               </div>
               <button type="button" onClick={onClose} className="admin-sidebar-icon-btn" aria-label="Close">
                 <X className="h-4 w-4" />
               </button>
             </div>
-
-            {hasDraftChanges && (
-              <motion.p
-                initial={{ opacity: 0, y: -6 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="mx-3 rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs font-semibold text-amber-400"
-              >
-                Unpublished changes — use section Publish or header Publish all
-              </motion.p>
-            )}
 
             <motion.nav
               className="admin-mobile-drawer-nav scrollbar-hide"
@@ -112,30 +100,34 @@ export function AdminMobileDrawer({
               initial="hidden"
               animate="show"
             >
-              <p className="admin-sidebar-section-label">Sections</p>
-              {ADMIN_NAV.map((item) => {
-                const Icon = item.icon
-                const active = activeTab === item.id
-                return (
-                  <motion.button
-                    key={item.id}
-                    type="button"
-                    variants={navItem}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => select(item.id)}
-                    className={`admin-sidebar-nav-item ${active ? 'admin-sidebar-nav-item--active' : ''}`}
-                  >
-                    <span className="admin-sidebar-nav-icon">
-                      <Icon className="h-[18px] w-[18px]" />
-                    </span>
-                    <span className="truncate">{item.label}</span>
-                    <SectionNavDot sectionId={item.id} />
-                    {item.id === 'desk-chat' && deskChatUnread > 0 ? (
-                      <span className="admin-nav-unread">{deskChatUnread > 9 ? '9+' : deskChatUnread}</span>
-                    ) : null}
-                  </motion.button>
-                )
-              })}
+              {ADMIN_NAV_GROUPS.map((section, sectionIndex) => (
+                <div key={section.id} className={sectionIndex > 0 ? 'mt-4' : undefined}>
+                  <p className="admin-sidebar-section-label">{section.label}</p>
+                  {ADMIN_NAV.filter((item) => item.group === section.id).map((item) => {
+                    const Icon = item.icon
+                    const active = activeTab === item.id
+                    return (
+                      <motion.button
+                        key={item.id}
+                        type="button"
+                        variants={navItem}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => select(item.id)}
+                        className={`admin-sidebar-nav-item ${active ? 'admin-sidebar-nav-item--active' : ''}`}
+                      >
+                        <span className="admin-sidebar-nav-icon">
+                          <Icon className="h-[18px] w-[18px]" />
+                        </span>
+                        <span className="truncate">{item.label}</span>
+                        <SectionNavDot sectionId={item.id} />
+                        {item.id === 'desk-chat' && deskChatUnread > 0 ? (
+                          <span className="admin-nav-unread">{deskChatUnread > 9 ? '9+' : deskChatUnread}</span>
+                        ) : null}
+                      </motion.button>
+                    )
+                  })}
+                </div>
+              ))}
             </motion.nav>
           </motion.aside>
         </>

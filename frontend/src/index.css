@@ -570,33 +570,29 @@
     @apply flex flex-wrap items-center justify-end gap-2;
   }
 
-  /* Row actions on CMS cards — always one horizontal row (scroll on narrow screens) */
+  /* Row actions — one row; in editor rows each button ≈ input width / 3 */
   .admin-editor-actions,
   .admin-editor-actions-row,
   .admin-btn-group {
-    @apply flex w-full flex-row flex-nowrap items-center gap-2 overflow-x-auto overscroll-x-contain;
-    scrollbar-width: none;
-  }
-
-  .admin-editor-actions::-webkit-scrollbar,
-  .admin-editor-actions-row::-webkit-scrollbar,
-  .admin-btn-group::-webkit-scrollbar {
-    display: none;
-  }
-
-  .admin-editor-actions {
-    @apply sm:col-span-2 lg:col-span-1;
+    @apply flex w-full min-w-0 flex-row flex-nowrap items-stretch gap-2;
   }
 
   .admin-editor-actions-row {
-    @apply w-auto min-w-0 shrink-0;
+    @apply w-full min-w-0;
   }
 
-  .admin-editor-actions > .admin-btn,
-  .admin-editor-actions-row > .admin-btn,
+  .admin-editor-row .admin-editor-actions {
+    @apply w-full max-w-full;
+  }
+
+  .admin-editor-row .admin-editor-actions > .admin-btn,
+  .admin-editor-actions-row > .admin-btn {
+    @apply min-h-10 min-w-0 flex-1 basis-0 justify-center px-2;
+  }
+
   .admin-btn-group > .admin-btn,
   .admin-btn-group > a.admin-btn {
-    @apply min-h-10 w-auto shrink-0 flex-none px-3;
+    @apply min-h-10 min-w-0 shrink-0 flex-none px-3;
   }
 
   .admin-editor-card-intro {
@@ -986,6 +982,14 @@
   .admin-mobile-action-bar {
     @apply fixed bottom-0 left-0 right-0 z-[55] flex gap-2 border-t border-theme bg-theme-surface/95 p-2.5 backdrop-blur-2xl;
     padding-bottom: max(0.65rem, env(safe-area-inset-bottom));
+  }
+
+  .admin-mobile-action-bar > .admin-btn {
+    @apply min-h-11 min-w-0 flex-1 basis-0 justify-center px-2;
+  }
+
+  .admin-mobile-action-bar--compact > .admin-btn--primary {
+    @apply flex-[1.5];
   }
 
   @media (min-width: 1024px) {
@@ -1947,7 +1951,36 @@
   }
 
   .admin-editor-row--media {
-    @apply grid gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,140px)_1fr_auto];
+    display: grid;
+    gap: 0.75rem;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      'media'
+      'body'
+      'actions';
+  }
+
+  .admin-editor-row--media > :nth-child(1) {
+    grid-area: media;
+  }
+
+  .admin-editor-row--media > :nth-child(2) {
+    grid-area: body;
+  }
+
+  .admin-editor-row--media > .admin-editor-actions {
+    grid-area: actions;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  @media (min-width: 640px) {
+    .admin-editor-row--media {
+      grid-template-columns: minmax(0, 140px) minmax(0, 1fr);
+      grid-template-areas:
+        'media body'
+        'media actions';
+    }
   }
 
 
@@ -2138,21 +2171,18 @@
     }
 
     .admin-mobile-action-bar {
-      @apply grid grid-cols-2 gap-2 px-3;
+      @apply gap-2 px-4;
+    }
+
+    .admin-mobile-action-bar > .admin-btn {
+      min-height: 2.75rem;
     }
 
     .admin-mobile-action-bar .admin-btn--primary {
-      grid-column: span 2 / span 2;
-      min-height: 2.75rem;
-      width: 100%;
-      flex: none;
       @apply shadow-md;
     }
 
     .admin-mobile-action-bar .admin-btn--secondary {
-      min-height: 2.75rem;
-      width: 100%;
-      flex: none;
       @apply shadow-sm;
     }
 

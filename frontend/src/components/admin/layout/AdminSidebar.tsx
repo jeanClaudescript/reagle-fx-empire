@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 import { ChevronLeft, ChevronRight, Eye, EyeOff } from 'lucide-react'
-import { ADMIN_NAV, type AdminTab } from '@/admin/layout/adminNav'
+import { ADMIN_NAV, ADMIN_NAV_GROUPS, type AdminTab } from '@/admin/layout/adminNav'
 import { useCms } from '@/cms/CmsProvider'
 import type { ContentSectionId } from '@/cms/validation'
 import { AdminMobileDrawer } from '@/components/admin/layout/AdminMobileDrawer'
@@ -17,8 +17,6 @@ interface AdminSidebarProps {
   showPreview: boolean
   onTogglePreview: () => void
   canCollapse: boolean
-  syncLabel: string
-  hasDraftChanges: boolean
   deskChatUnread?: number
 }
 
@@ -52,8 +50,6 @@ export function AdminSidebar({
   showPreview,
   onTogglePreview,
   canCollapse,
-  syncLabel,
-  hasDraftChanges,
   deskChatUnread = 0,
 }: AdminSidebarProps) {
   const collapsed = mode === 'collapsed'
@@ -111,17 +107,12 @@ export function AdminSidebar({
       </div>
 
       <nav className="admin-sidebar-nav scrollbar-hide">
-        {!collapsed && <p className="admin-sidebar-section-label">Overview</p>}
-        {ADMIN_NAV.filter((n) => n.group === 'overview').map(navButton)}
-
-        {!collapsed && <p className="admin-sidebar-section-label mt-4">Website</p>}
-        {ADMIN_NAV.filter((n) => n.group === 'website').map(navButton)}
-
-        {!collapsed && <p className="admin-sidebar-section-label mt-4">Operations</p>}
-        {ADMIN_NAV.filter((n) => n.group === 'operations').map(navButton)}
-
-        {!collapsed && <p className="admin-sidebar-section-label mt-4">System</p>}
-        {ADMIN_NAV.filter((n) => n.group === 'system').map(navButton)}
+        {ADMIN_NAV_GROUPS.map((section, index) => (
+          <div key={section.id} className={index > 0 ? 'mt-4' : undefined}>
+            {!collapsed && <p className="admin-sidebar-section-label">{section.label}</p>}
+            {ADMIN_NAV.filter((n) => n.group === section.id).map(navButton)}
+          </div>
+        ))}
       </nav>
 
       <div className="admin-sidebar-footer">
@@ -150,8 +141,6 @@ export function AdminSidebar({
       <AdminMobileDrawer
         open={mobileOpen}
         activeTab={activeTab}
-        syncLabel={syncLabel}
-        hasDraftChanges={hasDraftChanges}
         deskChatUnread={deskChatUnread}
         onClose={onCloseMobile}
         onSelectTab={onSelectTab}

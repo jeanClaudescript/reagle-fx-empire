@@ -34,9 +34,9 @@ export type HubCard = {
 
 export const HUB_CATEGORIES: { id: HubCategory; label: string }[] = [
   { id: 'all', label: 'All' },
+  { id: 'operations', label: 'Operations' },
   { id: 'website', label: 'Website' },
-  { id: 'operations', label: 'Students & money' },
-  { id: 'system', label: 'System' },
+  { id: 'system', label: 'Settings' },
 ]
 
 /** Every area CoachPeter can manage — one content hub. */
