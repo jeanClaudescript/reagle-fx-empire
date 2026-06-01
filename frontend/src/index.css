@@ -536,16 +536,11 @@
   /* ─── Admin form design system (labels, inputs, cards, buttons) ─── */
   .admin-app .admin-card.glass-card-glow {
     @apply overflow-hidden border border-theme bg-theme-surface/95 shadow-sm;
-    box-shadow:
-      0 1px 2px rgba(0, 0, 0, 0.04),
-      0 0 0 1px rgba(128, 128, 128, 0.06);
   }
 
   .admin-app .admin-card.glass-card-glow:hover {
     transform: none;
-    box-shadow:
-      0 2px 6px rgba(0, 0, 0, 0.06),
-      0 0 0 1px rgba(128, 128, 128, 0.08);
+    @apply shadow-md;
   }
 
   .admin-card-header {
@@ -1894,15 +1889,125 @@
     }
 
     .admin-content-inner {
-      @apply px-3 py-3;
+      @apply px-0 py-0;
     }
 
     .admin-content-hub {
-      @apply gap-3;
+      @apply gap-0;
+    }
+
+    .admin-content-hub__tip {
+      @apply px-4 py-3;
+    }
+
+    /* Edge-to-edge sections — one surface, dividers not nested boxes */
+    .admin-checklist,
+    .admin-ops-hub,
+    .admin-hub-hero,
+    .admin-hub-hero--compact,
+    .admin-content-overview {
+      @apply rounded-none border-0 border-b border-theme bg-theme-surface/30 px-4 py-4 shadow-none;
+    }
+
+    .admin-card-body > .flex.flex-col.gap-3,
+    .admin-card-body > .flex.flex-col.gap-3.lg\:flex-row {
+      @apply px-4 pt-3;
+    }
+
+    .admin-hub-filters {
+      @apply px-4;
+    }
+
+    .admin-hub-bento {
+      @apply mt-0 gap-0;
+    }
+
+    .admin-hub-card {
+      @apply gap-3 rounded-none border-0 border-b border-theme bg-transparent p-4 shadow-none hover:translate-y-0 hover:shadow-none;
+    }
+
+    .admin-hub-card:last-child {
+      border-bottom-width: 0;
+    }
+
+    .admin-hub-card__icon {
+      @apply h-10 w-10 rounded-xl border-0 bg-theme-elevated/70;
+    }
+
+    .admin-hub-card__chevron {
+      @apply opacity-60;
+    }
+
+    .admin-kpi-strip {
+      @apply mx-0 grid grid-cols-2 gap-2 overflow-visible px-0 pb-0;
+    }
+
+    .admin-kpi-tile {
+      @apply min-h-[4.5rem] min-w-0 w-full rounded-xl border-0 bg-theme-elevated/55 p-3 shadow-none;
+    }
+
+    .admin-attention {
+      @apply mt-4 border-t-0 pt-0;
+    }
+
+    .admin-attention__row {
+      @apply rounded-none border-0 border-b border-theme bg-transparent;
+    }
+
+    .admin-attention__row:last-child {
+      border-bottom-width: 0;
+    }
+
+    .admin-quick-chips {
+      @apply mt-4 border-t border-theme pt-3;
+    }
+
+    .admin-checklist__item {
+      @apply rounded-lg border-0 bg-theme-elevated/45;
+    }
+
+    .admin-section-toolbar {
+      @apply rounded-none border-0 border-b border-theme bg-theme-surface/40 px-4 py-3;
+    }
+
+    .admin-mode-banner {
+      @apply rounded-none border-x-0 border-t-0 px-4;
+    }
+
+    .admin-nav-tile {
+      @apply rounded-none border-0 border-b border-theme bg-transparent p-4 shadow-none hover:translate-y-0 hover:shadow-none;
+    }
+
+    .admin-nav-tile:last-child {
+      border-bottom-width: 0;
+    }
+
+    .admin-nav-tile-icon {
+      @apply border-0 bg-theme-elevated/60;
+    }
+
+    .admin-editor-row {
+      @apply rounded-none border-0 border-b border-theme bg-transparent p-4;
+    }
+
+    .admin-stat-tile {
+      @apply rounded-lg border-0 bg-theme-elevated/50 shadow-none;
+    }
+
+    .admin-app-bg .glow-orb {
+      opacity: 0.25;
+    }
+
+    .admin-content-inner > .mb-4 {
+      @apply mx-4;
     }
 
     .admin-header {
-      @apply gap-2 px-3;
+      @apply gap-2 px-4;
+    }
+
+    .admin-mobile-action-bar {
+      @apply px-3;
     }
 
     .admin-header-icon-btn {
@@ -1914,36 +2019,45 @@
     }
 
     .admin-section-frame {
-      @apply gap-2.5;
-    }
-
-    .admin-section-toolbar {
-      @apply rounded-xl p-2.5;
+      @apply gap-0;
     }
 
     .admin-section-toolbar-actions {
-      @apply mt-2 pt-2;
+      @apply mt-2 border-t border-theme px-4 pt-2;
     }
 
     .admin-section-body {
-      @apply gap-2.5;
+      @apply gap-3 px-4 py-3;
     }
 
     .admin-form-stack {
       @apply gap-2.5;
     }
 
-    .admin-card,
-    .admin-app .glass-card-glow {
-      border-radius: 0.875rem;
+    /* Hub module list — full-bleed rows inside one surface */
+    .admin-content-hub > .admin-card.glass-card-glow {
+      @apply rounded-none border-0 border-b-0 bg-transparent shadow-none;
     }
 
-    .admin-app .glass-card-glow:hover {
+    .admin-content-hub > .admin-card .admin-card-body {
+      @apply px-0 py-0;
+    }
+
+    .admin-content-hub > .admin-card .admin-card-body > p {
+      @apply px-4;
+    }
+
+    /* CMS / ops editor cards — single border, no double ring */
+    .admin-app .admin-card.glass-card-glow {
+      @apply rounded-xl border border-theme bg-theme-surface/40 shadow-none;
+    }
+
+    .admin-app .admin-card.glass-card-glow:hover {
       transform: none;
     }
 
     .admin-card-body {
-      @apply p-3;
+      @apply px-4 py-3;
     }
 
     .admin-editor-card-intro {
@@ -1951,7 +2065,7 @@
     }
 
     .admin-card-header {
-      @apply px-3 py-2;
+      @apply px-4 py-2.5;
     }
 
     .admin-card-header__title {
@@ -1988,12 +2102,8 @@
       @apply gap-2;
     }
 
-    .admin-nav-tile {
-      @apply min-h-0 gap-2.5 rounded-xl p-3;
-    }
-
     .admin-nav-tile--compact {
-      @apply py-2.5;
+      @apply py-3;
     }
 
     .admin-nav-tile-icon {
@@ -2013,15 +2123,11 @@
     }
 
     .admin-editor-row {
-      @apply gap-2 rounded-xl p-3;
+      @apply gap-2 p-4;
     }
 
     .admin-editor-row--media {
       @apply gap-2;
-    }
-
-    .admin-stat-tile {
-      @apply rounded-xl p-2.5 shadow-none;
     }
 
     .admin-stat-tile__value {
@@ -2029,48 +2135,27 @@
     }
 
     .admin-stat-tile--compact {
-      @apply p-2;
+      @apply p-2.5;
     }
 
     .admin-stat-tile--compact .admin-stat-tile__value {
       @apply text-lg;
     }
 
-    .admin-hub-hero,
-    .admin-hub-hero--compact {
-      @apply rounded-xl p-2.5;
-    }
-
     .admin-hub-hero__title {
       @apply text-base;
-    }
-
-    .admin-hub-card {
-      @apply gap-2.5 rounded-lg p-2.5;
-    }
-
-    .admin-hub-card__icon {
-      @apply h-9 w-9 rounded-lg;
     }
 
     .admin-hub-card__desc {
       @apply line-clamp-2 text-[11px];
     }
 
-    .admin-hub-bento {
-      @apply mt-3 gap-2;
-    }
-
     .admin-hub-filters {
-      @apply gap-1.5;
+      @apply gap-1.5 px-4;
     }
 
     .admin-hub-filter {
       @apply px-3 py-1.5 text-[11px];
-    }
-
-    .admin-ops-hub {
-      @apply rounded-xl p-2.5;
     }
 
     .admin-ops-hub__title {
@@ -2102,7 +2187,7 @@
     }
 
     .admin-content-overview {
-      @apply rounded-xl p-2.5;
+      @apply p-4;
     }
 
     .manage-subnav {

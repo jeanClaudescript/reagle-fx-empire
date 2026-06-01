@@ -1,7 +1,7 @@
 import { Router, type Request } from 'express'
 import multer from 'multer'
 import { requireAdminAuth } from '../middleware/requireAdminAuth.js'
-import { requireStudentAuth } from '../middleware/requireStudentAuth.js'
+import { requireVipMembership } from '../middleware/requireVipMembership.js'
 import {
   listCommunityMessages,
   listDirectThread,
@@ -73,7 +73,7 @@ async function handleUpload(req: Request & { file?: Express.Multer.File }) {
 
 export const deskChatRoutes = Router()
 
-deskChatRoutes.post('/upload', requireStudentAuth, upload.single('file'), async (req, res, next) => {
+deskChatRoutes.post('/upload', requireVipMembership, upload.single('file'), async (req, res, next) => {
   try {
     const attachment = await handleUpload(req as Request & { file?: Express.Multer.File })
     return res.status(201).json({ ok: true, data: attachment })
@@ -91,7 +91,7 @@ deskChatRoutes.post('/admin/upload', requireAdminAuth, upload.single('file'), as
   }
 })
 
-deskChatRoutes.get('/community', requireStudentAuth, async (_req, res, next) => {
+deskChatRoutes.get('/community', requireVipMembership, async (_req, res, next) => {
   try {
     const data = await listCommunityMessages()
     return res.json({ data })
@@ -100,7 +100,7 @@ deskChatRoutes.get('/community', requireStudentAuth, async (_req, res, next) => 
   }
 })
 
-deskChatRoutes.post('/community', requireStudentAuth, async (req, res, next) => {
+deskChatRoutes.post('/community', requireVipMembership, async (req, res, next) => {
   try {
     const user = req.studentUser!
     const msg = await saveDeskChatMessage({
@@ -118,7 +118,7 @@ deskChatRoutes.post('/community', requireStudentAuth, async (req, res, next) => 
   }
 })
 
-deskChatRoutes.get('/direct', requireStudentAuth, async (req, res, next) => {
+deskChatRoutes.get('/direct', requireVipMembership, async (req, res, next) => {
   try {
     const studentId = String(req.studentUser!._id)
     const data = await listDirectThread(studentId)
@@ -128,7 +128,7 @@ deskChatRoutes.get('/direct', requireStudentAuth, async (req, res, next) => {
   }
 })
 
-deskChatRoutes.post('/direct', requireStudentAuth, async (req, res, next) => {
+deskChatRoutes.post('/direct', requireVipMembership, async (req, res, next) => {
   try {
     const user = req.studentUser!
     const studentId = String(user._id)
@@ -148,7 +148,7 @@ deskChatRoutes.post('/direct', requireStudentAuth, async (req, res, next) => {
   }
 })
 
-deskChatRoutes.post('/direct/read', requireStudentAuth, async (req, res, next) => {
+deskChatRoutes.post('/direct/read', requireVipMembership, async (req, res, next) => {
   try {
     const studentId = String(req.studentUser!._id)
     const data = await markThreadRead(studentId, `direct:${studentId}`)

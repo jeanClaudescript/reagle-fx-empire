@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { requireAdminAuth } from '../middleware/requireAdminAuth.js'
-import { requireStudentAuth } from '../middleware/requireStudentAuth.js'
+import { requireVipMembership } from '../middleware/requireVipMembership.js'
 import {
   createClassroomRoom,
   getActiveClassroomRoom,
@@ -17,7 +17,7 @@ import {
 
 export const classroomRoutes = Router()
 
-classroomRoutes.get('/active', requireStudentAuth, async (_req, res, next) => {
+classroomRoutes.get('/active', requireVipMembership, async (_req, res, next) => {
   try {
     const data = await getActiveClassroomRoom()
     return res.json({ data })
@@ -26,7 +26,7 @@ classroomRoutes.get('/active', requireStudentAuth, async (_req, res, next) => {
   }
 })
 
-classroomRoutes.get('/rooms/:id', requireStudentAuth, async (req, res, next) => {
+classroomRoutes.get('/rooms/:id', requireVipMembership, async (req, res, next) => {
   try {
     const data = await getClassroomRoom(req.params.id)
     if (data.status !== 'live') {

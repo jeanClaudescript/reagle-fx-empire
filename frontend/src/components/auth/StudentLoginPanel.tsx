@@ -33,7 +33,7 @@ export function StudentLoginPanel({
   onLogoTap?: () => void
 }) {
   const { t } = useLanguage()
-  const { checkAccess, loading, isLoggedIn, membershipStatus, contact, referralCode, logout } =
+  const { checkAccess, registerFree, loading, isLoggedIn, membershipStatus, contact, referralCode, logout } =
     useStudentAccess()
   const { code: referrerCode, setCode: setReferrerCode, isAutoApplied, manualEntry, openManualEntry } =
     useReferralCode()
@@ -58,14 +58,18 @@ export function StudentLoginPanel({
     setError(null)
 
     if (mode === 'signup') {
-      onDone?.()
-      const params = new URLSearchParams()
-      if (phone.trim()) params.set('phone', phone.trim())
-      if (email.trim()) params.set('email', email.trim())
-      if (referrerCode.trim()) params.set('ref', referrerCode.trim())
-      const qs = params.toString()
-      window.history.pushState({}, '', `/pay${qs ? `?${qs}` : ''}`)
-      window.dispatchEvent(new PopStateEvent('popstate'))
+      try {
+        await registerFree({
+          phone: phone.trim() || undefined,
+          email: email.trim() || undefined,
+          referrerCode: referrerCode.trim() || undefined,
+        })
+        onDone?.()
+        window.history.pushState({}, '', '/desk')
+        window.dispatchEvent(new PopStateEvent('popstate'))
+      } catch (err) {
+        setError(err instanceof Error ? err.message : t.studentLogin.error)
+      }
       return
     }
 
@@ -153,12 +157,22 @@ export function StudentLoginPanel({
             contact={contact}
             contactLabel={t.studentLogin.signedInAs}
           >
+            <GlowButton
+              variant="primary"
+              external={false}
+              className="auth-primary-btn"
+              onClick={() => {
+                window.history.pushState({}, '', '/desk')
+                window.dispatchEvent(new PopStateEvent('popstate'))
+                onDone?.()
+              }}
+            >
+              <Radio className="h-4 w-4" />
+              {t.studentLogin.openDashboard}
+            </GlowButton>
             <button type="button" className="auth-primary-btn auth-primary-btn--solid" onClick={goPay}>
               {t.studentLogin.payCta}
             </button>
-            <GlowButton variant="secondary" external={false} className="auth-secondary-btn" onClick={() => goHomeSection('tools')}>
-              {t.studentLogin.previewTools}
-            </GlowButton>
           </ResultView>
         )}
         {view === 'not_found' && (
@@ -171,8 +185,11 @@ export function StudentLoginPanel({
             contact={contact}
             contactLabel={t.studentLogin.signedInAs}
           >
-            <button type="button" className="auth-primary-btn auth-primary-btn--solid" onClick={goPay}>
+            <button type="button" className="auth-primary-btn auth-primary-btn--solid" onClick={() => onSwitchMode?.('signup')}>
               <Sparkles className="h-4 w-4" />
+              {t.studentLogin.registerFreeCta}
+            </button>
+            <button type="button" className="auth-text-link" onClick={goPay}>
               {t.studentLogin.registerCta}
             </button>
             <button type="button" className="auth-text-link" onClick={() => setView('form')}>
@@ -255,8 +272,14 @@ export function StudentLoginPanel({
       {error && <p className="auth-error">{error}</p>}
 
       <button type="submit" disabled={loading} className="auth-primary-btn auth-primary-btn--solid">
-        {loading ? '…' : isLogin ? t.authPage.signIn : t.authPage.createAccount}
+        {loading ? '…' : isLogin ? t.authPage.signIn : t.authPage.createFreeAccount}
       </button>
+
+      {!isLogin ? (
+        <button type="button" className="auth-secondary-btn auth-text-link" onClick={goPay}>
+          {t.authPage.joinVipPay}
+        </button>
+      ) : null}
 
       <p className="auth-switch-line">
         {isLogin ? (

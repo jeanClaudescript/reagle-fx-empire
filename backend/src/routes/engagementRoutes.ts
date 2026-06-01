@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { requireStudentAuth } from '../middleware/requireStudentAuth.js'
+import { requireVipMembership } from '../middleware/requireVipMembership.js'
 import {
   dismissNotification,
   getDashboardHighlights,
@@ -22,7 +22,7 @@ import type { ContentType } from '../types/engagement.js'
 
 export const engagementRoutes = Router()
 
-engagementRoutes.use(requireStudentAuth)
+engagementRoutes.use(requireVipMembership)
 
 engagementRoutes.get('/notifications', async (req, res, next) => {
   try {

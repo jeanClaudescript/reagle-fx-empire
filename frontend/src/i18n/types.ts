@@ -367,6 +367,8 @@ export interface Translations {
     signupSubtitle: string
     signIn: string
     createAccount: string
+    createFreeAccount: string
+    joinVipPay: string
     createAccountLink: string
     alreadyHaveAccount: string
     signInLink: string
@@ -421,6 +423,8 @@ export interface Translations {
     notFoundBody: string
     payCta: string
     registerCta: string
+    registerFreeCta: string
+    openDashboard: string
     previewTools: string
     tryAgain: string
     logout: string
@@ -428,6 +432,19 @@ export interface Translations {
     referralHint: string
     copyLink: string
     copied: string
+  }
+  freeDesk: {
+    badge: string
+    title: string
+    navLabel: string
+    overviewSubtitle: string
+    upgradeTitle: string
+    upgradeBody: string
+    upgradeCta: string
+    dailyHint: string
+    toolsHint: string
+    accountFreeNote: string
+    traderFallback: string
   }
   mobile: {
     joinWhatsapp: string

@@ -1,7 +1,7 @@
 import { randomBytes } from 'crypto'
 import { AppUserModel, type AppUserDocument } from '../models/AppUser.js'
 import { StudentSessionModel } from '../models/StudentSession.js'
-import { findUserByContact } from './studentService.js'
+import { createStudentAccount, findUserByContact } from './studentService.js'
 import {
   canAccessVipDesk,
   ensurePaidUntilForLegacy,
@@ -98,7 +98,7 @@ export async function loginStudent(input: {
   }
 }
 
-export async function validateStudentSession(token: string) {
+export async function validateRegisteredStudentSession(token: string) {
   const session = await StudentSessionModel.findOne({ token, expiresAt: { $gt: new Date() } })
   if (!session) return null
 
@@ -115,17 +115,70 @@ export async function validateStudentSession(token: string) {
     return null
   }
 
-  if (!(await canAccessVipDesk(user))) {
-    if (user.membershipStatus === 'paid') {
-      user.membershipStatus = 'unpaid'
-      user.updatedAt = new Date()
-      await user.save()
-    }
-    await StudentSessionModel.deleteOne({ token })
-    return null
+  return { session, user }
+}
+
+export async function validateStudentSession(token: string) {
+  const result = await validateRegisteredStudentSession(token)
+  if (!result) return null
+  if (!(await canAccessVipDesk(result.user))) return null
+  return result
+}
+
+export async function registerFreeStudent(input: {
+  name?: string
+  phone?: string
+  email?: string
+  referrerCode?: string
+  deviceId: string
+  deviceLabel?: string
+}) {
+  if (!input.deviceId?.trim()) throw new Error('Device id is required')
+
+  const existing = await findUserByContact({ phone: input.phone, email: input.email })
+  if (existing) throw new Error('Account already exists — sign in instead')
+
+  await createStudentAccount({
+    name: input.name,
+    phone: input.phone,
+    email: input.email,
+    referrerCode: input.referrerCode,
+    membershipStatus: 'unpaid',
+  })
+
+  const user = await loadActiveStudent({ phone: input.phone, email: input.email })
+  if (!user) throw new Error('Could not create account')
+
+  const session = await createStudentSession(String(user._id), input.deviceId.trim(), input.deviceLabel)
+  return {
+    token: session.token,
+    expiresAt: session.expiresAt.toISOString(),
+    user: await serializeStudent(user),
+  }
+}
+
+export async function loginFreeStudent(input: {
+  phone?: string
+  email?: string
+  deviceId: string
+  deviceLabel?: string
+}) {
+  if (!input.deviceId?.trim()) throw new Error('Device id is required')
+
+  const user = await loadActiveStudent({ phone: input.phone, email: input.email })
+  if (!user) throw new Error('Account not found')
+
+  const mode = await resolveAccessMode(user)
+  if (mode === 'expired') {
+    throw new Error('Membership expired — renew to unlock the VIP desk')
   }
 
-  return { session, user }
+  const session = await createStudentSession(String(user._id), input.deviceId.trim(), input.deviceLabel)
+  return {
+    token: session.token,
+    expiresAt: session.expiresAt.toISOString(),
+    user: await serializeStudent(user),
+  }
 }
 
 export async function logoutStudent(token: string) {

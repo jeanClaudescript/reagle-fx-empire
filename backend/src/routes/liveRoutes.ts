@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { requireAdminAuth } from '../middleware/requireAdminAuth.js'
-import { requireStudentAuth } from '../middleware/requireStudentAuth.js'
+import { requireVipMembership } from '../middleware/requireVipMembership.js'
 import {
   createLiveSession,
   getActiveLiveSession,
@@ -11,7 +11,7 @@ import {
 
 export const liveRoutes = Router()
 
-liveRoutes.get('/active', requireStudentAuth, async (_req, res, next) => {
+liveRoutes.get('/active', requireVipMembership, async (_req, res, next) => {
   try {
     const data = await getActiveLiveSession()
     return res.json({ data })

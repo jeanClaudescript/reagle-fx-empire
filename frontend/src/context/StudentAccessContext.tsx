@@ -49,6 +49,7 @@ type AccessState = {
   isExpiringSoon: boolean
   membershipExpired: boolean
   checkAccess: (input: Contact) => Promise<StudentMembershipStatus>
+  registerFree: (input: Contact & { referrerCode?: string }) => Promise<StudentMembershipStatus>
   refreshAccess: () => Promise<void>
   logout: () => Promise<void>
 }
@@ -74,6 +75,23 @@ async function establishVipSession(input: Contact) {
   setStudentAuthToken(res.data.token)
   refreshAppSocketAuth()
   return res.data.user
+}
+
+async function establishFreeSession(input: Contact) {
+  const res = await studentApi.loginFree({
+    phone: input.phone,
+    email: input.email,
+    deviceId: getStudentDeviceId(),
+    deviceLabel: getStudentDeviceLabel(),
+  })
+  setStudentAuthToken(res.data.token)
+  refreshAppSocketAuth()
+  return res.data.user
+}
+
+function userHasPaidAccess(user: { accessMode?: StudentAccessMode }) {
+  const mode = user.accessMode ?? 'unpaid'
+  return mode === 'paid' || mode === 'promo'
 }
 
 function pickMembership(data: {
@@ -128,7 +146,7 @@ export function StudentAccessProvider({ children }: { children: ReactNode }) {
     setMembership(emptyMembership)
   }, [])
 
-  const applyVipUser = useCallback(
+  const applyStudentUser = useCallback(
     (
       next: Contact,
       user: {
@@ -138,10 +156,11 @@ export function StudentAccessProvider({ children }: { children: ReactNode }) {
       } & Partial<MembershipFields>,
     ) => {
       const meta = pickMembership(user)
+      const paid = userHasPaidAccess(user)
       setContact(next)
       localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
       setFound(true)
-      setIsPaid(true)
+      setIsPaid(paid)
       setHasVipSession(true)
       setMembershipStatus(statusFromMode(meta.accessMode))
       if (user.referralCode) setReferralCode(user.referralCode)
@@ -205,7 +224,7 @@ export function StudentAccessProvider({ children }: { children: ReactNode }) {
         if (res.data.found && res.data.membershipStatus === 'paid') {
           try {
             const user = await establishVipSession(next)
-            applyVipUser(
+            applyStudentUser(
               { ...next, name: user.name ?? next.name },
               {
                 referralCode: user.referralCode,
@@ -229,6 +248,36 @@ export function StudentAccessProvider({ children }: { children: ReactNode }) {
           }
         }
 
+        if (res.data.found) {
+          const meta = pickMembership(res.data)
+          if (meta.accessMode === 'expired') {
+            clearStudentAuthToken()
+            setHasVipSession(false)
+            return applyResult(res.data)
+          }
+          try {
+            const user = await establishFreeSession(next)
+            applyStudentUser(
+              { ...next, name: user.name ?? next.name },
+              {
+                referralCode: user.referralCode,
+                accessMode: user.accessMode,
+                siteFreeAccessActive: user.siteFreeAccessActive,
+                paidUntil: user.paidUntil,
+                daysRemaining: user.daysRemaining,
+                isExpiringSoon: user.isExpiringSoon,
+              },
+            )
+            return statusFromMode(user.accessMode ?? 'unpaid')
+          } catch (err) {
+            const msg = err instanceof Error ? err.message : 'Could not sign in'
+            setSessionError(msg)
+            clearStudentAuthToken()
+            setHasVipSession(false)
+            return applyResult(res.data)
+          }
+        }
+
         clearStudentAuthToken()
         setHasVipSession(false)
         return applyResult(res.data)
@@ -239,7 +288,43 @@ export function StudentAccessProvider({ children }: { children: ReactNode }) {
         setLoading(false)
       }
     },
-    [applyVipUser, applyResult, clearLocal],
+    [applyStudentUser, applyResult, clearLocal],
+  )
+
+  const registerFree = useCallback(
+    async (input: Contact & { referrerCode?: string }) => {
+      setLoading(true)
+      setSessionError(null)
+      try {
+        const res = await studentApi.registerFree({
+          name: input.name,
+          phone: input.phone,
+          email: input.email,
+          referrerCode: input.referrerCode,
+          deviceId: getStudentDeviceId(),
+          deviceLabel: getStudentDeviceLabel(),
+        })
+        const user = res.data.user
+        const next = { ...input, name: user.name ?? input.name }
+        applyStudentUser(next, {
+          referralCode: user.referralCode,
+          accessMode: user.accessMode,
+          siteFreeAccessActive: user.siteFreeAccessActive,
+          paidUntil: user.paidUntil,
+          daysRemaining: user.daysRemaining,
+          isExpiringSoon: user.isExpiringSoon,
+        })
+        refreshAppSocketAuth()
+        return statusFromMode(user.accessMode ?? 'unpaid')
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Could not create account'
+        setSessionError(msg)
+        throw err
+      } finally {
+        setLoading(false)
+      }
+    },
+    [applyStudentUser],
   )
 
   const restoreSession = useCallback(async () => {
@@ -248,27 +333,24 @@ export function StudentAccessProvider({ children }: { children: ReactNode }) {
 
     try {
       const res = await studentApi.me()
-      if (res.data.membershipStatus !== 'paid') {
-        setMembership({
-          paidUntil: res.data.paidUntil ?? null,
-          daysRemaining: res.data.daysRemaining ?? null,
-          isExpiringSoon: false,
-          membershipExpired: true,
-          accessMode: res.data.accessMode ?? 'expired',
-          siteFreeAccessActive: Boolean(res.data.siteFreeAccessActive),
-        })
-        setMembershipStatus('expired')
-        setIsPaid(false)
-        setHasVipSession(false)
-        clearStudentAuthToken()
-        return false
-      }
+      const meta = pickMembership(res.data)
       const next: Contact = {
         phone: res.data.phone,
         email: res.data.email,
         name: res.data.name,
       }
-      applyVipUser(next, {
+      if (meta.accessMode === 'expired' || res.data.membershipExpired) {
+        setContact(next)
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+        setFound(true)
+        setIsPaid(false)
+        setHasVipSession(false)
+        setMembershipStatus('expired')
+        setMembership({ ...meta, membershipExpired: true })
+        clearStudentAuthToken()
+        return false
+      }
+      applyStudentUser(next, {
         referralCode: res.data.referralCode,
         accessMode: res.data.accessMode,
         siteFreeAccessActive: res.data.siteFreeAccessActive,
@@ -285,7 +367,7 @@ export function StudentAccessProvider({ children }: { children: ReactNode }) {
       clearLocal()
       return false
     }
-  }, [applyVipUser, clearLocal])
+  }, [applyStudentUser, clearLocal])
 
   const logout = useCallback(async () => {
     try {
@@ -373,6 +455,7 @@ export function StudentAccessProvider({ children }: { children: ReactNode }) {
       isExpiringSoon: membership.isExpiringSoon,
       membershipExpired: membership.membershipExpired || membershipStatus === 'expired',
       checkAccess,
+      registerFree,
       refreshAccess,
       logout,
     }),
@@ -388,6 +471,7 @@ export function StudentAccessProvider({ children }: { children: ReactNode }) {
       referralCode,
       sessionError,
       checkAccess,
+      registerFree,
       refreshAccess,
       logout,
     ],

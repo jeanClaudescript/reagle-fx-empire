@@ -402,6 +402,57 @@ export const studentApi = {
         }
       }
     }>('/api/students/auth/login', { method: 'POST', body }),
+  loginFree: (body: { phone?: string; email?: string; deviceId: string; deviceLabel?: string }) =>
+    apiFetch<{
+      ok: true
+      data: {
+        token: string
+        expiresAt: string
+        user: {
+          id: string
+          name?: string
+          phone?: string
+          email?: string
+          accessMode?: StudentAccessMode
+          membershipStatus: 'paid' | 'unpaid'
+          membershipExpired?: boolean
+          siteFreeAccessActive?: boolean
+          referralCode?: string
+          paidUntil?: string | null
+          daysRemaining?: number | null
+          isExpiringSoon?: boolean
+        }
+      }
+    }>('/api/students/auth/login-free', { method: 'POST', body }),
+  registerFree: (body: {
+    name?: string
+    phone?: string
+    email?: string
+    referrerCode?: string
+    deviceId: string
+    deviceLabel?: string
+  }) =>
+    apiFetch<{
+      ok: true
+      data: {
+        token: string
+        expiresAt: string
+        user: {
+          id: string
+          name?: string
+          phone?: string
+          email?: string
+          accessMode?: StudentAccessMode
+          membershipStatus: 'paid' | 'unpaid'
+          membershipExpired?: boolean
+          siteFreeAccessActive?: boolean
+          referralCode?: string
+          paidUntil?: string | null
+          daysRemaining?: number | null
+          isExpiringSoon?: boolean
+        }
+      }
+    }>('/api/students/auth/register-free', { method: 'POST', body }),
   logout: () =>
     apiFetch<{ ok: true }>('/api/students/auth/logout', { method: 'POST', student: true }),
   me: () =>

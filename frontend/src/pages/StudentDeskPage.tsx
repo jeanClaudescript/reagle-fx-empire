@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { Crown, Loader2 } from 'lucide-react'
 import { useLanguage } from '@/context/LanguageContext'
 import { useStudentAccess } from '@/context/StudentAccessContext'
+import { FreeStudentDeskShell } from '@/components/student/free/FreeStudentDeskShell'
 import { VipDeskShell } from '@/components/student/vip/VipDeskShell'
 import { ProgramValueCard } from '@/components/student/ProgramValueCard'
 import { GlowButton } from '@/components/ui/GlowButton'
@@ -12,10 +13,10 @@ export function StudentDeskPage() {
     useStudentAccess()
 
   useEffect(() => {
-    if (!loading && isPaid && hasVipSession && window.location.pathname !== '/desk') {
+    if (!loading && hasVipSession && window.location.pathname !== '/desk') {
       window.history.replaceState({}, '', '/desk')
     }
-  }, [loading, isPaid, hasVipSession])
+  }, [loading, hasVipSession])
 
   if (loading) {
     return (
@@ -47,7 +48,7 @@ export function StudentDeskPage() {
     )
   }
 
-  if (!isPaid || !hasVipSession) {
+  if (!hasVipSession) {
     return (
       <div className="vip-desk-gate">
         <Crown className="h-12 w-12 text-theme-accent" />
@@ -59,7 +60,10 @@ export function StudentDeskPage() {
           <ProgramValueCard compact />
         </div>
         <div className="mt-6 flex flex-col gap-2 sm:flex-row">
-          <GlowButton href="/pay" variant="primary" external={false}>
+          <GlowButton href="/signup" variant="primary" external={false}>
+            {t.authPage.createAccount}
+          </GlowButton>
+          <GlowButton href="/pay" variant="secondary" external={false}>
             {t.membership.joinCta}
           </GlowButton>
           <GlowButton href="/login" variant="secondary" external={false}>
@@ -70,5 +74,9 @@ export function StudentDeskPage() {
     )
   }
 
-  return <VipDeskShell />
+  if (isPaid) {
+    return <VipDeskShell />
+  }
+
+  return <FreeStudentDeskShell />
 }

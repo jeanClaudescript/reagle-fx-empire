@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from 'express'
 import type { AppUserDocument } from '../models/AppUser.js'
-import { validateStudentSession } from '../services/studentAuthService.js'
+import { validateRegisteredStudentSession } from '../services/studentAuthService.js'
 
 declare module 'express-serve-static-core' {
   interface Request {
@@ -16,7 +16,7 @@ export async function requireStudentAuth(req: Request, res: Response, next: Next
   }
 
   try {
-    const result = await validateStudentSession(token)
+    const result = await validateRegisteredStudentSession(token)
     if (!result) {
       return res.status(401).json({
         error: 'Session expired or signed in on another device — sign in again',

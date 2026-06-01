@@ -2,11 +2,13 @@ import { Router } from 'express'
 import { requireAdminAuth } from '../middleware/requireAdminAuth.js'
 import {
   loginStudent,
+  loginFreeStudent,
   logoutStudent,
-  validateStudentSession,
+  validateRegisteredStudentSession,
   invalidateStudentSessions,
   serializeStudent,
   loadActiveStudent,
+  registerFreeStudent,
 } from '../services/studentAuthService.js'
 import {
   createStudentAccount,
@@ -24,6 +26,50 @@ import {
 } from '../services/membershipService.js'
 
 export const studentRoutes = Router()
+
+studentRoutes.post('/auth/register-free', async (req, res, next) => {
+  try {
+    const body = req.body as {
+      name?: string
+      phone?: string
+      email?: string
+      referrerCode?: string
+      deviceId?: string
+      deviceLabel?: string
+    }
+    const data = await registerFreeStudent({
+      name: body.name,
+      phone: body.phone,
+      email: body.email,
+      referrerCode: body.referrerCode,
+      deviceId: body.deviceId ?? '',
+      deviceLabel: body.deviceLabel,
+    })
+    return res.status(201).json({ ok: true, data })
+  } catch (error) {
+    return next(error)
+  }
+})
+
+studentRoutes.post('/auth/login-free', async (req, res, next) => {
+  try {
+    const body = req.body as {
+      phone?: string
+      email?: string
+      deviceId?: string
+      deviceLabel?: string
+    }
+    const data = await loginFreeStudent({
+      phone: body.phone,
+      email: body.email,
+      deviceId: body.deviceId ?? '',
+      deviceLabel: body.deviceLabel,
+    })
+    return res.json({ ok: true, data })
+  } catch (error) {
+    return next(error)
+  }
+})
 
 studentRoutes.post('/auth/login', async (req, res, next) => {
   try {
@@ -62,7 +108,7 @@ studentRoutes.get('/auth/me', async (req, res, next) => {
     const token = header?.startsWith('Bearer ') ? header.slice(7).trim() : null
     if (!token) return res.status(401).json({ error: 'Unauthorized', code: 'SESSION_REVOKED' })
 
-    const result = await validateStudentSession(token)
+    const result = await validateRegisteredStudentSession(token)
     if (!result) {
       return res.status(401).json({
         error: 'Session expired or signed in on another device',
