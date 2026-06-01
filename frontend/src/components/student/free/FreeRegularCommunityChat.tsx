@@ -51,11 +51,15 @@ export function FreeRegularCommunityChat() {
 
   const send = async (payload: ChatSendPayload) => {
     try {
-      const msg = await emitDeskRegularCommunitySend(payload)
-      setMessages((prev) => mergeMessage(prev, msg))
-    } catch {
       const res = await deskChatApi.regularCommunitySend(payload)
       setMessages((prev) => mergeMessage(prev, res.data))
+    } catch (restErr) {
+      try {
+        const msg = await emitDeskRegularCommunitySend(payload)
+        setMessages((prev) => mergeMessage(prev, msg))
+      } catch {
+        throw restErr instanceof Error ? restErr : new Error('Could not send message')
+      }
     }
   }
 

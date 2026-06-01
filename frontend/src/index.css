@@ -6336,6 +6336,29 @@
   padding: 0.55rem 0.65rem max(0.65rem, env(safe-area-inset-bottom, 0px));
 }
 
+.vip-desk .messenger-composer {
+  background: rgb(var(--color-surface) / 0.92);
+}
+
+.dark .messenger-composer__input,
+.dark .messenger-composer__emoji,
+.dark .messenger-composer__attach-sheet {
+  background: rgb(var(--color-elevated) / 0.95);
+  color: rgb(var(--color-text-primary));
+}
+
+.dark .messenger-composer__attach-sheet button {
+  color: rgb(var(--color-text-primary));
+}
+
+.dark .messenger-composer__emoji-btn:hover {
+  background: rgb(var(--color-surface) / 0.8);
+}
+
+.messenger-composer__input::placeholder {
+  color: rgb(var(--color-text-muted) / 0.85);
+}
+
 .messenger-composer__emoji {
   display: flex;
   flex-wrap: wrap;

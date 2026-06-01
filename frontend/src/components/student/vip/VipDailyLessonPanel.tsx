@@ -228,7 +228,7 @@ export function VipDailyLessonPanel() {
     )
   }
 
-  if (loadError && !today?.lesson) {
+  if (loadError && !today) {
     return (
       <div className="vip-lesson-card">
         <p className="text-sm text-red-400">{loadError}</p>

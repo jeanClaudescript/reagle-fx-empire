@@ -97,7 +97,9 @@ export function MessengerComposer({
   }
 
   const submit = async (payload: ChatSendPayload) => {
+    if (disabled || busy) return
     setBusy(true)
+    setError(null)
     try {
       await onSend(payload)
       setText('')
@@ -107,6 +109,8 @@ export function MessengerComposer({
       if (inputRef.current) inputRef.current.style.height = 'auto'
       onSent?.()
       refocusInput()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not send — try again')
     } finally {
       setBusy(false)
     }

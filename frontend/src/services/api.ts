@@ -62,7 +62,7 @@ async function apiFetch<T>(path: string, init: RequestInitLite = {}): Promise<T>
   if (init.student) {
     const token = getStudentAuthToken()
     if (!token) {
-      throw new StudentSessionError('Sign in to the VIP desk first', 'NO_SESSION')
+      throw new StudentSessionError('Sign in to your student account first', 'NO_SESSION')
     }
     headers.Authorization = `Bearer ${token}`
   }

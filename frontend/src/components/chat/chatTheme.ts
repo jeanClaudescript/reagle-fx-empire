@@ -72,10 +72,28 @@ export const CHAT_THEMES: ChatTheme[] = [
 
 const STORAGE_KEY = 'rfx_chat_theme_v1'
 
+function siteIsDark() {
+  return typeof document !== 'undefined' && document.documentElement.classList.contains('dark')
+}
+
 export function getChatTheme(): ChatTheme {
   try {
     const id = localStorage.getItem(STORAGE_KEY) as ChatThemeId | null
-    return CHAT_THEMES.find((t) => t.id === id) ?? CHAT_THEMES[0]
+    const stored = id ? CHAT_THEMES.find((t) => t.id === id) : undefined
+    const darkBase = CHAT_THEMES.find((t) => t.id === 'meta-dark') ?? CHAT_THEMES[0]
+
+    if (siteIsDark()) {
+      if (!stored || stored.id === 'meta-dark') return darkBase
+      return {
+        ...darkBase,
+        accent: stored.accent,
+        mine: stored.mine,
+        mineText: stored.mineText,
+        header: stored.header,
+      }
+    }
+
+    return stored ?? CHAT_THEMES[0]
   } catch {
     return CHAT_THEMES[0]
   }

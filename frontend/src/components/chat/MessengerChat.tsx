@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import type { DeskChatMessage } from '@/realtime/appSocket'
+import { useTheme } from '@/context/ThemeContext'
 import { chatThemeVars, getChatTheme } from './chatTheme'
 import { ChatThemePicker } from './ChatThemePicker'
 import { MessengerBubble, MessengerDateSeparator, MessengerTypingBar } from './MessengerBubble'
@@ -57,9 +58,14 @@ export function MessengerChat({
   const chatRef = useRef<HTMLDivElement>(null)
   const bodyRef = useRef<HTMLDivElement>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
+  const { theme: siteTheme } = useTheme()
   const [theme, setTheme] = useState(getChatTheme)
 
   const syncViewport = useChatViewport(chatRef)
+
+  useEffect(() => {
+    setTheme(getChatTheme())
+  }, [siteTheme])
 
   useEffect(() => {
     const onTheme = () => setTheme(getChatTheme())

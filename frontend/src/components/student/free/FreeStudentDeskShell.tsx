@@ -11,6 +11,7 @@ import {
   Sparkles,
 } from 'lucide-react'
 import { FreeRegularCommunityChat } from '@/components/student/free/FreeRegularCommunityChat'
+import { refreshAppSocketAuth } from '@/realtime/appSocket'
 import { useLanguage } from '@/context/LanguageContext'
 import { useStudentAccess } from '@/context/StudentAccessContext'
 import { VipDailyLessonPanel } from '@/components/student/vip/VipDailyLessonPanel'
@@ -70,8 +71,13 @@ export function FreeStudentDeskShell() {
 
   useEffect(() => {
     document.body.classList.add('vip-desk-active')
+    refreshAppSocketAuth()
     return () => document.body.classList.remove('vip-desk-active')
   }, [])
+
+  useEffect(() => {
+    if (panel === 'community-chat') refreshAppSocketAuth()
+  }, [panel])
 
   useEffect(() => {
     const onPop = () => {

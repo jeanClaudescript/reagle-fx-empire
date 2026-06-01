@@ -305,6 +305,7 @@ export function StudentAccessProvider({ children }: { children: ReactNode }) {
           deviceId: getStudentDeviceId(),
           deviceLabel: getStudentDeviceLabel(),
         })
+        setStudentAuthToken(res.data.token)
         const user = res.data.user
         const next = { ...input, name: user.name ?? input.name }
         applyStudentUser(next, {
