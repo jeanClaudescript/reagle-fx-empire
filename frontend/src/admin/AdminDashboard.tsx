@@ -36,7 +36,7 @@ import { AdminApiStatusBanner } from '@/components/admin/AdminApiStatusBanner'
 import { useAdminDeskChatUnread } from '@/admin/useAdminDeskChatUnread'
 import type { AdminTab } from '@/admin/layout/adminNav'
 import { adminTabPath, getAdminNavLabel, readAdminTabFromHash } from '@/admin/layout/adminNav'
-import { getAdminMobileBarMode } from '@/admin/layout/adminPageMode'
+import { getAdminMobileBarMode, showCmsPublishInHeader } from '@/admin/layout/adminPageMode'
 import { saveDraftCMS } from '@/cms/storage'
 import { AdminKeyboardHelp } from '@/components/admin/AdminKeyboardHelp'
 import type { ContentSectionId } from '@/cms/validation'
@@ -208,7 +208,8 @@ function AdminDashboardInner() {
     void handlePublish()
   }, [confirm, handlePublish, publishSectionValidated, push, tab])
 
-  const mobileBarMode = getAdminMobileBarMode(tab)
+  const showPublishChrome = hasDraftChanges && showCmsPublishInHeader(tab)
+  const mobileBarMode = showPublishChrome ? getAdminMobileBarMode(tab) : 'hidden'
   const stickyPublishLabel =
     mobileBarMode === 'cms' ? 'Publish section' : 'Publish website'
 

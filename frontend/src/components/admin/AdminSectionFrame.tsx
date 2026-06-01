@@ -22,23 +22,25 @@ export function AdminSectionFrame({ section, onBack, children }: AdminSectionFra
       transition={{ type: 'spring', stiffness: 380, damping: 32 }}
       className="admin-section-frame admin-section-frame--minimal"
     >
-      <motion.button
-        type="button"
-        onClick={onBack}
-        className="admin-section-back-fab"
-        aria-label="Back to dashboard"
-        initial={{ opacity: 0, scale: 0.92 }}
-        animate={{ opacity: 1, scale: 1 }}
-        whileTap={{ scale: 0.94 }}
-      >
-        <motion.span
-          className="admin-section-back-fab__icon"
-          animate={{ x: [0, -4, 0] }}
-          transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
+      <div className="admin-section-back-anchor">
+        <motion.button
+          type="button"
+          onClick={onBack}
+          className="admin-section-back-fab"
+          aria-label="Back to dashboard"
+          initial={{ opacity: 0, scale: 0.92 }}
+          animate={{ opacity: 1, scale: 1 }}
+          whileTap={{ scale: 0.94 }}
         >
-          <ArrowLeft className="h-5 w-5" aria-hidden />
-        </motion.span>
-      </motion.button>
+          <motion.span
+            className="admin-section-back-fab__icon"
+            animate={{ x: [0, -4, 0] }}
+            transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
+          >
+            <ArrowLeft className="h-5 w-5" aria-hidden />
+          </motion.span>
+        </motion.button>
+      </div>
 
       <div className="admin-section-body admin-section-body--minimal">
         {issues.length > 0 ? (

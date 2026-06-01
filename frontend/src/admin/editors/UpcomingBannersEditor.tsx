@@ -382,8 +382,7 @@ export function UpcomingBannersEditor() {
                       </div>
                     </div>
 
-                    <div className="admin-editor-actions lg:max-w-[200px]">
-                      <div className="admin-editor-actions-row">
+                    <div className="admin-editor-actions">
                         <button
                           type="button"
                           disabled={idx === 0}
@@ -420,7 +419,6 @@ export function UpcomingBannersEditor() {
                         >
                           Down
                         </button>
-                      </div>
                       <button
                         type="button"
                         onClick={async () => {

@@ -192,7 +192,6 @@ export function CertificatesEditor() {
                   </div>
 
                   <div className="admin-editor-actions">
-                    <div className="admin-editor-actions-row sm:w-auto">
                       <button
                         type="button"
                         disabled={idx === 0}
@@ -227,8 +226,6 @@ export function CertificatesEditor() {
                       >
                         Down
                       </button>
-                    </div>
-
                     <button
                       type="button"
                       className="admin-btn admin-btn--danger admin-btn--sm"

@@ -76,7 +76,7 @@ export function AdminHeader({
           <ExternalLink className="h-4 w-4" />
           View live site
         </a>
-        {showPublish ? (
+        {showPublish && hasDraftChanges ? (
           <>
             <button type="button" className="admin-btn-secondary" onClick={onTogglePreviewPanel}>
               Preview draft
@@ -135,10 +135,12 @@ export function AdminHeader({
             <a href="/" target="_blank" rel="noopener noreferrer" className="admin-btn-ghost w-full">
               View live site
             </a>
-            <button type="button" onClick={onTogglePreviewPanel}>
-              Preview draft
-            </button>
-            {showPublish ? (
+            {showPublish && hasDraftChanges ? (
+              <button type="button" onClick={onTogglePreviewPanel}>
+                Preview draft
+              </button>
+            ) : null}
+            {showPublish && hasDraftChanges ? (
               <button type="button" onClick={onSaveDraft} disabled={!isHydrated}>
                 Save draft
               </button>

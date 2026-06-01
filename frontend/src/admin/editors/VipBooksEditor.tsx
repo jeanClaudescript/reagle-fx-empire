@@ -193,7 +193,7 @@ export function VipBooksEditor() {
                 </div>
                 {book.description ? <p className="mt-1 text-sm text-theme-muted">{book.description}</p> : null}
                 <p className="mt-2 truncate text-xs text-theme-muted">{book.fileName || book.fileUrl}</p>
-                <div className="mt-3 flex flex-wrap gap-2">
+                <div className="admin-editor-actions mt-3">
                   <button
                     type="button"
                     className="admin-btn admin-btn--secondary admin-btn--sm"

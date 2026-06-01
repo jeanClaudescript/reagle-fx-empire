@@ -246,7 +246,7 @@ export function EducationBooksEditor() {
                       {!book.enabled ? ' · hidden' : ''}
                     </p>
                   </div>
-                  <div className="admin-btn-group">
+                  <div className="admin-editor-actions w-auto max-w-full shrink-0">
                     <button type="button" className="admin-btn admin-btn--ghost text-xs" onClick={() => void moveBook(book.id, -1)} disabled={idx === 0}>
                       ↑
                     </button>

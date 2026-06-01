@@ -310,7 +310,6 @@ export function ProvenResultsEditor() {
                   </div>
 
                   <div className="admin-editor-actions">
-                    <div className="admin-editor-actions-row sm:w-auto">
                       <button
                         type="button"
                         disabled={idx === 0}
@@ -351,7 +350,6 @@ export function ProvenResultsEditor() {
                       >
                         Down
                       </button>
-                    </div>
                     <button
                       type="button"
                       onClick={async () => {
