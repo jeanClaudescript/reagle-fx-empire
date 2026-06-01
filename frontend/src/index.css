@@ -2722,6 +2722,93 @@
     @apply bg-emerald-500/15 text-emerald-400;
   }
 
+  .student-popup--celebrate {
+    @apply overflow-hidden;
+  }
+
+  .student-popup__glow--celebrate {
+    @apply from-sky-500/25 via-violet-500/15 to-amber-400/15;
+  }
+
+  .student-popup__confetti {
+    @apply pointer-events-none absolute inset-0 overflow-hidden rounded-3xl;
+  }
+
+  .student-popup__confetti::before,
+  .student-popup__confetti::after {
+    content: '';
+    @apply absolute rounded-full opacity-60;
+    animation: celebrate-float 4.5s ease-in-out infinite;
+  }
+
+  .student-popup__confetti::before {
+    @apply left-[8%] top-[12%] h-2 w-2 bg-sky-400;
+    animation-delay: 0s;
+  }
+
+  .student-popup__confetti::after {
+    @apply right-[10%] top-[18%] h-1.5 w-1.5 bg-violet-400;
+    animation-delay: 1.2s;
+  }
+
+  @keyframes celebrate-float {
+    0%,
+    100% {
+      transform: translateY(0) scale(1);
+      opacity: 0.5;
+    }
+    50% {
+      transform: translateY(-12px) scale(1.15);
+      opacity: 1;
+    }
+  }
+
+  .student-popup__badge {
+    @apply mb-3 inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-bold uppercase tracking-wide;
+  }
+
+  .student-popup__badge--new {
+    @apply border-sky-500/40 bg-sky-500/10 text-sky-400;
+  }
+
+  .student-popup__icon--created {
+    @apply relative bg-gradient-to-br from-sky-500/20 to-violet-500/25 text-sky-400;
+    box-shadow: 0 0 32px rgba(56, 189, 248, 0.28);
+  }
+
+  .student-popup__icon-ring {
+    @apply absolute inset-0 rounded-2xl border-2 border-sky-400/30;
+    animation: celebrate-ring 2.4s ease-out infinite;
+  }
+
+  @keyframes celebrate-ring {
+    0% {
+      transform: scale(1);
+      opacity: 0.7;
+    }
+    100% {
+      transform: scale(1.35);
+      opacity: 0;
+    }
+  }
+
+  .student-popup__perks {
+    @apply mt-4 space-y-1.5 text-left text-sm text-theme-muted;
+  }
+
+  .student-popup__perks li {
+    @apply relative pl-5;
+  }
+
+  .student-popup__perks li::before {
+    content: '✓';
+    @apply absolute left-0 font-bold text-sky-400;
+  }
+
+  .student-popup__later {
+    @apply mt-1 w-full py-2 text-center text-sm font-medium text-theme-muted transition hover:text-theme-primary;
+  }
+
   .student-status-badge {
     @apply inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-bold uppercase tracking-wide sm:text-xs;
   }

@@ -432,7 +432,18 @@
     "referralTitle": "Your referral code",
     "referralHint": "Share your link — earn when friends pay for the first time.",
     "copyLink": "Copy referral link",
-    "copied": "Copied!"
+    "copied": "Copied!",
+    "accountCreatedBadge": "Account created",
+    "accountCreatedTitle": "You're in — welcome!",
+    "accountCreatedBody": "Your free student account is ready. Explore lessons, tools, and chat with the community.",
+    "accountCreatedPerks": [
+      "Daily lessons on your dashboard",
+      "Community chat with photos & voice",
+      "Upgrade anytime for VIP live trading"
+    ],
+    "accountCreatedDeskCta": "Open my dashboard",
+    "accountCreatedChatCta": "Say hi in community chat",
+    "accountCreatedLater": "I'll explore later"
   },
   "freeDesk": {
     "badge": "Free student",

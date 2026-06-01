@@ -16,6 +16,7 @@ import {
   setStudentAuthToken,
 } from '@/student/studentSession'
 import { refreshAppSocketAuth } from '@/realtime/appSocket'
+import { markFreeAccountCreated } from '@/student/accountCreatedCelebration'
 
 const STORAGE_KEY = 'rfx_student_contact'
 
@@ -315,6 +316,7 @@ export function StudentAccessProvider({ children }: { children: ReactNode }) {
           isExpiringSoon: user.isExpiringSoon,
         })
         refreshAppSocketAuth()
+        markFreeAccountCreated()
         return statusFromMode(user.accessMode ?? 'unpaid')
       } catch (err) {
         const msg = err instanceof Error ? err.message : 'Could not create account'

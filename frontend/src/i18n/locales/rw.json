@@ -433,7 +433,18 @@
     "referralTitle": "Kode yawe yo gutumira",
     "referralHint": "Sangiza link — ubone igihe inshuti zishyura.",
     "copyLink": "Koporora link",
-    "copied": "Byakoporowe!"
+    "copied": "Byakoporowe!",
+    "accountCreatedBadge": "Konti yarakozwe",
+    "accountCreatedTitle": "Murakaza neza — byarangiye!",
+    "accountCreatedBody": "Konti yawe y'ubuntu irakora. Reba amasomo, ibikoresho n'ikiganiro cy'abanyeshuri.",
+    "accountCreatedPerks": [
+      "Amasomo ya buri munsi ku dashboard",
+      "Chat n'abandi — amafoto n'ijwi",
+      "Kuzamura VIP igihe ushaka"
+    ],
+    "accountCreatedDeskCta": "Fungura dashboard",
+    "accountCreatedChatCta": "Vuga mwaramutse mu chat",
+    "accountCreatedLater": "Nzareba nyuma"
   },
   "freeDesk": {
     "badge": "Umunyeshuri w'ubuntu",

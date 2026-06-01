@@ -433,7 +433,18 @@
     "referralTitle": "Msimbo wako wa rufaa",
     "referralHint": "Shiriki kiungo chako — pata zawadi rafiki anapolipa.",
     "copyLink": "Nakili kiungo",
-    "copied": "Imenakiliwa!"
+    "copied": "Imenakiliwa!",
+    "accountCreatedBadge": "Akaunti imeundwa",
+    "accountCreatedTitle": "Karibu — uko ndani!",
+    "accountCreatedBody": "Akaunti yako ya bure iko tayari. Angalia masomo, zana na gumzo la jamii.",
+    "accountCreatedPerks": [
+      "Masomo ya kila siku kwenye dashboard",
+      "Gumzo la jamii na picha/sauti",
+      "Panda VIP wakati wowote"
+    ],
+    "accountCreatedDeskCta": "Fungua dashboard yangu",
+    "accountCreatedChatCta": "Salimia kwenye gumzo",
+    "accountCreatedLater": "Nitaangalia baadaye"
   },
   "freeDesk": {
     "badge": "Mwanafunzi wa bure",

@@ -433,7 +433,18 @@
     "referralTitle": "Votre code de parrainage",
     "referralHint": "Partagez votre lien — gagnez quand vos amis paient.",
     "copyLink": "Copier le lien",
-    "copied": "Copié !"
+    "copied": "Copié !",
+    "accountCreatedBadge": "Compte créé",
+    "accountCreatedTitle": "Bienvenue — c'est prêt !",
+    "accountCreatedBody": "Votre compte étudiant gratuit est actif. Leçons, outils et chat communauté vous attendent.",
+    "accountCreatedPerks": [
+      "Leçons quotidiennes sur le dashboard",
+      "Chat communauté avec photos et vocal",
+      "Passez VIP quand vous voulez"
+    ],
+    "accountCreatedDeskCta": "Ouvrir mon dashboard",
+    "accountCreatedChatCta": "Dire bonjour au chat",
+    "accountCreatedLater": "Plus tard"
   },
   "freeDesk": {
     "badge": "Étudiant gratuit",

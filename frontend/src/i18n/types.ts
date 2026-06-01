@@ -450,6 +450,13 @@ export interface Translations {
     referralHint: string
     copyLink: string
     copied: string
+    accountCreatedBadge: string
+    accountCreatedTitle: string
+    accountCreatedBody: string
+    accountCreatedPerks: string[]
+    accountCreatedDeskCta: string
+    accountCreatedChatCta: string
+    accountCreatedLater: string
   }
   freeDesk: {
     badge: string

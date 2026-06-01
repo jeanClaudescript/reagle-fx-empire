@@ -2,6 +2,7 @@ import { LanguageProvider } from '@/context/LanguageContext'
 import { StudentAccessProvider } from '@/context/StudentAccessContext'
 import { AppRealtimeProvider } from '@/realtime/AppRealtimeProvider'
 import { ThemeProvider } from '@/context/ThemeContext'
+import { AccountCreatedPopup } from '@/components/student/AccountCreatedPopup'
 import { PaidStudentPopup } from '@/components/student/PaidStudentPopup'
 import { CmsProvider } from '@/cms/CmsProvider'
 import { useEffect, useState } from 'react'
@@ -58,6 +59,7 @@ function App() {
         <LanguageProvider>
           <StudentAccessProvider>
             <AppRealtimeProvider>
+            <AccountCreatedPopup />
             {path === '/login' ? (
               <LoginPage />
             ) : path === '/admin-login' ? (
