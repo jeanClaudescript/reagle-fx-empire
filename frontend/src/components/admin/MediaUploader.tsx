@@ -32,9 +32,7 @@ export function MediaUploader({
   return (
     <div className="space-y-3">
       <label
-        className={`relative flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-theme-accent/30 bg-theme-surface/50 px-4 py-6 text-center transition hover:border-theme-accent/50 hover:bg-theme-accent/5 ${
-          disabled || busy ? 'pointer-events-none opacity-60' : ''
-        }`}
+        className={`admin-file-dropzone relative ${disabled || busy ? 'pointer-events-none opacity-60' : ''}`}
       >
         {busy ? (
           <div className="flex w-full flex-col gap-2">

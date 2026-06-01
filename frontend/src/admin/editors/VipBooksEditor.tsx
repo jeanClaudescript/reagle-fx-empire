@@ -79,11 +79,7 @@ export function VipBooksEditor() {
             </div>
 
             <div>
-              <label
-                className={`cursor-pointer rounded-2xl border border-theme bg-theme-surface/60 px-4 py-3 text-sm font-semibold text-theme-primary ${
-                  uploadBusy ? 'opacity-60' : ''
-                }`}
-              >
+              <label className={`admin-file-btn ${uploadBusy ? 'opacity-60' : ''}`}>
                 {uploadBusy ? 'Uploading…' : 'Upload cover image'}
                 <input
                   type="file"
@@ -107,11 +103,7 @@ export function VipBooksEditor() {
             </div>
 
             <div>
-              <label
-                className={`cursor-pointer rounded-2xl border border-theme bg-theme-surface/60 px-4 py-3 text-sm font-semibold text-theme-primary ${
-                  uploadBusy ? 'opacity-60' : ''
-                }`}
-              >
+              <label className={`admin-file-btn ${uploadBusy ? 'opacity-60' : ''}`}>
                 {uploadBusy ? 'Uploading…' : 'Upload PDF book'}
                 <input
                   type="file"

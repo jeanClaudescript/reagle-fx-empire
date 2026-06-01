@@ -79,7 +79,7 @@ export function DailyUpdatesEditor() {
             {type !== 'text' ? (
               <div className="space-y-2 sm:col-span-2">
                 <AdminField label="Media">
-                  <label className="inline-flex cursor-pointer items-center rounded-xl border border-theme bg-theme-elevated/60 px-3 py-2 text-sm font-semibold text-theme-primary">
+                  <label className="admin-file-btn">
                     Upload {type}
                     <input
                       type="file"

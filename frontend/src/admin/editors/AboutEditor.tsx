@@ -80,7 +80,7 @@ export function AboutEditor() {
                   )}
                 </div>
 
-                <label className="cursor-pointer rounded-xl border border-theme bg-theme-elevated/60 px-3 py-2 text-sm font-semibold text-theme-primary">
+                <label className={`admin-file-btn ${busy || bgBusy ? 'opacity-60' : ''}`}>
                   {busy ? 'Uploading…' : 'Upload'}
                   <input
                     type="file"
@@ -151,7 +151,7 @@ export function AboutEditor() {
                   )}
                 </div>
 
-                <label className="cursor-pointer rounded-xl border border-theme bg-theme-elevated/60 px-3 py-2 text-sm font-semibold text-theme-primary">
+                <label className={`admin-file-btn ${bgBusy || busy ? 'opacity-60' : ''}`}>
                   {bgBusy ? 'Uploading…' : 'Upload Background'}
                   <input
                     type="file"

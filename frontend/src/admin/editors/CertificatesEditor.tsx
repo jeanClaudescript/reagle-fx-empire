@@ -54,11 +54,7 @@ export function CertificatesEditor() {
             </div>
 
             <div className="sm:col-span-2">
-              <label
-                className={`cursor-pointer rounded-2xl border border-theme bg-theme-surface/60 px-4 py-3 text-sm font-semibold text-theme-primary ${
-                  addDisabled ? 'opacity-60' : ''
-                }`}
-              >
+              <label className={`admin-file-btn ${addDisabled ? 'opacity-60' : ''}`}>
                 {uploadBusy ? 'Uploading…' : 'Upload Certificate Image'}
                 <input
                   type="file"

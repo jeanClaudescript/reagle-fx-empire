@@ -81,9 +81,7 @@ export function TeachingVideosEditor() {
                     }}
                   />
 
-                  <label
-                    className="cursor-pointer rounded-xl border border-theme bg-theme-elevated/60 px-4 py-2 text-sm font-semibold text-theme-primary"
-                  >
+                  <label className="admin-file-btn">
                     Upload media (image/video)
                     <input
                       type="file"

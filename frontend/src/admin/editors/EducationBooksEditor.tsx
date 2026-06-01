@@ -206,7 +206,6 @@ export function EducationBooksEditor() {
               <input
                 type="file"
                 accept=".pdf,.txt,.epub,application/pdf,text/plain,application/epub+zip"
-                className="block w-full text-sm text-theme-muted"
                 onChange={(e) => setFile(e.target.files?.[0] ?? null)}
               />
             </div>

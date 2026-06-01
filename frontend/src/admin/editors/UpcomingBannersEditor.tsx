@@ -91,7 +91,7 @@ export function UpcomingBannersEditor() {
             <div className="sm:col-span-2">
               <label className="admin-field-label">Banner image (optional)</label>
               <div className="admin-input-btn-row">
-                <label className="inline-flex cursor-pointer items-center rounded-xl border border-theme bg-theme-elevated/60 px-3 py-2 text-sm font-semibold text-theme-primary">
+                <label className="admin-file-btn">
                   Upload image
                   <input
                     type="file"
@@ -336,7 +336,7 @@ export function UpcomingBannersEditor() {
                               </div>
                             ) : null}
 
-                            <label className="inline-flex cursor-pointer items-center rounded-xl border border-theme bg-theme-elevated/60 px-3 py-2 text-sm font-semibold text-theme-primary">
+                            <label className="admin-file-btn">
                               Upload image
                               <input
                                 type="file"

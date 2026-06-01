@@ -81,9 +81,7 @@ export function ProvenResultsEditor() {
 
             <div className="sm:col-span-2">
               <label
-                className={`cursor-pointer rounded-2xl border border-theme bg-theme-surface/60 px-4 py-3 text-sm font-semibold text-theme-primary ${
-                  type === 'placeholder' ? 'opacity-60' : ''
-                }`}
+                className={`admin-file-btn ${type === 'placeholder' ? 'opacity-60' : ''}`}
               >
                 <input
                   type="file"
