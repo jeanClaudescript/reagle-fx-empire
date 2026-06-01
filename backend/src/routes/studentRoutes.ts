@@ -56,12 +56,14 @@ studentRoutes.post('/auth/login-free', async (req, res, next) => {
     const body = req.body as {
       phone?: string
       email?: string
+      password?: string
       deviceId?: string
       deviceLabel?: string
     }
     const data = await loginFreeStudent({
       phone: body.phone,
       email: body.email,
+      password: body.password,
       deviceId: body.deviceId ?? '',
       deviceLabel: body.deviceLabel,
     })

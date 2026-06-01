@@ -35,8 +35,7 @@ export function DashboardHome({ onNavigate, onWorkflow }: DashboardHomeProps) {
     { label: 'Daily updates', value: (draft.dailyUpdates ?? []).filter((u) => u.enabled).length },
     { label: 'Banners', value: draft.upcomingBanners.filter((b) => b.enabled).length },
     { label: 'Certificates', value: draft.certificates.length },
-    { label: 'Proven media', value: draft.provenResults.media.length },
-    { label: 'Teaching reels', value: draft.teachingVideos.length },
+    { label: 'Result media', value: draft.provenResults.media.length },
   ]
 
   return (
@@ -98,17 +97,17 @@ export function DashboardHome({ onNavigate, onWorkflow }: DashboardHomeProps) {
         </div>
       </AdminCard>
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="admin-stat-grid">
         {stats.map((s, i) => (
           <motion.div
             key={s.label}
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.06 }}
-            className="admin-stat-tile"
+            className="admin-stat-tile admin-stat-tile--compact"
           >
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-theme-muted">{s.label}</p>
-            <p className="mt-2 font-display text-3xl font-bold text-theme-primary">{s.value}</p>
+            <p className="admin-stat-tile__label">{s.label}</p>
+            <p className="admin-stat-tile__value">{s.value}</p>
           </motion.div>
         ))}
       </div>

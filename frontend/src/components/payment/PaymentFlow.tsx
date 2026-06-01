@@ -30,6 +30,7 @@ import { ProgramPlanPicker } from '@/components/payment/ProgramPlanPicker'
 import type { ProgramPlanId } from '@/types/program'
 
 type Step = 'form' | 'pay' | 'done'
+type AccessPath = 'regular' | 'vip'
 
 function PaySteps({ step }: { step: Step }) {
   const { t } = useLanguage()
@@ -65,6 +66,7 @@ function readQueryParams() {
     ref: params.get('ref')?.trim().toUpperCase() || '',
     phone: params.get('phone')?.trim() || '',
     email: params.get('email')?.trim() || '',
+    name: params.get('name')?.trim() || '',
   }
 }
 
@@ -76,7 +78,7 @@ function statusTone(status: PaymentRecord['status']) {
 
 export function PaymentFlow() {
   const { t } = useLanguage()
-  const { checkAccess } = useStudentAccess()
+  const { checkAccess, registerFree } = useStudentAccess()
   const { code: referrerCode, setCode: setReferrerCode, isAutoApplied, manualEntry, openManualEntry } =
     useReferralCode()
   const [step, setStep] = useState<Step>('form')
@@ -96,6 +98,7 @@ export function PaymentFlow() {
   const [amount, setAmount] = useState<number | ''>('')
   const [program, setProgram] = useState<ProgramPlanId | null>(null)
   const [polling, setPolling] = useState(false)
+  const [accessPath, setAccessPath] = useState<AccessPath>('regular')
 
   const restartPayment = () => {
     setStep('form')
@@ -111,6 +114,7 @@ export function PaymentFlow() {
     const q = readQueryParams()
     if (q.phone) setPhone(q.phone)
     if (q.email) setEmail(q.email)
+    if (q.name) setName(q.name)
     if (q.ref) setReferrerCode(q.ref)
   }, [setReferrerCode])
 
@@ -211,7 +215,45 @@ export function PaymentFlow() {
     window.location.assign(href)
   }
 
+  const validateForm = () => {
+    if (!name.trim()) {
+      setError(t.pay.needName)
+      return false
+    }
+    if (!phone.trim() && !email.trim()) {
+      setError(t.pay.needContact)
+      return false
+    }
+    return true
+  }
+
+  const createFreeAccount = async () => {
+    if (!validateForm()) return
+    setBusy(true)
+    setError(null)
+    setInfo(null)
+    try {
+      await registerFree({
+        name: name.trim(),
+        phone: phone.trim() || undefined,
+        email: email.trim() || undefined,
+        referrerCode: referrerCode.trim() || undefined,
+      })
+      window.history.pushState({}, '', '/desk')
+      window.dispatchEvent(new PopStateEvent('popstate'))
+    } catch (e) {
+      setError(e instanceof Error ? e.message : t.pay.createFailed)
+    } finally {
+      setBusy(false)
+    }
+  }
+
   const startPayment = async () => {
+    if (!validateForm()) return
+    if (config?.programsEnabled && !program) {
+      setError(t.pay.planLabel)
+      return
+    }
     setBusy(true)
     setError(null)
     setInfo(null)
@@ -252,10 +294,20 @@ export function PaymentFlow() {
     }
   }
 
-  if (config && !config.paymentsEnabled) {
+  if (config && !config.paymentsEnabled && accessPath === 'vip' && step === 'form') {
     return (
-      <div className="glass-card mx-auto max-w-lg p-8 text-center">
-        <p className="text-theme-muted">{t.pay.disabled}</p>
+      <div className="pay-flow mx-auto max-w-xl">
+        <PayFlowToolbar step={step} />
+        <div className="glass-card mx-auto max-w-lg p-8 text-center">
+          <p className="text-theme-muted">{t.pay.disabled}</p>
+          <button
+            type="button"
+            className="mt-4 text-sm font-semibold text-theme-accent"
+            onClick={() => setAccessPath('regular')}
+          >
+            {t.pay.accessRegular}
+          </button>
+        </div>
       </div>
     )
   }
@@ -263,45 +315,54 @@ export function PaymentFlow() {
   return (
     <div className="pay-flow mx-auto max-w-xl">
       <PayFlowToolbar step={step} showBack={step === 'pay'} onBack={() => setStep('form')} />
-      <PaySteps step={step} />
+      {step !== 'form' ? <PaySteps step={step} /> : null}
 
       {step === 'form' && (
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="pay-flow-card">
-          <h2 className="font-display text-2xl font-bold text-theme-primary">{t.pay.title}</h2>
-          <p className="mt-2 text-sm text-theme-muted">{t.pay.subtitle}</p>
+          <h1 className="font-display text-xl font-bold text-theme-primary sm:text-2xl">{t.pay.title}</h1>
+          <p className="mt-2 text-sm leading-relaxed text-theme-muted">{t.pay.intro1}</p>
+          <p className="mt-1 text-sm leading-relaxed text-theme-muted">{t.pay.intro2}</p>
 
-          {config?.payPageTip ? (
-            <p className="mt-4 rounded-xl bg-theme-accent/10 px-3 py-2 text-sm text-theme-primary">
-              {config.payPageTip}
-            </p>
-          ) : null}
-
-          <div className="mt-6">
-            <ProgramValueCard compact showPhysical={config?.physicalClassesEnabled} />
+          <div className="pay-access-toggle mt-5" role="tablist" aria-label={t.pay.title}>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={accessPath === 'regular'}
+              className={`pay-access-toggle__btn ${accessPath === 'regular' ? 'pay-access-toggle__btn--active' : ''}`}
+              onClick={() => setAccessPath('regular')}
+            >
+              {t.pay.accessRegular}
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={accessPath === 'vip'}
+              className={`pay-access-toggle__btn ${accessPath === 'vip' ? 'pay-access-toggle__btn--active' : ''}`}
+              onClick={() => setAccessPath('vip')}
+            >
+              {t.pay.accessVip}
+            </button>
           </div>
 
-          {config?.programsEnabled ? (
-            <div className="mt-6">
-              <ProgramPlanPicker config={config} value={program} onChange={setProgram} />
-            </div>
-          ) : null}
-
-          <div className="pay-method-preview mt-6">
-            <p className="text-xs font-bold uppercase tracking-wider text-theme-muted">{t.pay.howItWorks}</p>
-            <ol className="mt-2 space-y-2 text-sm text-theme-primary">
-              <li>{t.pay.flowStep1}</li>
-              <li>{t.pay.flowStep2}</li>
-              <li>{t.pay.flowStep3}</li>
-            </ol>
-          </div>
-
-          <div className="mt-6 space-y-4">
+          <div className="auth-form-stack auth-form-stack--compact mt-5">
+            <label className="forex-field">
+              <span>{t.pay.nameLabel}</span>
+              <input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder={t.pay.namePlaceholder}
+                autoComplete="name"
+                required
+              />
+            </label>
             <label className="forex-field">
               <span>{t.pay.phoneLabel}</span>
               <input
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="07XXXXXXXX"
+                autoComplete="tel"
+                inputMode="tel"
               />
             </label>
             <label className="forex-field">
@@ -311,91 +372,125 @@ export function PaymentFlow() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@email.com"
+                autoComplete="email"
               />
             </label>
-            <label className="forex-field">
-              <span>{t.pay.nameLabel}</span>
-              <input value={name} onChange={(e) => setName(e.target.value)} />
-            </label>
-            {referrerCode && isAutoApplied && !manualEntry ? (
-              <ReferralAppliedBadge code={referrerCode} onChangeCode={openManualEntry} />
-            ) : (
-              <label className="forex-field">
-                <span>{t.pay.referralLabel}</span>
-                <input
-                  value={referrerCode}
-                  onChange={(e) => setReferrerCode(e.target.value)}
-                  placeholder="REF-XXXX"
-                />
-              </label>
-            )}
-            <label className="forex-field">
-              <span>{t.pay.networkLabel}</span>
-              <select
-                value={provider}
-                onChange={(e) => setProvider(e.target.value as 'MTN' | 'AIRTEL')}
-              >
-                <option value="MTN">{t.pay.networkMtn}</option>
-                <option value="AIRTEL">{t.pay.networkAirtel}</option>
-              </select>
-            </label>
-            {config?.programsEnabled ? (
-              <p className="forex-tool-result text-sm text-theme-muted">
-                {t.pay.amountFixed}:{' '}
-                <span className="font-semibold text-theme-primary">{amountLabel}</span>
-                {config?.displayMerchantPhone ? (
-                  <>
-                    {' '}
-                    · {t.pay.payTo}{' '}
-                    <span className="font-semibold text-theme-primary">
-                      {config.displayMerchantPhone}
-                    </span>
-                  </>
-                ) : null}
-              </p>
-            ) : config?.allowCustomAmount ? (
-              <label className="forex-field">
-                <span>
-                  {t.pay.amountLabel} ({config.currency})
-                </span>
-                <input
-                  type="number"
-                  min={100}
-                  value={amount}
-                  onChange={(e) =>
-                    setAmount(e.target.value === '' ? '' : Number(e.target.value))
-                  }
-                />
-              </label>
-            ) : (
-              <p className="forex-tool-result text-sm text-theme-muted">
-                {t.pay.amountFixed}:{' '}
-                <span className="font-semibold text-theme-primary">{amountLabel}</span>
-                {config?.displayMerchantPhone ? (
-                  <>
-                    {' '}
-                    · {t.pay.payTo}{' '}
-                    <span className="font-semibold text-theme-primary">
-                      {config.displayMerchantPhone}
-                    </span>
-                  </>
-                ) : null}
-              </p>
-            )}
           </div>
 
-          <OtherPaymentNotice coachPhone={config?.displayMerchantPhone} />
+          {accessPath === 'vip' ? (
+            <div className="mt-4 space-y-3">
+              {config?.programsEnabled ? (
+                <ProgramPlanPicker config={config} value={program} onChange={setProgram} />
+              ) : null}
 
-          {error && <p className="mt-4 text-sm text-rose-400">{error}</p>}
+              <label className="forex-field">
+                <span>{t.pay.networkLabel}</span>
+                <select
+                  value={provider}
+                  onChange={(e) => setProvider(e.target.value as 'MTN' | 'AIRTEL')}
+                >
+                  <option value="MTN">{t.pay.networkMtn}</option>
+                  <option value="AIRTEL">{t.pay.networkAirtel}</option>
+                </select>
+              </label>
 
-          <button
-            type="button"
-            disabled={busy || (!phone.trim() && !email.trim()) || (config?.programsEnabled && !program)}
-            onClick={startPayment}
-            className="mt-6 h-12 w-full rounded-xl bg-gradient-to-r from-empire-purple to-empire-blue font-semibold text-white disabled:opacity-50"
-          >
-            {busy ? t.pay.creating : t.pay.continueCta}
-          </button>
+              {config?.programsEnabled ? (
+                <p className="forex-tool-result text-sm text-theme-muted">
+                  {t.pay.amountFixed}:{' '}
+                  <span className="font-semibold text-theme-primary">{amountLabel}</span>
+                  {config?.displayMerchantPhone ? (
+                    <>
+                      {' '}
+                      · {t.pay.payTo}{' '}
+                      <span className="font-semibold text-theme-primary">{config.displayMerchantPhone}</span>
+                    </>
+                  ) : null}
+                </p>
+              ) : config?.allowCustomAmount ? (
+                <label className="forex-field">
+                  <span>
+                    {t.pay.amountLabel} ({config?.currency})
+                  </span>
+                  <input
+                    type="number"
+                    min={100}
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value === '' ? '' : Number(e.target.value))}
+                  />
+                </label>
+              ) : (
+                <p className="forex-tool-result text-sm text-theme-muted">
+                  {t.pay.amountFixed}:{' '}
+                  <span className="font-semibold text-theme-primary">{amountLabel}</span>
+                  {config?.displayMerchantPhone ? (
+                    <>
+                      {' '}
+                      · {t.pay.payTo}{' '}
+                      <span className="font-semibold text-theme-primary">{config.displayMerchantPhone}</span>
+                    </>
+                  ) : null}
+                </p>
+              )}
+            </div>
+          ) : null}
+
+          <details className="pay-flow-more mt-4">
+            <summary>{t.pay.optionalFields}</summary>
+            <div className="pay-flow-more__body">
+              {referrerCode && isAutoApplied && !manualEntry ? (
+                <ReferralAppliedBadge code={referrerCode} onChangeCode={openManualEntry} />
+              ) : (
+                <label className="forex-field">
+                  <span>{t.pay.referralLabel}</span>
+                  <input
+                    value={referrerCode}
+                    onChange={(e) => setReferrerCode(e.target.value)}
+                    placeholder="REF-XXXX"
+                  />
+                </label>
+              )}
+            </div>
+          </details>
+
+          {error && <p className="mt-3 text-sm text-rose-400">{error}</p>}
+
+          {accessPath === 'regular' ? (
+            <button
+              type="button"
+              disabled={busy || !name.trim() || (!phone.trim() && !email.trim())}
+              onClick={() => void createFreeAccount()}
+              className="mt-5 h-12 w-full rounded-xl bg-gradient-to-r from-empire-purple to-empire-blue font-semibold text-white disabled:opacity-50"
+            >
+              {busy ? t.pay.creatingAccount : t.pay.createFreeCta}
+            </button>
+          ) : (
+            <button
+              type="button"
+              disabled={busy || !name.trim() || (!phone.trim() && !email.trim()) || (config?.programsEnabled && !program)}
+              onClick={() => void startPayment()}
+              className="mt-5 h-12 w-full rounded-xl bg-gradient-to-r from-empire-purple to-empire-blue font-semibold text-white disabled:opacity-50"
+            >
+              {busy ? t.pay.creating : t.pay.continueCta}
+            </button>
+          )}
+
+          {accessPath === 'vip' ? (
+            <details className="pay-flow-more mt-4">
+              <summary>{t.pay.learnMore}</summary>
+              <div className="pay-flow-more__body">
+                {config?.payPageTip ? (
+                  <p className="rounded-xl bg-theme-accent/10 px-3 py-2 text-sm text-theme-primary">{config.payPageTip}</p>
+                ) : null}
+                <ProgramValueCard compact showPhysical={config?.physicalClassesEnabled} />
+                <ol className="mt-3 list-decimal space-y-1 pl-4 text-sm text-theme-muted">
+                  <li>{t.pay.flowStep1}</li>
+                  <li>{t.pay.flowStep2}</li>
+                  <li>{t.pay.flowStep3}</li>
+                </ol>
+                <OtherPaymentNotice coachPhone={config?.displayMerchantPhone} />
+              </div>
+            </details>
+          ) : null}
         </motion.div>
       )}
 

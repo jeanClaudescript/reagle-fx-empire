@@ -383,7 +383,7 @@ export function UpcomingBannersEditor() {
                     </div>
 
                     <div className="admin-editor-actions lg:max-w-[200px]">
-                      <div className="flex w-full gap-2">
+                      <div className="admin-editor-actions-row">
                         <button
                           type="button"
                           disabled={idx === 0}

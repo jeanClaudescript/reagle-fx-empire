@@ -402,7 +402,7 @@ export const studentApi = {
         }
       }
     }>('/api/students/auth/login', { method: 'POST', body }),
-  loginFree: (body: { phone?: string; email?: string; deviceId: string; deviceLabel?: string }) =>
+  loginFree: (body: { phone?: string; email?: string; password?: string; deviceId: string; deviceLabel?: string }) =>
     apiFetch<{
       ok: true
       data: {

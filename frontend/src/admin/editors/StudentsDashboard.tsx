@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { CheckCircle2, Clock, TrendingUp, UserPlus, Users } from 'lucide-react'
+import { TrendingUp } from 'lucide-react'
 import { studentApi, type StudentRecord, type StudentStats } from '@/services/api'
 import { AdminCard } from '@/components/admin/AdminCard'
 import type { ManageView } from '@/admin/components/ManageSubNav'
@@ -7,32 +7,22 @@ import type { ManageView } from '@/admin/components/ManageSubNav'
 function StatCard({
   label,
   value,
-  hint,
-  icon: Icon,
   tone,
 }: {
   label: string
   value: string | number
-  hint?: string
-  icon: typeof Users
   tone: 'purple' | 'green' | 'amber' | 'blue'
 }) {
   const tones = {
-    purple: 'from-empire-purple/20 to-empire-blue/10 border-empire-purple/30 text-empire-purple-glow',
-    green: 'from-emerald-500/15 to-emerald-600/5 border-emerald-500/30 text-emerald-400',
-    amber: 'from-amber-500/15 to-orange-500/5 border-amber-500/30 text-amber-400',
-    blue: 'from-sky-500/15 to-blue-600/5 border-sky-500/30 text-sky-400',
+    purple: 'from-empire-purple/20 to-empire-blue/10 border-empire-purple/30',
+    green: 'from-emerald-500/15 to-emerald-600/5 border-emerald-500/30',
+    amber: 'from-amber-500/15 to-orange-500/5 border-amber-500/30',
+    blue: 'from-sky-500/15 to-blue-600/5 border-sky-500/30',
   }
   return (
-    <div className={`manage-stat-card bg-gradient-to-br ${tones[tone]}`}>
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-theme-muted">{label}</p>
-          <p className="mt-2 font-display text-2xl font-bold text-theme-primary">{value}</p>
-          {hint ? <p className="mt-1 text-xs text-theme-muted">{hint}</p> : null}
-        </div>
-        <Icon className="h-8 w-8 shrink-0 opacity-80" />
-      </div>
+    <div className={`admin-stat-tile admin-stat-tile--compact border bg-gradient-to-br to-transparent ${tones[tone]}`}>
+      <p className="admin-stat-tile__label">{label}</p>
+      <p className="admin-stat-tile__value">{value}</p>
     </div>
   )
 }
@@ -90,17 +80,11 @@ export function StudentsDashboard({ onNavigate }: { onNavigate: (view: ManageVie
 
   return (
     <div className="admin-form-stack">
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Total students" value={stats.totalStudents} icon={Users} tone="purple" />
-        <StatCard label="Paid students" value={stats.paidStudents} icon={CheckCircle2} tone="green" />
-        <StatCard label="Unpaid students" value={stats.unpaidStudents} icon={UserPlus} tone="amber" />
-        <StatCard
-          label="Pending payments"
-          value={stats.pendingPayments}
-          icon={Clock}
-          tone="blue"
-          hint="Awaiting approval"
-        />
+      <div className="admin-stat-grid">
+        <StatCard label="Total students" value={stats.totalStudents} tone="purple" />
+        <StatCard label="Paid students" value={stats.paidStudents} tone="green" />
+        <StatCard label="Unpaid students" value={stats.unpaidStudents} tone="amber" />
+        <StatCard label="Pending payments" value={stats.pendingPayments} tone="blue" />
       </div>
 
       <AdminCard>

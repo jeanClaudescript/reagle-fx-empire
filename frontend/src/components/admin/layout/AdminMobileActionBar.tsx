@@ -52,7 +52,7 @@ export function AdminMobileActionBar({
       <motion.button
         type="button"
         whileTap={{ scale: 0.97 }}
-        className="admin-btn admin-btn--primary flex-[1.15]"
+        className="admin-btn admin-btn--primary"
         onClick={onPublish}
         disabled={!isHydrated}
         aria-label={publishLabel}

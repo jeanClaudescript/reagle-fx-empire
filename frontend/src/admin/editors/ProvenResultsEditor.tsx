@@ -312,7 +312,7 @@ export function ProvenResultsEditor() {
                   </div>
 
                   <div className="admin-editor-actions">
-                    <div className="flex w-full gap-2 sm:w-auto">
+                    <div className="admin-editor-actions-row sm:w-auto">
                       <button
                         type="button"
                         disabled={idx === 0}

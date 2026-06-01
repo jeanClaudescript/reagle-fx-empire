@@ -37,14 +37,17 @@ export function StudentLoginPanel({
     useStudentAccess()
   const { code: referrerCode, setCode: setReferrerCode, isAutoApplied, manualEntry, openManualEntry } =
     useReferralCode()
+  const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [view, setView] = useState<View>('form')
 
   useEffect(() => {
     if (isLoggedIn) setView(membershipStatus)
     else setView('form')
+    setName(contact?.name ?? '')
     setPhone(contact?.phone ?? '')
     setEmail(contact?.email ?? '')
   }, [isLoggedIn, membershipStatus, contact])
@@ -58,8 +61,13 @@ export function StudentLoginPanel({
     setError(null)
 
     if (mode === 'signup') {
+      if (!name.trim()) {
+        setError(t.studentLogin.needName)
+        return
+      }
       try {
         await registerFree({
+          name: name.trim(),
           phone: phone.trim() || undefined,
           email: email.trim() || undefined,
           referrerCode: referrerCode.trim() || undefined,
@@ -74,8 +82,10 @@ export function StudentLoginPanel({
     }
 
     const status = await checkAccess({
+      name: name.trim() || undefined,
       phone: phone.trim() || undefined,
       email: email.trim() || undefined,
+      password: password.trim() || undefined,
     })
     if (status === 'none') {
       setError(t.studentLogin.error)
@@ -88,13 +98,16 @@ export function StudentLoginPanel({
   const handleLogout = () => {
     logout()
     setView('form')
+    setName('')
     setPhone('')
     setEmail('')
+    setPassword('')
   }
 
   const goPay = () => {
     onDone?.()
     const params = new URLSearchParams()
+    if (name.trim()) params.set('name', name.trim())
     if (phone.trim()) params.set('phone', phone.trim())
     if (email.trim()) params.set('email', email.trim())
     const storedRef = getStoredReferralCode()
@@ -208,23 +221,35 @@ export function StudentLoginPanel({
   const isLogin = mode === 'login'
 
   return (
-    <form className="auth-form-stack" onSubmit={submit}>
+    <form className="auth-form-stack auth-form-stack--compact" onSubmit={submit}>
       {showLogo && (
         <button
           type="button"
-          className="auth-logo mx-auto"
+          className="auth-logo auth-logo--compact mx-auto"
           onClick={onLogoTap}
           aria-label={t.authPage.brandMark}
         >
           <span className="auth-logo__mark">RFX</span>
         </button>
       )}
-      <h2 className="auth-form-title">
+      <h2 className="auth-form-title auth-form-title--compact">
         {isLogin ? t.authPage.loginWelcome : t.authPage.signupWelcome}
       </h2>
-      <p className="auth-form-subtitle">
-        {isLogin ? t.authPage.loginSubtitle : t.authPage.signupSubtitle}
-      </p>
+      {!isLogin ? <p className="auth-form-hint">{t.authPage.signupHint}</p> : null}
+
+      {!isLogin ? (
+        <label className="auth-field">
+          <span className="auth-field__label">{t.studentLogin.name}</span>
+          <input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder={t.studentLogin.namePlaceholder}
+            className="auth-input"
+            autoComplete="name"
+            required
+          />
+        </label>
+      ) : null}
 
       <label className="auth-field">
         <span className="auth-field__label">{t.studentLogin.phone}</span>
@@ -237,10 +262,6 @@ export function StudentLoginPanel({
         />
       </label>
 
-      <div className="auth-divider">
-        <span>{t.authPage.or}</span>
-      </div>
-
       <label className="auth-field">
         <span className="auth-field__label">{t.studentLogin.email}</span>
         <input
@@ -252,6 +273,21 @@ export function StudentLoginPanel({
           autoComplete="email"
         />
       </label>
+
+      {isLogin ? (
+        <label className="auth-field">
+          <span className="auth-field__label">{t.studentLogin.password}</span>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="••••••••"
+            className="auth-input"
+            autoComplete="current-password"
+          />
+          <span className="auth-field__hint">{t.studentLogin.passwordOptional}</span>
+        </label>
+      ) : null}
 
       {!isLogin && referrerCode && isAutoApplied && !manualEntry ? (
         <ReferralAppliedBadge code={referrerCode} onChangeCode={openManualEntry} />
@@ -276,7 +312,7 @@ export function StudentLoginPanel({
       </button>
 
       {!isLogin ? (
-        <button type="button" className="auth-secondary-btn auth-text-link" onClick={goPay}>
+        <button type="button" className="auth-vip-link" onClick={goPay}>
           {t.authPage.joinVipPay}
         </button>
       ) : null}
@@ -298,8 +334,6 @@ export function StudentLoginPanel({
           </>
         )}
       </p>
-
-      <p className="auth-footnote">{t.authPage.studentFootnote}</p>
     </form>
   )
 }

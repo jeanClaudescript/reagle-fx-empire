@@ -76,7 +76,7 @@ export function SectionEditorActions({ section }: SectionEditorActionsProps) {
           Publish section
         </button>
       </div>
-      <p className="admin-section-actions-hint">
+      <p className="admin-section-actions-hint hidden sm:block">
         Save draft keeps edits on this device. Publish section pushes only {label} to the live site.
       </p>
     </div>

@@ -247,7 +247,7 @@ export function EducationBooksEditor() {
                       {!book.enabled ? ' · hidden' : ''}
                     </p>
                   </div>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="admin-btn-group">
                     <button type="button" className="admin-btn admin-btn--ghost text-xs" onClick={() => void moveBook(book.id, -1)} disabled={idx === 0}>
                       ↑
                     </button>

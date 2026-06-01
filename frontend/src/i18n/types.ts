@@ -139,6 +139,17 @@ export interface Translations {
     badge: string
     title: string
     subtitle: string
+    subtitleShort: string
+    accessRegular: string
+    accessVip: string
+    intro1: string
+    intro2: string
+    createFreeCta: string
+    creatingAccount: string
+    optionalFields: string
+    learnMore: string
+    needName: string
+    needContact: string
     stepDetails: string
     stepPay: string
     stepDone: string
@@ -149,6 +160,7 @@ export interface Translations {
     phoneLabel: string
     emailLabel: string
     nameLabel: string
+    namePlaceholder: string
     referralLabel: string
     networkLabel: string
     networkMtn: string
@@ -365,6 +377,7 @@ export interface Translations {
     loginSubtitle: string
     signupWelcome: string
     signupSubtitle: string
+    signupHint: string
     signIn: string
     createAccount: string
     createFreeAccount: string
@@ -408,6 +421,11 @@ export interface Translations {
     subtitle: string
     phone: string
     email: string
+    name: string
+    namePlaceholder: string
+    password: string
+    passwordOptional: string
+    needName: string
     submit: string
     needContact: string
     error: string

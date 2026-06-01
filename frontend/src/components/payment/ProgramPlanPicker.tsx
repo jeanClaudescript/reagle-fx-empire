@@ -51,7 +51,6 @@ export function ProgramPlanPicker({ config, value, onChange }: Props) {
                   {amount.toLocaleString()} {config.currency}
                 </span>
               </span>
-              <span className="mt-1 block text-left text-xs text-theme-muted">{t.pay[plan.descKey]}</span>
             </button>
           )
         })}

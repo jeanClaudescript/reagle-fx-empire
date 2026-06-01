@@ -21,7 +21,7 @@ const STORAGE_KEY = 'rfx_student_contact'
 
 export type StudentMembershipStatus = 'none' | 'paid' | 'unpaid' | 'expired' | 'promo' | 'not_found'
 
-type Contact = { phone?: string; email?: string; name?: string }
+type Contact = { phone?: string; email?: string; name?: string; password?: string }
 
 type MembershipFields = {
   paidUntil: string | null
@@ -81,6 +81,7 @@ async function establishFreeSession(input: Contact) {
   const res = await studentApi.loginFree({
     phone: input.phone,
     email: input.email,
+    password: input.password,
     deviceId: getStudentDeviceId(),
     deviceLabel: getStudentDeviceLabel(),
   })

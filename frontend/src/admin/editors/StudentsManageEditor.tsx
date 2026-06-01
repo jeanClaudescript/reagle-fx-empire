@@ -1,13 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
-  BadgeCheck,
-  Clock,
   Copy,
   CreditCard,
   Share2,
   UserPlus,
-  Users,
-  Wallet,
 } from 'lucide-react'
 import {
   paymentApi,
@@ -160,37 +156,29 @@ export function StudentsManageEditor() {
 
   return (
     <div className="admin-form-stack">
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="admin-stat-grid">
         <StatChip
-          icon={BadgeCheck}
           label="Paid access"
           value={stats?.paidStudents ?? '—'}
-          hint="Full toolkit + live room"
           tone="emerald"
         />
         <StatChip
-          icon={Users}
           label="Unpaid"
           value={stats?.unpaidStudents ?? '—'}
-          hint="Need payment or manual grant"
           tone="amber"
         />
         <StatChip
-          icon={Clock}
           label="Pending MoMo"
           value={stats?.pendingPayments ?? '—'}
-          hint={lateUnpaid.length ? `${lateUnpaid.length} waiting 24h+` : 'Awaiting approval'}
           tone="rose"
         />
         <StatChip
-          icon={Wallet}
           label="Referral reward"
           value={
             stats
               ? `${stats.referralRewardAmount.toLocaleString()} ${stats.currency}`
               : '—'
           }
-          hint="Per first paid referral"
           tone="purple"
         />
       </div>
@@ -391,16 +379,12 @@ export function StudentsManageEditor() {
 }
 
 function StatChip({
-  icon: Icon,
   label,
   value,
-  hint,
   tone,
 }: {
-  icon: typeof Users
   label: string
   value: string | number
-  hint: string
   tone: 'emerald' | 'amber' | 'rose' | 'purple'
 }) {
   const ring =
@@ -412,15 +396,9 @@ function StatChip({
           ? 'border-rose-500/30 from-rose-500/10'
           : 'border-empire-purple/30 from-empire-purple/10'
   return (
-    <div className={`admin-stat-tile border bg-gradient-to-br to-transparent ${ring}`}>
-      <div className="flex items-start justify-between gap-2">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-theme-muted">{label}</p>
-          <p className="mt-2 font-display text-2xl font-bold text-theme-primary">{value}</p>
-          <p className="mt-1 text-xs text-theme-muted">{hint}</p>
-        </div>
-        <Icon className="h-8 w-8 shrink-0 opacity-70 text-theme-accent" />
-      </div>
+    <div className={`admin-stat-tile admin-stat-tile--compact border bg-gradient-to-br to-transparent ${ring}`}>
+      <p className="admin-stat-tile__label">{label}</p>
+      <p className="admin-stat-tile__value">{value}</p>
     </div>
   )
 }

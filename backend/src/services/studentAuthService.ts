@@ -1,6 +1,7 @@
 import { randomBytes } from 'crypto'
 import { AppUserModel, type AppUserDocument } from '../models/AppUser.js'
 import { StudentSessionModel } from '../models/StudentSession.js'
+import { verifyPassword } from '../utils/password.js'
 import { createStudentAccount, findUserByContact } from './studentService.js'
 import {
   canAccessVipDesk,
@@ -134,12 +135,13 @@ export async function registerFreeStudent(input: {
   deviceLabel?: string
 }) {
   if (!input.deviceId?.trim()) throw new Error('Device id is required')
+  if (!input.name?.trim()) throw new Error('Full name is required')
 
   const existing = await findUserByContact({ phone: input.phone, email: input.email })
   if (existing) throw new Error('Account already exists — sign in instead')
 
   await createStudentAccount({
-    name: input.name,
+    name: input.name.trim(),
     phone: input.phone,
     email: input.email,
     referrerCode: input.referrerCode,
@@ -160,6 +162,7 @@ export async function registerFreeStudent(input: {
 export async function loginFreeStudent(input: {
   phone?: string
   email?: string
+  password?: string
   deviceId: string
   deviceLabel?: string
 }) {
@@ -171,6 +174,16 @@ export async function loginFreeStudent(input: {
   const mode = await resolveAccessMode(user)
   if (mode === 'expired') {
     throw new Error('Membership expired — renew to unlock the VIP desk')
+  }
+
+  const password = input.password?.trim()
+  if (password) {
+    const withPassword = await AppUserModel.findById(user._id).select('+passwordHash +passwordSalt')
+    if (withPassword?.passwordHash && withPassword.passwordSalt) {
+      if (!verifyPassword(password, withPassword.passwordSalt, withPassword.passwordHash)) {
+        throw new Error('Wrong password')
+      }
+    }
   }
 
   const session = await createStudentSession(String(user._id), input.deviceId.trim(), input.deviceLabel)
