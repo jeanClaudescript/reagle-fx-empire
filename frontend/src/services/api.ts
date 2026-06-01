@@ -202,6 +202,7 @@ export type PaymentSettings = {
   currency: string
   ussdTemplate: string
   referralRewardAmount: number
+  referralPointsPerSignup: number
   paymentNote: string
   paymentsEnabled: boolean
   allowCustomAmount: boolean
@@ -323,6 +324,7 @@ export type StudentRecord = {
   isExpiringSoon?: boolean
   notes: string
   walletBalance: number
+  referralPoints: number
   totalPaid: number
   paymentCount: number
   lastPaymentAt?: string
@@ -335,6 +337,7 @@ export type StudentStats = {
   totalStudents: number
   paidStudents: number
   unpaidStudents: number
+  regularStudents: number
   pendingPayments: number
   totalRevenue: number
   currency: string
@@ -473,7 +476,7 @@ export const studentApi = {
       }
     }>('/api/students/auth/me', { student: true }),
   getStats: () => apiFetch<{ data: StudentStats }>('/api/students/admin/stats', { admin: true }),
-  list: (params: { status?: 'paid' | 'unpaid' | 'all'; q?: string }) => {
+  list: (params: { status?: 'paid' | 'unpaid' | 'regular' | 'all'; q?: string }) => {
     const search = new URLSearchParams()
     if (params.status) search.set('status', params.status)
     if (params.q) search.set('q', params.q)
@@ -481,6 +484,28 @@ export const studentApi = {
     return apiFetch<{ data: StudentRecord[] }>(`/api/students/admin/list${qs ? `?${qs}` : ''}`, {
       admin: true,
     })
+  },
+  downloadExport: async (params: { status?: 'paid' | 'unpaid' | 'regular' | 'all'; q?: string }) => {
+    const search = new URLSearchParams()
+    if (params.status) search.set('status', params.status)
+    if (params.q?.trim()) search.set('q', params.q.trim())
+    const token = getAdminAuthToken()
+    if (!token) throw new Error('Not signed in as admin')
+    const res = await fetch(`${API_BASE}/api/students/admin/export?${search}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    if (!res.ok) {
+      const text = await res.text()
+      throw new Error(parseApiError(text, res.status))
+    }
+    const blob = await res.blob()
+    const label = params.status ?? 'all'
+    const url = URL.createObjectURL(blob)
+    const anchor = document.createElement('a')
+    anchor.href = url
+    anchor.download = `reagle-${label}-students.csv`
+    anchor.click()
+    URL.revokeObjectURL(url)
   },
   create: (body: {
     name?: string

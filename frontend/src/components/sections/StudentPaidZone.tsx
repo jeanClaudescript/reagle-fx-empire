@@ -10,13 +10,15 @@ import { GlowButton } from '@/components/ui/GlowButton'
  */
 export function StudentPaidZone() {
   const { t } = useLanguage()
-  const { isPaid, hasVipSession, loading } = useStudentAccess()
+  const { accessMode, hasVipSession, loading } = useStudentAccess()
+  const showDeskEntry =
+    accessMode === 'paid' || accessMode === 'promo' || (hasVipSession && accessMode !== 'expired')
 
   if (loading) {
     return <div className="min-h-[24vh] border-t border-theme" aria-hidden />
   }
 
-  if (!isPaid) {
+  if (!showDeskEntry) {
     return <StudentUpgradeTeaser />
   }
 

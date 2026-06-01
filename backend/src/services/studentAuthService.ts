@@ -31,6 +31,7 @@ export async function serializeStudent(user: AppUserDocument) {
     membershipExpired: mode === 'expired',
     siteFreeAccessActive: promo.active,
     referralCode: user.referralCode,
+    referralPoints: user.referralPoints ?? 0,
     paidAt: user.paidAt?.toISOString(),
     ...meta,
   }

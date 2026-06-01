@@ -1,18 +1,12 @@
 import { createContext, useContext, useEffect, type ReactNode } from 'react'
-import { getAdminAuthToken } from '@/admin/adminSession'
-import { getStudentAuthToken } from '@/student/studentSession'
-import { connectAppSocket, refreshAppSocketAuth } from './appSocket'
+import { connectAppSocket, refreshAppSocketAuth, resolvePreferredAppSocketRole } from './appSocket'
 
 const AppRealtimeContext = createContext<{ connected: boolean }>({ connected: false })
 
 export function AppRealtimeProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const boot = () => {
-      const admin = getAdminAuthToken()
-      const student = getStudentAuthToken()
-      if (admin) connectAppSocket('admin')
-      else if (student) connectAppSocket('student')
-      else connectAppSocket('guest')
+      connectAppSocket(resolvePreferredAppSocketRole())
     }
 
     boot()

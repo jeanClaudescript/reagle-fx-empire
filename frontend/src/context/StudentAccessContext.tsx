@@ -90,9 +90,9 @@ async function establishFreeSession(input: Contact) {
   return res.data.user
 }
 
-function userHasPaidAccess(user: { accessMode?: StudentAccessMode }) {
-  const mode = user.accessMode ?? 'unpaid'
-  return mode === 'paid' || mode === 'promo'
+/** Full paid VIP membership only — not site-wide promo or free registration. */
+function userHasPaidMembership(user: { accessMode?: StudentAccessMode }) {
+  return (user.accessMode ?? 'unpaid') === 'paid'
 }
 
 function pickMembership(data: {
@@ -157,7 +157,7 @@ export function StudentAccessProvider({ children }: { children: ReactNode }) {
       } & Partial<MembershipFields>,
     ) => {
       const meta = pickMembership(user)
-      const paid = userHasPaidAccess(user)
+      const paid = userHasPaidMembership(user)
       setContact(next)
       localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
       setFound(true)
@@ -202,10 +202,9 @@ export function StudentAccessProvider({ children }: { children: ReactNode }) {
         return 'expired'
       }
 
-      const hasAccess = meta.accessMode === 'paid' || meta.accessMode === 'promo'
-      setIsPaid(hasAccess)
+      setIsPaid(meta.accessMode === 'paid' || meta.accessMode === 'promo')
+      setHasVipSession(false)
       setMembershipStatus(statusFromMode(meta.accessMode))
-      if (!hasAccess) setHasVipSession(false)
       if (data.referralCode) setReferralCode(data.referralCode)
       return statusFromMode(meta.accessMode)
     },

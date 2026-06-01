@@ -4,7 +4,11 @@ import { generateReferenceCode } from '../utils/referenceCode.js'
 import { formatDisplayPhone, normalizeRwPhone } from '../utils/phone.js'
 import { isValidEmail, normalizeEmail } from '../utils/email.js'
 import { getPaymentSettings } from './paymentSettingsService.js'
-import { applyReferrerIfEligible, referralApplyErrorMessage } from './referralService.js'
+import {
+  applyReferrerIfEligible,
+  creditReferrerPointsOnFreeSignup,
+  referralApplyErrorMessage,
+} from './referralService.js'
 
 async function uniqueUserReferralCode() {
   for (let i = 0; i < 8; i += 1) {
@@ -80,6 +84,7 @@ export async function createStudentAccount(input: {
     paidAt: status === 'paid' ? new Date() : undefined,
     notes: input.notes?.trim() || '',
     walletBalance: 0,
+    referralPoints: 0,
     createdAt: new Date(),
     updatedAt: new Date(),
   })
@@ -89,6 +94,8 @@ export async function createStudentAccount(input: {
     if (!applied.ok) {
       const msg = referralApplyErrorMessage(applied.reason)
       if (msg) throw new Error(msg)
+    } else if (status === 'unpaid') {
+      await creditReferrerPointsOnFreeSignup(String(user._id))
     }
   }
 
@@ -185,6 +192,7 @@ async function enrichStudent(user: {
   paidUntil?: Date
   notes?: string
   walletBalance: number
+  referralPoints?: number
   createdAt: Date
   updatedAt: Date
 }) {
@@ -218,6 +226,7 @@ async function enrichStudent(user: {
     ...membershipMeta(user),
     notes: user.notes ?? '',
     walletBalance: user.walletBalance,
+    referralPoints: user.referralPoints ?? 0,
     totalPaid,
     paymentCount: paidPayments.length,
     lastPaymentAt: last?.confirmedAt?.toISOString() ?? last?.updatedAt?.toISOString(),
@@ -241,14 +250,23 @@ function statusFilter(status: 'paid' | 'unpaid') {
   return { $or: [{ membershipStatus: 'unpaid' }, { membershipStatus: { $exists: false } }] }
 }
 
+export type StudentListStatus = 'paid' | 'unpaid' | 'regular' | 'all'
+
+function isRegularStudent(row: Awaited<ReturnType<typeof enrichStudent>>) {
+  return row.membershipStatus === 'unpaid' && !row.pendingPayment && row.paymentCount === 0
+}
+
 export async function listStudents(query: {
-  status?: 'paid' | 'unpaid' | 'all'
+  status?: StudentListStatus
   q?: string
   limit?: number
 }) {
   const filter: Record<string, unknown> = { role: { $ne: 'admin' } }
-  if (query.status && query.status !== 'all') {
-    Object.assign(filter, statusFilter(query.status))
+  const status = query.status ?? 'all'
+  if (status === 'paid' || status === 'unpaid') {
+    Object.assign(filter, statusFilter(status))
+  } else if (status === 'regular') {
+    Object.assign(filter, statusFilter('unpaid'))
   }
 
   const q = query.q?.trim()
@@ -265,10 +283,62 @@ export async function listStudents(query: {
 
   const users = await AppUserModel.find(filter)
     .sort({ createdAt: -1 })
-    .limit(query.limit ?? 200)
+    .limit(query.limit ?? 500)
     .lean()
 
-  return Promise.all(users.map((u) => enrichStudent(u as never)))
+  let rows = await Promise.all(users.map((u) => enrichStudent(u as never)))
+  if (status === 'regular') {
+    rows = rows.filter(isRegularStudent)
+  }
+  return rows
+}
+
+function csvEscape(value: string | number | undefined | null) {
+  const s = value == null ? '' : String(value)
+  if (/[",\n]/.test(s)) return `"${s.replace(/"/g, '""')}"`
+  return s
+}
+
+export async function exportStudentsCsv(query: { status?: StudentListStatus; q?: string }) {
+  const rows = await listStudents({ ...query, limit: 5000 })
+  const header = [
+    'Name',
+    'Phone',
+    'Email',
+    'Status',
+    'Referral code',
+    'Referred by',
+    'Wallet balance',
+    'Referral points',
+    'Total paid',
+    'Pending payment',
+    'Created',
+  ]
+  const lines = [
+    header.join(','),
+    ...rows.map((r) =>
+      [
+        csvEscape(r.name),
+        csvEscape(r.displayPhone ?? r.phone),
+        csvEscape(r.email),
+        csvEscape(
+          r.membershipStatus === 'paid'
+            ? 'paid'
+            : isRegularStudent(r)
+              ? 'regular'
+              : 'unpaid',
+        ),
+        csvEscape(r.referralCode),
+        csvEscape(r.referredByCode ?? r.referrerName),
+        csvEscape(r.walletBalance),
+        csvEscape(r.referralPoints ?? 0),
+        csvEscape(r.totalPaid),
+        csvEscape(r.pendingPayment?.referenceCode ?? ''),
+        csvEscape(r.createdAt),
+      ].join(','),
+    ),
+  ]
+  return lines.join('\n')
 }
 
 export async function getStudentStats() {
@@ -286,11 +356,13 @@ export async function getStudentStats() {
 
   const recentPaid = await listStudents({ status: 'paid', limit: 8 })
   const recentUnpaid = await listStudents({ status: 'unpaid', limit: 8 })
+  const regularStudents = (await listStudents({ status: 'regular', limit: 5000 })).length
 
   return {
     totalStudents,
     paidStudents,
     unpaidStudents,
+    regularStudents,
     pendingPayments,
     totalRevenue: revenueAgg[0]?.total ?? 0,
     currency: settings.currency,

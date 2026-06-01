@@ -13,7 +13,7 @@ import { StudentLoginModal } from '@/components/student/StudentLoginModal'
 
 export function Navbar() {
   const { t } = useLanguage()
-  const { isPaid, hasVipSession } = useStudentAccess()
+  const { hasVipSession } = useStudentAccess()
   const [menuOpen, setMenuOpen] = useState(false)
   const [loginOpen, setLoginOpen] = useState(false)
   const sectionIds = NAV_SECTIONS.map((s) => s.id)
@@ -100,7 +100,7 @@ export function Navbar() {
           </nav>
 
           <div className="flex items-center gap-1.5 sm:gap-2">
-            {isPaid && hasVipSession ? (
+            {hasVipSession ? (
               <button type="button" onClick={goDesk} className="vip-nav-cta hidden sm:inline-flex">
                 {t.vip.openDesk}
               </button>

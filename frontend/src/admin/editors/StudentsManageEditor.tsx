@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   Copy,
   CreditCard,
+  Download,
   Share2,
   UserPlus,
 } from 'lucide-react'
@@ -18,7 +19,8 @@ import { AdminCard } from '@/components/admin/AdminCard'
 import { PaymentsEditor } from '@/admin/editors/PaymentsEditor'
 import { useAdminToast } from '@/admin/toast'
 
-type Panel = 'paid' | 'unpaid' | 'pending' | 'referrals'
+type Panel = 'all' | 'paid' | 'unpaid' | 'regular' | 'pending' | 'referrals'
+type ExportStatus = 'all' | 'paid' | 'unpaid' | 'regular'
 
 type CreateFormState = {
   name: string
@@ -45,16 +47,19 @@ function payLink(student: StudentRecord) {
 
 export function StudentsManageEditor() {
   const { push } = useAdminToast()
-  const [panel, setPanel] = useState<Panel>('paid')
+  const [panel, setPanel] = useState<Panel>('all')
   const [stats, setStats] = useState<StudentStats | null>(null)
+  const [allStudents, setAllStudents] = useState<StudentRecord[]>([])
   const [paid, setPaid] = useState<StudentRecord[]>([])
   const [unpaid, setUnpaid] = useState<StudentRecord[]>([])
+  const [regular, setRegular] = useState<StudentRecord[]>([])
   const [q, setQ] = useState('')
   const [loading, setLoading] = useState(true)
   const [showCreate, setShowCreate] = useState(false)
   const [referrals, setReferrals] = useState<ReferralRewardRecord[]>([])
   const [paySettings, setPaySettings] = useState<PaymentSettings | null>(null)
   const [rewardDraft, setRewardDraft] = useState<number | ''>('')
+  const [pointsDraft, setPointsDraft] = useState<number | ''>('')
   const [savingReward, setSavingReward] = useState(false)
   const [form, setForm] = useState<CreateFormState>({
     name: '',
@@ -69,19 +74,24 @@ export function StudentsManageEditor() {
   const load = useCallback(async () => {
     setLoading(true)
     try {
-      const [statsRes, paidRes, unpaidRes, refRes, settingsRes] = await Promise.all([
+      const [statsRes, allRes, paidRes, unpaidRes, regularRes, refRes, settingsRes] = await Promise.all([
         studentApi.getStats(),
+        studentApi.list({ status: 'all', q }),
         studentApi.list({ status: 'paid', q }),
         studentApi.list({ status: 'unpaid', q }),
+        studentApi.list({ status: 'regular', q }),
         paymentApi.adminReferrals(),
         paymentApi.adminGetSettings(),
       ])
       setStats(statsRes.data)
+      setAllStudents(allRes.data)
       setPaid(paidRes.data)
       setUnpaid(unpaidRes.data)
+      setRegular(regularRes.data)
       setReferrals(refRes.data)
       setPaySettings(settingsRes.data)
       setRewardDraft(settingsRes.data.referralRewardAmount)
+      setPointsDraft(settingsRes.data.referralPointsPerSignup ?? 25)
     } catch {
       push('Could not load students (check API & admin key)', 'error')
     } finally {
@@ -124,13 +134,23 @@ export function StudentsManageEditor() {
     }
   }
 
+  const downloadReport = async (status: ExportStatus) => {
+    try {
+      await studentApi.downloadExport({ status, q })
+      push(`Downloaded ${status} students CSV`, 'success')
+    } catch (e) {
+      push(e instanceof Error ? e.message : 'Download failed', 'error')
+    }
+  }
+
   const saveReferralReward = async () => {
-    if (!paySettings || rewardDraft === '') return
+    if (!paySettings || rewardDraft === '' || pointsDraft === '') return
     setSavingReward(true)
     try {
       const res = await paymentApi.adminUpdateSettings({
         ...paySettings,
         referralRewardAmount: Number(rewardDraft),
+        referralPointsPerSignup: Number(pointsDraft),
       })
       setPaySettings(res.data)
       push('Referral reward amount updated', 'success')
@@ -143,11 +163,13 @@ export function StudentsManageEditor() {
   }
 
   const panels: { id: Panel; label: string; count?: number; tone?: string }[] = [
-    { id: 'paid', label: 'Paid students', count: stats?.paidStudents, tone: 'emerald' },
-    { id: 'unpaid', label: 'Unpaid students', count: stats?.unpaidStudents, tone: 'amber' },
+    { id: 'all', label: 'All students', count: stats?.totalStudents },
+    { id: 'paid', label: 'Paid', count: stats?.paidStudents, tone: 'emerald' },
+    { id: 'unpaid', label: 'Not paid', count: stats?.unpaidStudents, tone: 'amber' },
+    { id: 'regular', label: 'Regular (free)', count: stats?.regularStudents, tone: 'sky' },
     {
       id: 'pending',
-      label: 'Pending / late pay',
+      label: 'Pending MoMo',
       count: stats?.pendingPayments,
       tone: 'rose',
     },
@@ -189,9 +211,9 @@ export function StudentsManageEditor() {
             <div>
               <h3 className="font-display text-base font-bold text-theme-primary">Student access control</h3>
               <p className="admin-editor-card-intro mt-1">
-                Two groups: <strong className="text-emerald-400">paid</strong> (full access) and{' '}
-                <strong className="text-amber-400">unpaid</strong> (marketing only). Approve payments or grant
-                access manually.
+                <strong className="text-emerald-400">Paid</strong> = VIP desk ·{' '}
+                <strong className="text-sky-400">Regular</strong> = free account (referrer earns points) ·{' '}
+                <strong className="text-amber-400">Not paid</strong> = started MoMo but not approved yet.
               </p>
             </div>
             <button type="button" className="admin-btn admin-btn--primary" onClick={() => setShowCreate((v) => !v)}>
@@ -224,19 +246,34 @@ export function StudentsManageEditor() {
           </div>
 
           {panel !== 'pending' && panel !== 'referrals' && (
-            <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end">
-              <div className="flex-1">
-                <label className="mb-1 block text-xs font-semibold text-theme-muted">Search</label>
-                <input
-                  value={q}
-                  onChange={(e) => setQ(e.target.value)}
-                  placeholder="Name, phone, email, referral code"
-                  className="w-full rounded-xl border border-theme bg-theme-elevated/60 px-3 py-2 text-sm"
-                />
+            <div className="mt-4 flex flex-col gap-3">
+              <div className="flex flex-wrap gap-2">
+                {(['all', 'paid', 'unpaid', 'regular'] as const).map((kind) => (
+                  <button
+                    key={kind}
+                    type="button"
+                    className="admin-btn admin-btn--secondary admin-btn--sm"
+                    onClick={() => void downloadReport(kind)}
+                  >
+                    <Download className="h-3.5 w-3.5" />
+                    Download {kind}
+                  </button>
+                ))}
               </div>
-              <button type="button" className="admin-btn admin-btn--secondary" onClick={load}>
-                Refresh
-              </button>
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+                <div className="flex-1">
+                  <label className="mb-1 block text-xs font-semibold text-theme-muted">Search</label>
+                  <input
+                    value={q}
+                    onChange={(e) => setQ(e.target.value)}
+                    placeholder="Name, phone, email, referral code"
+                    className="w-full rounded-xl border border-theme bg-theme-elevated/60 px-3 py-2 text-sm"
+                  />
+                </div>
+                <button type="button" className="admin-btn admin-btn--secondary" onClick={load}>
+                  Refresh
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -245,6 +282,28 @@ export function StudentsManageEditor() {
       {loading && panel !== 'pending' ? (
         <p className="text-sm text-theme-muted">Loading…</p>
       ) : null}
+
+      {panel === 'all' && !loading && (
+        <StudentList
+          emptyLabel="No students yet."
+          students={allStudents}
+          variant="unpaid"
+          onChanged={load}
+          membershipDays={paySettings?.membershipDays ?? 60}
+          autoTrialDays={paySettings?.autoTrialDays ?? 7}
+        />
+      )}
+
+      {panel === 'regular' && !loading && (
+        <StudentList
+          emptyLabel="No regular (free) students yet."
+          students={regular}
+          variant="unpaid"
+          onChanged={load}
+          membershipDays={paySettings?.membershipDays ?? 60}
+          autoTrialDays={paySettings?.autoTrialDays ?? 7}
+        />
+      )}
 
       {panel === 'paid' && !loading && (
         <StudentList
@@ -290,11 +349,24 @@ export function StudentsManageEditor() {
                 <div className="flex-1">
                   <h3 className="font-display font-bold text-theme-primary">Referral reward amount</h3>
                   <p className="mt-1 text-sm text-theme-muted">
-                    Credited to referrer wallet when a referred student pays for the first time.
+                    <strong>Regular signup:</strong> referrer earns points (coins).{' '}
+                    <strong>First VIP payment:</strong> referrer gets cash in wallet — no cash for free-only invites.
                   </p>
                   <div className="mt-4 flex flex-wrap items-end gap-3">
                     <label className="text-xs font-semibold text-theme-muted">
-                      Amount ({paySettings?.currency ?? 'RWF'})
+                      Points per free signup
+                      <input
+                        type="number"
+                        min={0}
+                        value={pointsDraft}
+                        onChange={(e) =>
+                          setPointsDraft(e.target.value === '' ? '' : Number(e.target.value))
+                        }
+                        className="mt-1 block w-36 rounded-xl border border-theme bg-theme-elevated/60 px-3 py-2 text-sm"
+                      />
+                    </label>
+                    <label className="text-xs font-semibold text-theme-muted">
+                      Cash when they pay ({paySettings?.currency ?? 'RWF'})
                       <input
                         type="number"
                         min={0}
@@ -311,7 +383,7 @@ export function StudentsManageEditor() {
                       className="admin-btn admin-btn--primary"
                       onClick={saveReferralReward}
                     >
-                      {savingReward ? 'Saving…' : 'Save reward amount'}
+                      {savingReward ? 'Saving…' : 'Save referral rules'}
                     </button>
                   </div>
                 </div>

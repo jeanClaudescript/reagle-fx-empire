@@ -25,14 +25,15 @@ function embedUrl(url?: string) {
 
 export function LiveTradingRoom({ deskMode = false }: { deskMode?: boolean }) {
   const { t } = useLanguage()
-  const { isPaid, contact, loading, hasVipSession } = useStudentAccess()
+  const { isPaid, accessMode, contact, loading, hasVipSession } = useStudentAccess()
   const [session, setSession] = useState<LiveSession | null>(null)
   const [gateOpen, setGateOpen] = useState(false)
 
-  const canView = deskMode ? hasVipSession : isPaid
+  const hasPublicLiveAccess = isPaid || accessMode === 'promo'
+  const canView = deskMode ? hasVipSession : hasPublicLiveAccess
 
   useEffect(() => {
-    if (!deskMode && !isPaid) return
+    if (!deskMode && !hasPublicLiveAccess) return
     if (deskMode && !hasVipSession) return
 
     const load = async () => {
@@ -46,7 +47,7 @@ export function LiveTradingRoom({ deskMode = false }: { deskMode?: boolean }) {
     void load()
     const off = onLiveUpdated((payload) => setSession(payload.data))
     return () => off()
-  }, [deskMode, hasVipSession, isPaid])
+  }, [deskMode, hasVipSession, hasPublicLiveAccess])
 
   const isLive = session?.status === 'live'
   const stream = embedUrl(session?.streamUrl)

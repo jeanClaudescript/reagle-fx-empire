@@ -56,7 +56,7 @@ const itemVariants = {
 
 export function MobileMenu({ open, onClose, activeId, onOpenDesk }: MobileMenuProps) {
   const { t } = useLanguage()
-  const { isLoggedIn, membershipStatus, isPaid, hasVipSession } = useStudentAccess()
+  const { isLoggedIn, membershipStatus, hasVipSession } = useStudentAccess()
 
   const navLabels: Record<string, string> = {
     home: t.nav.home,
@@ -185,7 +185,7 @@ export function MobileMenu({ open, onClose, activeId, onOpenDesk }: MobileMenuPr
                 <ThemeToggle />
                 <LanguageSwitcher />
               </div>
-              {isPaid && hasVipSession && onOpenDesk ? (
+              {hasVipSession && onOpenDesk ? (
                 <button
                   type="button"
                   onClick={onOpenDesk}

@@ -11,11 +11,12 @@ import { ClassroomChat } from './components/ClassroomChat'
 import { ParticipantsPanel } from './components/ParticipantsPanel'
 import { useClassroomStore } from './store/useClassroomStore'
 import {
-  connectClassroomSocket,
   disconnectClassroomSocket,
   emitChartSymbol,
   emitChartTimeframe,
   emitJitsiMode,
+  ensureClassroomSocketConnected,
+  getClassroomSocket,
   joinClassroomRoom,
   leaveClassroomRoom,
 } from './socket/classroomSocket'
@@ -75,15 +76,34 @@ export function ClassroomRoomView({ roomId, mode, embedded = false, onBack, onSe
     setError(null)
     setSessionEnded(false)
 
-    connectClassroomSocket(token, mode)
-    joinClassroomRoom(roomId)
-      .then(() => setConnecting(false))
-      .catch((e: Error) => {
-        setError(e.message)
+    let cancelled = false
+
+    const join = async () => {
+      try {
+        await ensureClassroomSocketConnected(token, mode)
+        if (cancelled) return
+        await joinClassroomRoom(roomId)
+        if (!cancelled) setConnecting(false)
+      } catch (e: unknown) {
+        if (cancelled) return
+        setError(e instanceof Error ? e.message : 'Failed to join classroom')
         setConnecting(false)
+      }
+    }
+
+    void join()
+
+    const socket = getClassroomSocket()
+    const onReconnect = () => {
+      void joinClassroomRoom(roomId).catch(() => {
+        /* store listeners will resync when ack succeeds */
       })
+    }
+    socket?.io.on('reconnect', onReconnect)
 
     return () => {
+      cancelled = true
+      socket?.io.off('reconnect', onReconnect)
       leaveClassroomRoom(mode === 'teacher')
       disconnectClassroomSocket()
     }
@@ -101,12 +121,12 @@ export function ClassroomRoomView({ roomId, mode, embedded = false, onBack, onSe
 
       applyRoomSettings(room)
 
-      if (room.status !== 'live') {
+      if (room.status !== 'live' && mode === 'student') {
         setSessionEnded(true)
         onSessionEnded?.()
       }
     })
-  }, [roomId, connecting, applyRoomSettings, onSessionEnded])
+  }, [roomId, mode, connecting, applyRoomSettings, onSessionEnded])
 
   const handleJitsiModeChange = (next: 'webcam' | 'screenshare') => {
     setJitsiMode(next)

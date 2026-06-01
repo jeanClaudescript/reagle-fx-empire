@@ -2021,7 +2021,19 @@
   }
 
   .admin-payments-table tbody td {
-    @apply py-2.5 pr-3 align-top;
+    @apply py-2.5 pr-3 align-middle;
+  }
+
+  .admin-payments-actions {
+    @apply flex w-full min-w-0 flex-row flex-nowrap items-center gap-2;
+  }
+
+  .admin-payments-actions__amount {
+    @apply min-h-10 w-24 shrink-0 rounded-lg border border-theme bg-theme-elevated/60 px-2 py-1 text-sm;
+  }
+
+  .admin-payments-actions > .admin-btn {
+    @apply min-h-10 min-w-0 flex-1 basis-0 justify-center px-2;
   }
 
   .manage-stat-card {
@@ -3403,11 +3415,35 @@
   }
 
   .vip-membership {
-    @apply flex flex-wrap items-center gap-3 rounded-2xl border px-4 py-3;
+    @apply relative flex w-full min-w-0 flex-col gap-3 rounded-2xl border px-4 py-3 pr-11 sm:flex-row sm:items-center sm:gap-4 sm:pr-4;
+  }
+
+  .vip-membership__row {
+    @apply flex min-w-0 flex-1 items-start gap-3;
+  }
+
+  .vip-membership__text {
+    @apply min-w-0 flex-1;
+  }
+
+  .vip-membership__title {
+    @apply text-sm font-bold leading-snug text-theme-primary sm:text-[0.9375rem];
+  }
+
+  .vip-membership__body {
+    @apply mt-1 text-xs leading-relaxed text-theme-muted;
+  }
+
+  .vip-membership__cta {
+    @apply w-full shrink-0 justify-center sm:w-auto;
+  }
+
+  .vip-membership__dismiss {
+    @apply absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-lg text-theme-muted transition hover:bg-theme-elevated/60 hover:text-theme-primary;
   }
 
   .vip-membership--active {
-    @apply border-theme bg-theme-surface/50;
+    @apply border-theme bg-theme-surface/50 sm:flex-row sm:items-center;
   }
 
   .vip-membership--warning {

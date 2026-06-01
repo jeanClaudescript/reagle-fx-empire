@@ -84,7 +84,7 @@ export const useClassroomStore = create<ClassroomStore>((set) => ({
   applyJoinState: (state) =>
     set({
       roomId: state.room.id,
-      role: state.self.role,
+      role: state.self.role === 'student' ? 'student' : 'teacher',
       selfId: state.self.id,
       selfName: state.self.name,
       symbol: state.chartState.symbol,

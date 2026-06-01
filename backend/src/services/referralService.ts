@@ -71,6 +71,47 @@ export async function applyReferrerIfEligible(
   return { ok: true, referrerId, referrerCode }
 }
 
+/** Points when a referred student registers as regular (free) — no wallet cash until they pay. */
+export async function creditReferrerPointsOnFreeSignup(referredUserId: string) {
+  const referred = await AppUserModel.findById(referredUserId)
+  if (!referred?.referredByUserId) return null
+  if (referred.referredByUserId === referredUserId) return null
+
+  const paidCount = await PaymentModel.countDocuments({ userId: referredUserId, status: 'PAID' })
+  if (paidCount > 0) return null
+
+  const existing = await ReferralRewardModel.findOne({
+    referredUserId,
+    rewardType: 'POINTS',
+    status: 'CREDITED',
+  })
+  if (existing) return existing
+
+  const referrer = await AppUserModel.findById(referred.referredByUserId)
+  if (!referrer) return null
+
+  const settings = await getPaymentSettings()
+  const points = settings.referralPointsPerSignup
+  if (points <= 0) return null
+
+  const reward = await ReferralRewardModel.create({
+    referrerId: referred.referredByUserId,
+    referredUserId,
+    rewardType: 'POINTS',
+    rewardAmount: points,
+    currency: settings.currency,
+    status: 'CREDITED',
+    creditedAt: new Date(),
+  })
+
+  await AppUserModel.findByIdAndUpdate(referred.referredByUserId, {
+    $inc: { referralPoints: points },
+    updatedAt: new Date(),
+  })
+
+  return reward
+}
+
 export function referralApplyErrorMessage(reason: ReferrerRejectReason): string | null {
   if (reason === 'self_referral') return 'You cannot use your own referral code'
   if (reason === 'same_contact') return 'This referral code cannot be used with your phone or email'
@@ -93,6 +134,7 @@ export async function creditReferrerOnFirstPayment(paymentId: string, referredUs
   const priorReward = await ReferralRewardModel.findOne({
     referredUserId,
     status: 'CREDITED',
+    rewardType: 'CASH',
   })
   if (priorReward) return priorReward
 
@@ -107,6 +149,7 @@ export async function creditReferrerOnFirstPayment(paymentId: string, referredUs
   const reward = await ReferralRewardModel.create({
     referrerId: referred.referredByUserId,
     referredUserId,
+    rewardType: 'CASH',
     paymentId,
     rewardAmount,
     currency: settings.currency,

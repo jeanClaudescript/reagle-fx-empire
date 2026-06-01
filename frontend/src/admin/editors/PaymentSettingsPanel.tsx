@@ -9,6 +9,7 @@ const empty: PaymentSettings = {
   currency: 'RWF',
   ussdTemplate: '182*1*1*{phone}*{amount}#',
   referralRewardAmount: 1000,
+  referralPointsPerSignup: 25,
   paymentNote: '',
   paymentsEnabled: true,
   allowCustomAmount: false,

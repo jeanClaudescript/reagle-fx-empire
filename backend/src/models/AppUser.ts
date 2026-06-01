@@ -22,6 +22,7 @@ export interface AppUserDocument {
   paidUntil?: Date
   notes?: string
   walletBalance: number
+  referralPoints: number
   createdAt: Date
   updatedAt: Date
 }
@@ -44,6 +45,7 @@ const appUserSchema = new Schema<AppUserDocument>(
     paidUntil: { type: Date, index: true },
     notes: { type: String, trim: true, default: '' },
     walletBalance: { type: Number, required: true, default: 0, min: 0 },
+    referralPoints: { type: Number, required: true, default: 0, min: 0 },
     createdAt: { type: Date, required: true, default: Date.now },
     updatedAt: { type: Date, required: true, default: Date.now },
   },

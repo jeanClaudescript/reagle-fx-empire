@@ -1,17 +1,43 @@
 import type { Socket } from 'socket.io-client'
-import { connectAppSocket, getAppSocket } from '@/realtime/appSocket'
+import { connectAppSocket, getAppSocket, resolvePreferredAppSocketRole } from '@/realtime/appSocket'
 import type { ClassroomJoinState, DrawingObject } from '../types'
 import { useClassroomStore } from '../store/useClassroomStore'
 
 function ensureClassroomSocket(token: string, role: 'teacher' | 'student'): Socket {
-  connectAppSocket(role === 'teacher' ? 'teacher' : 'student')
+  const socketRole = role === 'teacher' ? 'teacher' : 'student'
+  const preferred = resolvePreferredAppSocketRole()
+  connectAppSocket(preferred === socketRole ? preferred : socketRole)
   const socket = getAppSocket()
   if (!socket) throw new Error('Socket not available')
   if (socket.auth && typeof socket.auth === 'object') {
     ;(socket.auth as { token?: string; role?: string }).token = token
-    ;(socket.auth as { token?: string; role?: string }).role = role === 'teacher' ? 'teacher' : 'student'
+    ;(socket.auth as { token?: string; role?: string }).role = socketRole
   }
   return socket
+}
+
+function waitForSocketConnect(socket: Socket, timeoutMs = 20_000): Promise<void> {
+  if (socket.connected) return Promise.resolve()
+  return new Promise((resolve, reject) => {
+    const timer = window.setTimeout(() => {
+      socket.off('connect', onConnect)
+      socket.off('connect_error', onError)
+      reject(new Error('Could not connect to classroom server'))
+    }, timeoutMs)
+    const onConnect = () => {
+      window.clearTimeout(timer)
+      socket.off('connect_error', onError)
+      resolve()
+    }
+    const onError = (err: Error) => {
+      window.clearTimeout(timer)
+      socket.off('connect', onConnect)
+      reject(err instanceof Error ? err : new Error('Connection failed'))
+    }
+    socket.once('connect', onConnect)
+    socket.once('connect_error', onError)
+    socket.connect()
+  })
 }
 
 let classroomListenersAttached = false
@@ -76,7 +102,12 @@ function attachClassroomListeners(socket: Socket) {
 export function connectClassroomSocket(token: string, role: 'teacher' | 'student') {
   const socket = ensureClassroomSocket(token, role)
   attachClassroomListeners(socket)
-  if (!socket.connected) socket.connect()
+  return socket
+}
+
+export async function ensureClassroomSocketConnected(token: string, role: 'teacher' | 'student') {
+  const socket = connectClassroomSocket(token, role)
+  await waitForSocketConnect(socket)
   return socket
 }
 
@@ -91,7 +122,13 @@ export function joinClassroomRoom(roomId: string): Promise<ClassroomJoinState> {
       reject(new Error('Socket not connected'))
       return
     }
+
+    const timer = window.setTimeout(() => {
+      reject(new Error('Joining classroom timed out — check your connection and try again'))
+    }, 25_000)
+
     socket.emit('classroom:join', { roomId }, (res: { ok: boolean; data?: ClassroomJoinState; error?: string }) => {
+      window.clearTimeout(timer)
       if (res?.ok && res.data) {
         useClassroomStore.getState().applyJoinState(res.data)
         resolve(res.data)

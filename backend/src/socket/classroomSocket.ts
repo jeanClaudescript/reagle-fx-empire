@@ -40,6 +40,14 @@ function isChartController(role: AppSocketRole) {
   return role === 'teacher' || role === 'admin'
 }
 
+function isTeacherSocket(role: AppSocketRole) {
+  return role === 'teacher' || role === 'admin'
+}
+
+function classroomRoleFromUser(role: AppSocketRole): 'teacher' | 'student' {
+  return role === 'student' ? 'student' : 'teacher'
+}
+
 async function resolveAppUser(token: string | undefined, roleHint?: string): Promise<AppSocketUser> {
   if (!token) {
     return { id: 'guest', name: 'Guest', role: 'guest' }
@@ -114,7 +122,7 @@ async function hasTeacherSocketInRoom(io: Server, roomId: string) {
   const sockets = await io.in(roomChannel(roomId)).fetchSockets()
   return sockets.some((s) => {
     const user = (s.data as SocketData).user
-    return user.role === 'teacher'
+    return isTeacherSocket(user.role)
   })
 }
 
@@ -177,12 +185,7 @@ export function initClassroomSocket(httpServer: HttpServer) {
         if (data.user.role === 'student' && room.status !== 'live') {
           throw new Error('Classroom is not live')
         }
-        if (data.user.role === 'admin') {
-          throw new Error('Open classroom as teacher from admin panel')
-        }
-
-        const classroomRole =
-          data.user.role === 'teacher' ? 'teacher' : ('student' as 'teacher' | 'student')
+        const classroomRole = classroomRoleFromUser(data.user.role)
 
         if (data.roomId && data.roomId !== roomId) {
           await socket.leave(roomChannel(data.roomId))
@@ -215,7 +218,11 @@ export function initClassroomSocket(httpServer: HttpServer) {
           participants,
           chartState,
           chat,
-          self: data.user,
+          self: {
+            id: data.user.id,
+            name: data.user.name,
+            role: classroomRole,
+          },
           turn: {
             urls: env.turnUrls,
             username: env.turnUsername,
@@ -236,7 +243,7 @@ export function initClassroomSocket(httpServer: HttpServer) {
     socket.on('classroom:leave', async (payload?: { endSession?: boolean }) => {
       const roomId = data.roomId
       if (!roomId) return
-      const wasTeacher = data.user.role === 'teacher'
+      const wasTeacher = isTeacherSocket(data.user.role)
       await leaveClassroomParticipant(roomId, data.user.id)
       await socket.leave(roomChannel(roomId))
       data.roomId = undefined
@@ -337,7 +344,7 @@ export function initClassroomSocket(httpServer: HttpServer) {
             roomId,
             userId: data.user.id,
             userName: data.user.name,
-            role: data.user.role === 'teacher' ? 'teacher' : 'student',
+            role: classroomRoleFromUser(data.user.role),
             message: payload.message,
             replyToId: payload.replyToId,
           })
@@ -370,7 +377,7 @@ export function initClassroomSocket(httpServer: HttpServer) {
       async (payload: { userId: string; canSpeak: boolean }, ack?: (res: unknown) => void) => {
         try {
           const roomId = data.roomId
-          if (!roomId || data.user.role !== 'teacher') throw new Error('Not allowed')
+          if (!roomId || !isTeacherSocket(data.user.role)) throw new Error('Not allowed')
           const result = await setParticipantCanSpeak(roomId, payload.userId, payload.canSpeak)
           io.to(roomChannel(roomId)).emit('audio:grant', result)
           ack?.({ ok: true, data: result })
@@ -509,7 +516,7 @@ export function initClassroomSocket(httpServer: HttpServer) {
     socket.on('disconnect', async () => {
       const roomId = data.roomId
       if (!roomId) return
-      const wasTeacher = data.user.role === 'teacher'
+      const wasTeacher = isTeacherSocket(data.user.role)
       await leaveClassroomParticipant(roomId, data.user.id)
       const participants = await listActiveParticipants(roomId)
       io.to(roomChannel(roomId)).emit('classroom:participants', participants)

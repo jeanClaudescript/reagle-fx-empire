@@ -9,8 +9,14 @@ import { GlowButton } from '@/components/ui/GlowButton'
 
 export function StudentDeskPage() {
   const { t } = useLanguage()
-  const { loading, isPaid, hasVipSession, sessionError, membershipExpired, membershipStatus } =
-    useStudentAccess()
+  const {
+    loading,
+    accessMode,
+    hasVipSession,
+    sessionError,
+    membershipExpired,
+    membershipStatus,
+  } = useStudentAccess()
 
   useEffect(() => {
     if (!loading && hasVipSession && window.location.pathname !== '/desk') {
@@ -74,7 +80,7 @@ export function StudentDeskPage() {
     )
   }
 
-  if (isPaid) {
+  if (accessMode === 'paid' || accessMode === 'promo') {
     return <VipDeskShell />
   }
 

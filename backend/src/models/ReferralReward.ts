@@ -1,11 +1,13 @@
 import { Schema, model } from 'mongoose'
 
 export type ReferralRewardStatus = 'PENDING' | 'CREDITED' | 'CANCELLED'
+export type ReferralRewardType = 'CASH' | 'POINTS'
 
 export interface ReferralRewardDocument {
   referrerId: string
   referredUserId: string
-  paymentId: string
+  rewardType: ReferralRewardType
+  paymentId?: string
   rewardAmount: number
   currency: string
   status: ReferralRewardStatus
@@ -17,7 +19,8 @@ const referralRewardSchema = new Schema<ReferralRewardDocument>(
   {
     referrerId: { type: String, required: true, index: true },
     referredUserId: { type: String, required: true, index: true },
-    paymentId: { type: String, required: true, unique: true },
+    rewardType: { type: String, enum: ['CASH', 'POINTS'], required: true, default: 'CASH', index: true },
+    paymentId: { type: String, sparse: true, unique: true },
     rewardAmount: { type: Number, required: true, min: 0 },
     currency: { type: String, required: true, default: 'RWF' },
     status: {
@@ -33,5 +36,9 @@ const referralRewardSchema = new Schema<ReferralRewardDocument>(
 )
 
 referralRewardSchema.index({ referredUserId: 1, status: 1 })
+referralRewardSchema.index(
+  { referredUserId: 1, rewardType: 1 },
+  { unique: true, partialFilterExpression: { rewardType: 'POINTS' } },
+)
 
 export const ReferralRewardModel = model<ReferralRewardDocument>('ReferralReward', referralRewardSchema)

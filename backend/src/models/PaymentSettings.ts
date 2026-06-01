@@ -7,6 +7,7 @@ export interface PaymentSettingsDocument {
   currency: string
   ussdTemplate: string
   referralRewardAmount: number
+  referralPointsPerSignup: number
   paymentNote: string
   paymentsEnabled: boolean
   allowCustomAmount: boolean
@@ -35,6 +36,7 @@ const paymentSettingsSchema = new Schema<PaymentSettingsDocument>(
     currency: { type: String, required: true },
     ussdTemplate: { type: String, required: true },
     referralRewardAmount: { type: Number, required: true },
+    referralPointsPerSignup: { type: Number, required: true, default: 25 },
     paymentNote: { type: String, default: '' },
     paymentsEnabled: { type: Boolean, default: true },
     allowCustomAmount: { type: Boolean, default: false },

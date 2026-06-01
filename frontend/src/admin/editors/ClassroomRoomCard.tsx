@@ -98,8 +98,9 @@ export function ClassroomRoomCard({ room, expanded, onToggle, onChanged }: Props
   const start = async () => {
     try {
       await classroomApi.adminStart(room.id)
-      push('Classroom is LIVE', 'success')
+      push('Classroom is LIVE — opening teacher view', 'success')
       onChanged()
+      openTeacher()
     } catch (e) {
       push(e instanceof Error ? e.message : 'Start failed', 'error')
     }
@@ -116,7 +117,9 @@ export function ClassroomRoomCard({ room, expanded, onToggle, onChanged }: Props
   }
 
   const openTeacher = () => {
-    window.open(`/classroom/${room.id}/teacher`, '_blank', 'noopener,noreferrer')
+    const url = `/classroom/${room.id}/teacher`
+    const opened = window.open(url, '_blank', 'noopener,noreferrer')
+    if (!opened) window.location.assign(url)
   }
 
   return (

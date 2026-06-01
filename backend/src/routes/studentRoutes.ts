@@ -13,6 +13,7 @@ import {
 import {
   createStudentAccount,
   getStudentStats,
+  exportStudentsCsv,
   listStudents,
   getStudentById,
   markStudentPaid,
@@ -164,10 +165,24 @@ studentRoutes.get('/admin/stats', requireAdminAuth, async (_req, res, next) => {
 
 studentRoutes.get('/admin/list', requireAdminAuth, async (req, res, next) => {
   try {
-    const status = (req.query.status as 'paid' | 'unpaid' | 'all' | undefined) ?? 'all'
+    const status = (req.query.status as 'paid' | 'unpaid' | 'regular' | 'all' | undefined) ?? 'all'
     const q = (req.query.q as string | undefined)?.trim()
     const data = await listStudents({ status, q })
     return res.json({ data })
+  } catch (error) {
+    return next(error)
+  }
+})
+
+studentRoutes.get('/admin/export', requireAdminAuth, async (req, res, next) => {
+  try {
+    const status = (req.query.status as 'paid' | 'unpaid' | 'regular' | 'all' | undefined) ?? 'all'
+    const q = (req.query.q as string | undefined)?.trim()
+    const csv = await exportStudentsCsv({ status, q })
+    const label = status === 'all' ? 'all-students' : `${status}-students`
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8')
+    res.setHeader('Content-Disposition', `attachment; filename="reagle-${label}.csv"`)
+    return res.send(`\uFEFF${csv}`)
   } catch (error) {
     return next(error)
   }

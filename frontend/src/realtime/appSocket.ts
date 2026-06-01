@@ -68,6 +68,25 @@ type CmsPublishedPayload = {
 let socket: Socket | null = null
 let currentRole: 'guest' | 'admin' | 'student' | 'teacher' = 'guest'
 
+/** Classroom routes need teacher/student socket roles — not generic admin. */
+export function resolvePreferredAppSocketRole(): 'guest' | 'admin' | 'student' | 'teacher' {
+  if (typeof window === 'undefined') return 'guest'
+
+  const path = window.location.pathname
+  if (/^\/classroom\/[^/]+\/teacher\/?$/.test(path)) {
+    return getAdminAuthToken() ? 'teacher' : 'guest'
+  }
+  if (/^\/classroom\/[^/]+/.test(path)) {
+    if (getStudentAuthToken()) return 'student'
+    if (getAdminAuthToken()) return 'teacher'
+    return 'guest'
+  }
+
+  if (getAdminAuthToken()) return 'admin'
+  if (getStudentAuthToken()) return 'student'
+  return 'guest'
+}
+
 const communityHandlers = new Set<(msg: DeskChatMessage) => void>()
 const directHandlers = new Set<(msg: DeskChatMessage) => void>()
 const inboxHandlers = new Set<(msg: InboxMessage) => void>()
@@ -151,17 +170,7 @@ export function connectAppSocket(role: 'guest' | 'admin' | 'student' | 'teacher'
 }
 
 export function refreshAppSocketAuth() {
-  const adminToken = getAdminAuthToken()
-  const studentToken = getStudentAuthToken()
-  if (adminToken) {
-    connectAppSocket('admin')
-    return
-  }
-  if (studentToken) {
-    connectAppSocket('student')
-    return
-  }
-  connectAppSocket('guest')
+  connectAppSocket(resolvePreferredAppSocketRole())
 }
 
 export function getAppSocket() {

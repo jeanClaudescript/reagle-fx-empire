@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { generateCandles } from '@/classroom/chart/generateCandles'
 import { marketApi, type MarketCandle } from '@/services/api'
 import { pairToSymbol } from '@/hooks/useLivePrice'
 
@@ -15,6 +16,15 @@ const MAX_CANDLES = 48
 
 function candleToOhlc(c: MarketCandle): OHLC {
   return { open: c.open, high: c.high, low: c.low, close: c.close }
+}
+
+function syntheticCandles(symbol: string, count: number): OHLC[] {
+  return generateCandles(symbol, count, 1).map((c) => ({
+    open: c.open,
+    high: c.high,
+    low: c.low,
+    close: c.close,
+  }))
 }
 
 function displayPair(symbol: string) {
@@ -56,14 +66,20 @@ export function useLiveCandles(symbol = 'EURUSD') {
     const loadCandles = async () => {
       try {
         const res = await marketApi.candles(normalized, '1', MAX_CANDLES)
-        if (cancelled || res.data.length === 0) return
+        if (cancelled) return
+        if (res.data.length === 0) throw new Error('empty')
         const historical = res.data.slice(0, -1).map(candleToOhlc)
         const last = res.data[res.data.length - 1]
         setCandles(historical.length ? historical : [candleToOhlc(last)])
         setLive(candleToOhlc(last))
         setReady(true)
       } catch {
-        /* retry on next poll */
+        if (cancelled) return
+        const fallback = syntheticCandles(normalized, MAX_CANDLES)
+        const last = fallback[fallback.length - 1]
+        setCandles(fallback.slice(0, -1).length ? fallback.slice(0, -1) : [last])
+        setLive(last)
+        setReady(true)
       }
     }
 

@@ -8,6 +8,7 @@ export type PaymentSettings = {
   currency: string
   ussdTemplate: string
   referralRewardAmount: number
+  referralPointsPerSignup: number
   paymentNote: string
   paymentsEnabled: boolean
   allowCustomAmount: boolean
@@ -47,6 +48,7 @@ function defaultsFromEnv(): PaymentSettings {
     currency: env.paymentCurrency,
     ussdTemplate: env.paymentUssdTemplate,
     referralRewardAmount: env.referralRewardAmount,
+    referralPointsPerSignup: 25,
     paymentNote: '',
     paymentsEnabled: true,
     allowCustomAmount: false,
@@ -86,6 +88,11 @@ function normalizeInput(input: Partial<PaymentSettings>): PaymentSettings {
   const referralRewardAmount = Number(input.referralRewardAmount ?? base.referralRewardAmount)
   if (!Number.isFinite(referralRewardAmount) || referralRewardAmount < 0) {
     throw new Error('Referral reward must be 0 or greater')
+  }
+
+  const referralPointsPerSignup = Number(input.referralPointsPerSignup ?? base.referralPointsPerSignup)
+  if (!Number.isFinite(referralPointsPerSignup) || referralPointsPerSignup < 0) {
+    throw new Error('Referral points per signup must be 0 or greater')
   }
 
   const currency = (input.currency ?? base.currency).trim().toUpperCase() || 'RWF'
@@ -130,6 +137,7 @@ function normalizeInput(input: Partial<PaymentSettings>): PaymentSettings {
     currency,
     ussdTemplate,
     referralRewardAmount: Math.round(referralRewardAmount),
+    referralPointsPerSignup: Math.round(referralPointsPerSignup),
     paymentNote: (input.paymentNote ?? base.paymentNote).trim(),
     paymentsEnabled: input.paymentsEnabled ?? base.paymentsEnabled,
     allowCustomAmount: input.allowCustomAmount ?? base.allowCustomAmount,
@@ -165,6 +173,7 @@ export function serializePaymentSettings(
     currency: doc.currency,
     ussdTemplate: doc.ussdTemplate,
     referralRewardAmount: doc.referralRewardAmount,
+    referralPointsPerSignup: doc.referralPointsPerSignup ?? 25,
     paymentNote: doc.paymentNote,
     paymentsEnabled: doc.paymentsEnabled,
     allowCustomAmount: doc.allowCustomAmount,
@@ -195,6 +204,7 @@ export async function getPaymentSettings(): Promise<PaymentSettings> {
     currency: doc.currency,
     ussdTemplate: doc.ussdTemplate,
     referralRewardAmount: doc.referralRewardAmount,
+    referralPointsPerSignup: doc.referralPointsPerSignup,
     paymentNote: doc.paymentNote,
     paymentsEnabled: doc.paymentsEnabled,
     allowCustomAmount: doc.allowCustomAmount,
@@ -225,6 +235,7 @@ export async function updatePaymentSettings(input: Partial<PaymentSettings>) {
     currency: next.currency,
     ussdTemplate: next.ussdTemplate,
     referralRewardAmount: next.referralRewardAmount,
+    referralPointsPerSignup: next.referralPointsPerSignup,
     paymentNote: next.paymentNote,
     paymentsEnabled: next.paymentsEnabled,
     allowCustomAmount: next.allowCustomAmount,
