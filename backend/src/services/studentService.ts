@@ -94,8 +94,13 @@ export async function createStudentAccount(input: {
     if (!applied.ok) {
       const msg = referralApplyErrorMessage(applied.reason)
       if (msg) throw new Error(msg)
+      /* invalid / already referred — signup still succeeds without referrer */
     } else if (status === 'unpaid') {
-      await creditReferrerPointsOnFreeSignup(String(user._id))
+      try {
+        await creditReferrerPointsOnFreeSignup(String(user._id))
+      } catch (pointsErr) {
+        console.warn('Referral points credit skipped:', pointsErr)
+      }
     }
   }
 

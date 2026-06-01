@@ -19,6 +19,7 @@ import { initClassroomSocket } from './socket/classroomSocket.js'
 import { configureCloudinary, isCloudinaryConfigured } from './services/cloudinaryService.js'
 import { startEngagementScheduler } from './services/engagementScheduler.js'
 import { startEducationScheduler } from './services/educationScheduler.js'
+import { isUserFacingBadRequest, toUserFacingError } from './utils/userFacingError.js'
 
 configureCloudinary()
 
@@ -131,12 +132,9 @@ app.use(
     _next: express.NextFunction,
   ) => {
     console.error(err)
-    const message = err instanceof Error ? err.message : 'Internal server error'
+    const message = toUserFacingError(err)
     const isBadRequest =
-      err instanceof Error &&
-      /^(Invalid |Phone |Email |Payment not found|Only pending|Transaction ID|Amount must|Custom amounts|Payments are temporarily|Merchant phone|Default amount|Referral reward|USSD template|already registered|is required|No matching|Student not found|status must be|Media upload|No file uploaded|Cloudinary is not configured)/.test(
-        err.message,
-      )
+      err instanceof Error && (isUserFacingBadRequest(err.message) || isUserFacingBadRequest(message))
     res.status(isBadRequest ? 400 : 500).json({ error: message })
   },
 )

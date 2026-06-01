@@ -1,5 +1,6 @@
 import mongoose from 'mongoose'
 import { env } from '../config/env.js'
+import { ensureReferralRewardIndexes } from './referralIndexes.js'
 
 let lastConnectionError: string | null = null
 
@@ -21,6 +22,11 @@ export async function connectDatabase(): Promise<boolean> {
       serverSelectionTimeoutMS: 12_000,
     })
     console.log('MongoDB connected')
+    try {
+      await ensureReferralRewardIndexes()
+    } catch (indexErr) {
+      console.warn('Referral index sync warning:', indexErr)
+    }
     return true
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown connection error'

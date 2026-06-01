@@ -19,15 +19,33 @@ export class StudentSessionError extends Error {
   }
 }
 
+function sanitizeApiErrorMessage(message: string, status: number): string {
+  const trimmed = message.trim()
+  if (!trimmed) {
+    return status >= 500
+      ? 'Something went wrong on our side. Please try again in a moment.'
+      : 'Could not complete this action. Please check your details and try again.'
+  }
+  if (/E11000|duplicate key|Mongo(Server)?Error|mongodb/i.test(trimmed)) {
+    return 'Something went wrong. Please try again.'
+  }
+  if (trimmed.length > 220) {
+    return status >= 500
+      ? 'Something went wrong on our side. Please try again in a moment.'
+      : 'Could not complete this action. Please try again.'
+  }
+  return trimmed
+}
+
 export function parseApiError(text: string, status: number) {
   try {
     const body = JSON.parse(text) as { error?: string }
-    if (body.error) return body.error
+    if (body.error) return sanitizeApiErrorMessage(body.error, status)
   } catch {
     /* plain text */
   }
-  if (text.trim()) return text
-  return `Request failed with ${status}`
+  if (text.trim()) return sanitizeApiErrorMessage(text, status)
+  return sanitizeApiErrorMessage('', status)
 }
 
 async function apiFetch<T>(path: string, init: RequestInitLite = {}): Promise<T> {

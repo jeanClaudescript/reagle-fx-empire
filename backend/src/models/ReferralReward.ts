@@ -20,7 +20,8 @@ const referralRewardSchema = new Schema<ReferralRewardDocument>(
     referrerId: { type: String, required: true, index: true },
     referredUserId: { type: String, required: true, index: true },
     rewardType: { type: String, enum: ['CASH', 'POINTS'], required: true, default: 'CASH', index: true },
-    paymentId: { type: String, sparse: true, unique: true },
+    /** Set only for CASH rewards (one per payment). POINTS rewards must omit this field. */
+    paymentId: { type: String },
     rewardAmount: { type: Number, required: true, min: 0 },
     currency: { type: String, required: true, default: 'RWF' },
     status: {
@@ -39,6 +40,13 @@ referralRewardSchema.index({ referredUserId: 1, status: 1 })
 referralRewardSchema.index(
   { referredUserId: 1, rewardType: 1 },
   { unique: true, partialFilterExpression: { rewardType: 'POINTS' } },
+)
+referralRewardSchema.index(
+  { paymentId: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { rewardType: 'CASH', paymentId: { $type: 'string' } },
+  },
 )
 
 export const ReferralRewardModel = model<ReferralRewardDocument>('ReferralReward', referralRewardSchema)

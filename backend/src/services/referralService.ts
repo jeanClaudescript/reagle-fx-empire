@@ -4,6 +4,7 @@ import { ReferralRewardModel } from '../models/ReferralReward.js'
 import { generateReferenceCode } from '../utils/referenceCode.js'
 import { normalizeEmail } from '../utils/email.js'
 import { getPaymentSettings } from './paymentSettingsService.js'
+import { isMongoDuplicateKeyError } from '../utils/userFacingError.js'
 
 export type ReferrerRejectReason =
   | 'invalid_code'
@@ -94,27 +95,41 @@ export async function creditReferrerPointsOnFreeSignup(referredUserId: string) {
   const points = settings.referralPointsPerSignup
   if (points <= 0) return null
 
-  const reward = await ReferralRewardModel.create({
-    referrerId: referred.referredByUserId,
-    referredUserId,
-    rewardType: 'POINTS',
-    rewardAmount: points,
-    currency: settings.currency,
-    status: 'CREDITED',
-    creditedAt: new Date(),
-  })
+  try {
+    const reward = await ReferralRewardModel.create({
+      referrerId: referred.referredByUserId,
+      referredUserId,
+      rewardType: 'POINTS',
+      rewardAmount: points,
+      currency: settings.currency,
+      status: 'CREDITED',
+      creditedAt: new Date(),
+    })
 
-  await AppUserModel.findByIdAndUpdate(referred.referredByUserId, {
-    $inc: { referralPoints: points },
-    updatedAt: new Date(),
-  })
+    await AppUserModel.findByIdAndUpdate(referred.referredByUserId, {
+      $inc: { referralPoints: points },
+      updatedAt: new Date(),
+    })
 
-  return reward
+    return reward
+  } catch (err) {
+    if (!isMongoDuplicateKeyError(err)) throw err
+    return (
+      (await ReferralRewardModel.findOne({
+        referredUserId,
+        rewardType: 'POINTS',
+        status: 'CREDITED',
+      })) ?? null
+    )
+  }
 }
 
 export function referralApplyErrorMessage(reason: ReferrerRejectReason): string | null {
   if (reason === 'self_referral') return 'You cannot use your own referral code'
   if (reason === 'same_contact') return 'This referral code cannot be used with your phone or email'
+  if (reason === 'invalid_code') return 'Referral code not found — check the code and try again'
+  if (reason === 'already_referred') return 'A referral code was already applied to this account'
+  if (reason === 'already_paid') return 'Referral codes apply before your first payment'
   return null
 }
 
@@ -146,23 +161,36 @@ export async function creditReferrerOnFirstPayment(paymentId: string, referredUs
 
   const settings = await getPaymentSettings()
   const rewardAmount = settings.referralRewardAmount
-  const reward = await ReferralRewardModel.create({
-    referrerId: referred.referredByUserId,
-    referredUserId,
-    rewardType: 'CASH',
-    paymentId,
-    rewardAmount,
-    currency: settings.currency,
-    status: 'CREDITED',
-    creditedAt: new Date(),
-  })
+  try {
+    const reward = await ReferralRewardModel.create({
+      referrerId: referred.referredByUserId,
+      referredUserId,
+      rewardType: 'CASH',
+      paymentId,
+      rewardAmount,
+      currency: settings.currency,
+      status: 'CREDITED',
+      creditedAt: new Date(),
+    })
 
-  await AppUserModel.findByIdAndUpdate(referred.referredByUserId, {
-    $inc: { walletBalance: rewardAmount },
-    updatedAt: new Date(),
-  })
+    await AppUserModel.findByIdAndUpdate(referred.referredByUserId, {
+      $inc: { walletBalance: rewardAmount },
+      updatedAt: new Date(),
+    })
 
-  return reward
+    return reward
+  } catch (err) {
+    if (!isMongoDuplicateKeyError(err)) throw err
+    return (
+      (await ReferralRewardModel.findOne({ paymentId })) ??
+      (await ReferralRewardModel.findOne({
+        referredUserId,
+        rewardType: 'CASH',
+        status: 'CREDITED',
+      })) ??
+      null
+    )
+  }
 }
 
 export async function listReferralRelationships(limit = 200) {
